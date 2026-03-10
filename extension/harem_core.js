@@ -94,7 +94,8 @@
             .dashboard-grid .box table tr:hover td, 
             .dashboard-grid .box table tr:hover th, 
             .dashboard-grid .box table tr:hover span,
-            .dashboard-grid .box table th:hover span { background: transparent !important; }
+            .dashboard-grid .box table th:hover span,
+            .dashboard-grid .box table a:hover { background: transparent !important; }
             .dashboard-grid .box table td,
             .dashboard-grid .box table th { background: transparent !important; }
 
