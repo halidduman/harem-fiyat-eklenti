@@ -235,7 +235,7 @@
     function getBoxName(box) {
         // Önce standart .head .title icinden aramayi dener (textContent sayfayı dondurmaz)
         let t = box.querySelector('.head .title');
-        let titleText = t ? t.textContent.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim() : '';
+        let titleText = t ? t.textContent.replace(/\s+/g, ' ').trim() : '';
 
         // Eger title bulunduysa dondur, yoksa ozel box'lari kontrol et
         if (titleText) return titleText;
@@ -266,8 +266,8 @@
             const nc = row.querySelector('td:first-child');
             if (!nc) return;
             // innerText taranmasi anlik reflow/render'a sebep olup titremeye yol acar.
-            const rawName = nc.textContent.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
-            let name = nc.textContent.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
+            const rawName = nc.textContent.replace(/\s+/g, ' ').trim();
+            let name = nc.textContent.replace(/\s+/g, ' ').trim();
 
             // Eğer ismin içinde bitişik kelime kaldıysa (örn: Hasyerine HAS ALTIN), düzeltmek zor olabilir.
             // Daha garanti bir yöntem için config'deki isimlerle kaba bir eşleşme yapıyoruz:
@@ -314,7 +314,7 @@
         sarrafBox.querySelectorAll('table tbody tr').forEach(row => {
             const nc = row.querySelector('td:first-child');
             if (nc) {
-                let name = nc.textContent.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim().replace(/\\s+/g, '');
+                let name = nc.textContent.replace(/\s+/g, ' ').trim().replace(/\s+/g, '');
                 sarrafNames.add(name);
             }
         });
@@ -322,7 +322,7 @@
         altinBox.querySelectorAll('table tbody tr').forEach(row => {
             const nc = row.querySelector('td:first-child');
             if (nc) {
-                let name = nc.textContent.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim().replace(/\\s+/g, '');
+                let name = nc.textContent.replace(/\s+/g, ' ').trim().replace(/\s+/g, '');
                 if (sarrafNames.has(name)) {
                     row.remove();
                 }
@@ -350,7 +350,7 @@
                     const nc = r.querySelector('td:first-child');
                     if (nc) {
                         // textContent ile hizli okuma (flicker yapmamasi icin innerText kullanmiyoruz)
-                        const rawName = nc.textContent.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
+                        const rawName = nc.textContent.replace(/\s+/g, ' ').trim();
                         // isimleri boşlukları silerek eşleştir
                         nameMap[rawName.replace(/\\s+/g, '')] = r;
                     }
@@ -374,7 +374,7 @@
             box.querySelectorAll('table tbody tr').forEach(row => {
                 const nc = row.querySelector('td:first-child');
                 if (nc) {
-                    names.push(nc.textContent.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim());
+                    names.push(nc.textContent.replace(/\s+/g, ' ').trim());
                 }
             });
             if (names.length) order[boxName] = names;
@@ -552,7 +552,7 @@
                 const nc = row.querySelector('td:first-child');
                 if (!nc) return;
                 // Ekranda okunabilir, ayni zamanda DOM'da da ayni okunan format
-                const name = nc.textContent.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
+                const name = nc.textContent.replace(/\s+/g, ' ').trim();
 
                 if (!name || seenInBox.has(name)) return;
                 seenInBox.add(name);
@@ -607,7 +607,7 @@
             rows.forEach(r => {
                 const nc = r.querySelector('td:first-child');
                 if (!nc) return;
-                const n = nc.textContent.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
+                const n = nc.textContent.replace(/\s+/g, ' ').trim();
                 if (n.replace(/\\s+/g, '') === srcName.replace(/\\s+/g, '')) sr = r;
                 if (n.replace(/\\s+/g, '') === dstName.replace(/\\s+/g, '')) dr = r;
             });
@@ -786,7 +786,7 @@
                 if (!nc) return;
 
                 // Hızlı okuma içi textContent
-                const rawName = nc.textContent.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
+                const rawName = nc.textContent.replace(/\s+/g, ' ').trim();
                 const safeDom = rawName.replace(/\\s+/g, '');
 
                 let pName = null;
