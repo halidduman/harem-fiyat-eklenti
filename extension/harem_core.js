@@ -10,11 +10,14 @@
     const DEFAULT_CONFIG = {
         logoUrl: '',
         logoLink: '',
-        prices: {},
-        hiddenRows: {},     // { 'YENI CEYREK': true } => gizli
-        rowOrder: {},       // { 'Altin Fiyatlari': ['HAS ALTIN', 'ONS', ...] }
-        visibility: {}      // { 'Altin Fiyatlari': true/false }
+        logoBase64: '',     // Yeni: Yerel dosya için base64 logo
+        prices: {},         // { 'HAS ALTIN': { buyOffset: 0, sellOffset: 0, bgColor: '', textColor: '' } }
+        hiddenRows: {},
+        rowOrder: {},
+        visibility: {}
     };
+
+    const DEFAULT_LOGO_B64 = 'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgMTU1OSAxMDgwIiBzaGFwZS1yZW5kZXJpbmc9Imdlb21ldHJpY1ByZWNpc2lvbiIgdGV4dC1yZW5kZXJpbmc9Imdlb21ldHJpY1ByZWNpc2lvbiI+PHBhdGggZmlsbD0iI2RjZGNkYyIgZD0iTSA2OTMuODI4MTI1IDY5NC4xMDE1NjIgTCA2NDAuNjI1IDY5My44MjgxMjUgTCA3MTguMzM1OTM4IDY5NC4xMDE1NjIgQyA3MTcuMzg2NzE5IDY5Ni44MTI1IDcxMi4yMzgyODEgNzA2LjE2NDA2MiA3MDkuMzkwNjI1IDcxMC43Njk1MzEgQyA3MDYuMjczNDM4IDcwNS40ODQzNzUgNzAxLjkzNzUgNjk3LjQ4ODI4MSA3MDAuNDQ1MzEyIDY5My42OTUzMTIgTCA2OTYuMjQ2MDk0IDY5NC4xMDE1NjIgQyA2OTkuNjMyODEyIDY5OC45ODA0NjkgNzA0LjUxMTcxOSA3MDcuNzg5MDYyIDcwNi45NTMxMjUgNzEzLjA3NDIxOSBDIDcwNi45NTMxMjUgNzEzLjg4NjcxOSA3MDcuMDg1OTM4IDcxNC44MzU5MzggNzA3LjA4NTkzOCA3MTUuNzg1MTU2IEMgNzA3LjA4NTkzOCA3MTkuNTgyMDMxIDcwNi44MTY0MDYgNzI0LjU5Mzc1IDcwNi41NDY4NzUgNzI4LjUyNzM0NCBMIDcxMC4zMzk4NDQgNzI4LjUyNzM0NCBDIDcxMC4wNzAzMTIgNzI0LjQ2MDkzOCA3MDkuNzk2ODc1IDcxOS41ODIwMzEgNzA5Ljc5Njg3NSA3MTUuNzg1MTU2IEMgNzA5Ljc5Njg3NSA3MTQuNTY2NDA2IDcwOS43OTY4NzUgNzEzLjM0NzY1NiA3MDkuNzk2ODc1IDcxMi4zOTg0MzggQyA3MTMuNDU3MDMxIDcwNS4zNTE1NjIgNzE4LjYwOTM3NSA2OTYuMTMyODEyIDcyMC42NDA2MjUgNjkzLjgyODEyNSBaIE0gNzIwLjY0MDYyNSA2OTMuODI4MTI1ICIgZmlsbC1vcGFjaXR5PSIxIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBmaWxsPSIjZGNkY2RjIiBkPSJNIDc2Ny42MTMyODEgNjk0LjEwMTU2MiBDIDc2OC4wMTk1MzEgNjk3LjQ4ODI4MSA3NjguMDE5NTMxIDcwMy44NTkzNzUgNzY4LjAxOTUzMSA3MDkuODI0MjE5IEMgNzY4LjAxOTUzMSA3MTEuOTkyMTg4IDc2OC4wMTk1MzEgNzE0LjE2MDE1NiA3NjguMDE5NTMxIDcxNi4wNTg1OTQgQyA3NjguMDE5NTMxIDcyMy4zNzUgNzY0LjIyNjU2MiA3MjguNTI3MzQ0IDc1OC4yNjE3MTkgNzI4LjUyNzM0NCBDIDc1MS4wNzgxMjUgNzI4LjUyNzM0NCA3NDcuODI4MTI1IDcyMi45Njg3NSA3NDcuODI4MTI1IDcxNS43ODUxNTYgQyA3NDcuODI4MTI1IDcwOC40Njg3NSA3NDcuNjkxNDA2IDcwMS40MTc5NjkgNzQ4LjM2NzE4OCA2OTQuMTAxNTYyIEwgNzQ0LjU3NDIxOSA2OTQuMTAxNTYyIEMgNzQ0Ljg0Mzc1IDY5NiA3NDQuODQzNzUgNjk5LjExNzE4OCA3NDQuODQzNzUgNzAyLjc3MzQzOCBDIDt0NDQuODQzNzUgNzA2LjcwNzAzMSA3NDQuODQzNzUgNzExLjE3NTc4MSA3NDQuODQzNzUgNzE0Ljk3MjY1NiBDIDt0NDQuODQzNzUgNzI1LjI3MzQzOCA3NTAuNDAyMzQ0IDcyOS40NzI2NTYgNzU3LjE3OTY4OCA3MjkuNDcyNjU2IEMgNzY0LjA4OTg0NCA3MjkuNDcyNjU2IDc2OS4xMDU0NjkgNzI1LjQxMDE1NiA3NjkuMTA1NDY5IDcxNS4xMDkzNzUgQyA3NjkuMTA1NDY5IDcwOC4xOTUzMTIgNzY5LjEwNTQ2OSA2OTcuNzYxNzcxIDc2OS4zNzUgNjk0LjEwMTU2MiBaIE0gNzY3LjYxMzI4MSA2OTQuMTAxNTYyICIgZmlsbC1vcGFjaXR5PSIxIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBmaWxsPSIjZGNkY2RjIiBkPSJNIDgyMS41NjI1IDY5NC41MDc4MTIgQyA4MTkuMjU3ODEyIDcwMy41ODU5MzggODE1LjA1ODU5NCA3MTYuNDY0ODQ0IDgxMi40ODA0NjkgNzI0LjMyNDIxOSBDIDgwOS4yMzA0NjkgNzE1LjEwOTM3NSA4MDQuODkwNjI1IDcwMC4wNjI1IDgwMy41MzUxNTYgNjkzLjU1ODU5NCBMIDgwMC4wMTE3MTkgNjk0LjUwNzgxMiBDIDc5OC4zODY3MTkgNzA1Ljg5MDYyNSA3OTQuODYzMjgxIDcyNC4xODc1IDc5My4zNzEwOTQgNzI4Ljc5Njg3NSBMIDc5NS41MzkwNjIgNzI4LjUyNzM0NCBDIDc5Ni4zNTU0NjkgNzIyLjgzMjAzMSA3OTguOTI5Njg4IDcwNi4yOTY4NzUgODAwLjk2MDkzOCA2OTcuMjE4NzUgQyA4MDIuODU5Mzc1IDcwMS41NTQ2ODggODA4LjY4NzUgNzIyLjI5Mjk2OSA4MTAuMDQyOTY5IDcyOS4wNjY0MDYgTCA4MTMuMDIzNDM4IDcyOC4yNTM5MDYgQyA4MTQuNjUyMzQ0IDcyMS40NzY1NjIgODE5LjI1NzgxMiA3MDUuNDg0Mzc1IDgyMi4zNzUgNjk3LjIxODc1IEMgODIzLjczMDQ2OSA3MDEuNjkxNDA2IDgyNy4xMjEwOTQgNzIyLjQyNTc4MSA4MjcuNjYwMTU2IDcyOS4wNjY0MDYgTCA4MzEuNzI2NTYyIDcyOC41MjczNDQgQyA4MjkuMTUyMzQ0IDcyMC4xMTIxMDk0IDgyNi4zMDQ2ODggNzAxLjI4NTE1NiA4MjUuMDg1OTM4IDY5My41NTg1OTQgWiBNIDgyMS41NjI1IDY5NC41MDc4MTIgIiBmaWxsLW9wYWNpdHk9IjEiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGZpbGw9IiNkY2RjZGMiIGQ9Ik0gODgyLjAxOTUzMSA2OTUuNTg5ODQ0IEMgODc5LjU3ODEyNSA2OTQuMTAxNTYyIDg3Ni4xOTE0MDYgNjkzLjE1MjM0NCA4NzIuMjU3ODEyIDY5My4xNTIzNDQgQyA4NjcuMTA5Mzc1IDY5My4xNTIzNDQgODU0LjkxMDE1NiA2OTUuMTgzNTk0IDg1NC45MTAxNTYgNzExLjcxODc1IEMgODU0LjkxMDE1NiA3MjIuNTYyNSA4NjIuMzY3MTg4IDcyOS4zMzk4NDQgODcxLjk4ODI4MSA3MjkuMzM5ODQ0IEMgODc2LjQ2MDkzOCA3MjkuMzM5ODQ0IDg3OS40NDE0MDYgNzI4LjUyNzM0NCA4ODEuMjAzMTI1IDcyNy41NzgxMjUgTCA4ODAuNTI3MzQ0IDcyNS45NDkyMTkgQyA4NzkuMTcxODc1IDcyNy41NzgxMjUgODc2LjczMDQ2OSA3MjguNTI3MzQ0IDg3Mi44MDA3ODEgNzI4LjUyNzM0NCBDIDg2NS4zNDc2NTYgNzI4LjUyNzM0NCA4NTguNzA3MDMxIDcyMi4yOTI5NjkgODU4LjcwNzAzMSA3MTAuNjM2NzE5IEMgODU4LjcwNzAzMSA2OTguNTc0MjE5IDg2NC41MzUxNTYgNjkzLjk2NDg0NCA4NzIuMjU3ODEyIDY5My45NjQ4NDQgQyA4NzYuMzI0MjE5IDY5My45NjQ4NDQgODc4Ljc2NTYyNSA2OTUuODYzMjgxIDg4MC41MjczNDQgNjk4LjAzMTI1IFogTSA4ODIuMDE5NTMxIDY5NS41ODk4NDQgIiBmaWxsLW9wYWNpdHk9IjEiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGZpbGw9IiNkY2RjZGMiIGQ9Ik0gOTI5Ljk3NjU2MiA2OTQuMTAxNTYyIEMgOTMwLjM4MjgxMiA2OTcuNDg4MjgxIDkzMC4zODI4MTIgNzAzLjg1OTM3NSA5MzAuMzgyODEyIDcwOS44MjQyMTkgQyA5MzAuMzgyODEyIDcxMS45OTIxODggOTMwLjM4MjgxMiA3MTQuMTYwMTU2IDkzMC4zODI4MTIgNzE2LjA1ODU5NCBDIDkzMC4zODI4MTIgNzIzLjM3NSA5MjYuNTg1OTM4IDcyOC41MjczNDQgOTIwLjYyNSA3MjguNTI3MzQ0IEMgOTEzLjQ0MTQwNiA3MjguNTI3MzQ0IDkxMC4xODc1IDcyMi45Njg3NSA5MTAuMTg3NSA3MTUuNzg1MTU2IEMgOTEwLjE4NzUgNzA4LjQ2ODc1IDkxMC4wNTA3ODEgNzAxLjQxNzk2OSA5MTAuNzMwNDY5IDY5NC4xMDE1NjIgTCA5MDYuOTMzNTk0IDY5NC4xMDE1NjIgQyA5MDcuMjA3MDMxIDY5NiA5MDcuMjA3MDMxIDY5OS4xMTcxODggOTA3LjIwNzAzMSA3MDIuNzczNDM4IEMgOTA3LjIwNzAzMSA3MDYuNzA3MDMxIDkxMC43MDcwMzEgNzExLjE3NTc4MSA5MDcuMjA3MDMxIDcxNC45NzI2NTYgQyA5MDcuMjA3MDMxIDcyNS4yNzM0MzggOTEyLjc2MTcxOSA3MjkuNDcyNjU2IDkxOS41MzkwNjIgNzI5LjQ3MjY1NiBDIDkyNi40NTMxMjUgNzI5LjQ3MjY1NiA5MzEuNDY0ODQ0IDcyNS40MTAxNTYgOTMxLjQ2NDg0NCA3MTUuMTA5Mzc1IEMgOTMxLjQ2NDg0NCA3MDguMTk1MzEyIDkzMS40NjQ4NDQgNjk3Ljc2MTcxOSA5MzEuNzM4MjgxIDY5NC4xMDE1NjIgWiBNIDkyOS45NzY1NjIgNjk0LjEwMTU2MiAiIGZpbGwtb3BhY2l0eT0iMSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZmlsbD0iI2RjZGNkYyIgZD0iTSA5NTguNzIyNjU2IDcyOC41MjczNDQgQyA5NjIuMTEzMjgxIDcyOC41MjczNDQgOTY0LjY4NzUgNzI4LjUyNzM0NCA5NjYuOTkyMTg4IDcyOC41MjczNDQgQyA5NzAuMjQyMTg4IDcyOC41MjczNDQgOTcyLjk1MzEyNSA3MjguNTI3MzQ0IDk3Ni4wNzAzMTIgNzI4LjY2MDE1NiBMIDk3Ni42MTMyODEgNzI2LjQ5MjE4OCBDIDk3Mi45NTMxMjUgNzI3LjQ0MTQwNiA5NjkuNzAzMTI1IDcyNy43MTA5MzggOTY1Ljc2OTUzMSA3MjcuNzEwOTM4IEMgOTY0LjY4NzUgNzI3LjcxMDkzOCA5NjMuNDY4NzUgNzI3LjcxMDkzOCA5NjIuMjQ2MDk0IDcyNy43MTA5MzggQyA5NjIuMTEzMjgxIDcyNC4xODc1IDk2MS45NzY1NjIgNzE4LjYzMjgxMiA5NjEuOTc2NTYyIDcxMi44MDQ2ODggQyA5NjEuOTc2NTYyIDcwNi4wMjczNDQgOTYyLjExMzI4MSA2OTguOTgwNDY5IDk2Mi4zODI4MTIgNjk0LjEwMTU2MiBMIDk1OC43MjI2NTYgNjk0LjEwMTU2MiBDIDk1OC45OTYwOTQgNjk4Ljk4MDQ2OSA5NTkuMTI4OTA2IDcwNi4yOTY4NzUgOTU5LjEyODkwNiA3MTMuMDc0MjE5IEMgOTU5LjEyODkwNiA3MTkuODUxNTYyIDk1OC45OTYwOTQgNzI2LjA4NTkzOCA5NTguNzIyNjU2IDcyOC41MjczNDQgWiBNIDk1OC43MjI2NTYgNzI4LjUyNzM0NCAiIGZpbGwtb3BhY2l0eT0iMSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZmlsbD0iI2RjZGNkYyIgZD0iTSAxMDIzLjcxNDg0NCA2OTQuMTAxNTYyIEMgMTAyNC4xMjEwOTQgNjk3LjQ4ODI4MSAxMDI0LjEyMTA5NCA3MDMuODU5Mzc1IDEwMjQuMTIxMDk0IDcwOS44MjQyMTkgQyAxMDI0LjEyMTA5NCA3MTEuOTkyMTg4IDEwMjQuMTIxMDk0IDcxNC4xNjAxNTYgMTAyNC4xMjEwOTQgNzE2LjA1ODU5NCBDIDEwMjQuMTIxMDk0IDcyMy4zNzUgMTAyMC4zMjgxMjUgNzI4LjUyNzM0NCAxMDE0LjM2MzI4MSA3MjguNTI3MzQ0IEMgMTAwNy4xNzk2ODggNzI4LjUyNzM0NCAxMDAzLjkyOTY4OCA3MjIuOTY4NzUgMTAwMy45Mjk2ODggNzE1Ljc4NTE1NiBDIDEwMDMuOTI5Njg4IDcwOC40Njg3NSAxMDAzLjc5Mjk2OSA3MDEuNDE3OTY5IDEwMDQuNDY4NzUgNjk0LjEwMTU2MiBMIDEwMDAuNjc1NzgxIDY5NC4xMDE1NjIgQyAxMDAwLjk0NTMxMiA2OTYgMTAwMC45NDUzMTIgNjk5LjExNzE4OCAxMDAwLjk0NTMxMiA3MDIuNzczNDM4IEMgMTAwMC45NDUzMTIgNzA2LjcwNzAzMSAxMDAwLjk0NTMxMiA3MTEuMTc1NzgxIDEwMDAuOTQ1MxEyIDcxNC45NzI2NTYgQyAxMDAwLjk0NTMxMiA3MjUuMjczNDM4IDEwMDYuNTAzOTA2IDcyOS40NzI2NTYgMTAxMy4yODEyNSA3MjkuNDcyNjU2IEMgMTAyMC4xOTE0MDYgNzI5LjQ3MjY1NiAxMDI1LjIwNzAzMSA3MjUuNDEwMTU2IDEwMjUuMjA3MDMxIDcxNS4xMDkzNzUgQyAxMDI1LjIwNzAzMSA3MDguMTk1MzEyIDEwMjUuMjA3MDMxIDY5Ny43NjE3MTkgMTAyNS40NzY1NjIgNjk0LjEwMTU2MiBaIE0gMTAyMy43MTQ4NDQgNjk0LjEwMTU2MiAiIGZpbGwtb3BhY2l0eT0iMSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZmlsbD0iI2RjZGNkYyIgZD0iTSAxMDUyLjQ1NzAzMSA2OTQuMTAxNTYyIEMgMTA1Mi41ODk4NDQgNzAxLjE0ODQzOCAxMDUyLjcyNjU2MiA3MDYuNzA3MDMxIDEwNTIuNzI2NTYyIDcxMi4yNjE3MTkgQyAxMDUyLjcyNjU2MiA3MTcuNDE0MDYyIDEwNTIuNTg5ODQ0IDcyMi41NjI1IDEwNTIuNDU3MDMxIDcyOC41MjczNDQgTCAxMDU1LjcwNzAzMSA3MjguNTI3MzQ0IEMgMTA1NS40Mzc1IDcyMi40MjU3ODEgMTA1NS4zMDA3ODEgNzE3LjI3NzM0NCAxMDU1LjMwMDc4MSA3MTIuMTI1IEMgMTA1NS4zMDA3ODEgNzA2LjU3MDMxMiAxMDU1LjQzNzUgNzAxLjAxMTcxOSAxMDU1LjcwNzAzMSA2OTQuMTAxNTYyIFogTSAxMDU3LjMzNTkzOCA3MTAuNSBDIDEwNTcuNDY4NzUgNzEwLjUgMTA1OC42OTE0MDYgNzEwLjM2MzI4MSAxMDU5LjYzNjcxOSA3MTAuNjM2NzE5IEMgMTA2NS4wNTg1OTQgNzExLjcxODc1IDEwNjkuODA0Njg4IDcxOC4wODk4NDQgMTA3MS4wMjM0MzggNzI4Ljc5Njg3NSBMIDEwNzUuMjI2NTYyIDcyOC4zOTA2MjUgQyAxMDc0LjE0MDYyNSA3MjQuMzI0MjE5IDEwNzAuNjE3MTg4IDcxMS45OTIxODggMTA2MC45OTIxODggNzEwLjIzMDQ2OSBDIDEwNjguNDQ5MjE5IDcwOS45NTcwMzEgMTA3Mi45MjE4NzUgNzAxLjU1NDY4OCAxMDU5LjM2NzE4OSA2OTQuMTAxNTYyIEwgMTA2OS41MzEyNSA2OTQuMTAxNTYyIEMgMTA3MC40ODA0NjkgNzAyLjA5NzY1NiAxMDY2LjY4NzUgNzA5LjgyNDIxOSAxMDU5LjM2NzE4OCA3MDkuNjg3NSBDIDEwNTguODI0MjE5IDcwOS42ODc1IDEwNTguMTQ4NDM4IDcwOS42ODc1IDEwNTcuNDY4NzUgNzA5LjU1MDc4MSBaIE0gMTA1Ny4zMzU5MzggNzEwLjUgIiBmaWxsLW9wYWNpdHk9IjEiIGZpbGwtcnVsZT0ibm9uemVybyIvPjwvc3ZnPg==';
 
     let config = loadConfig();
 
@@ -176,6 +179,7 @@
             return {
                 logoUrl: parsed.logoUrl || '',
                 logoLink: parsed.logoLink || '',
+                logoBase64: parsed.logoBase64 || '',
                 prices: parsed.prices || {},
                 hiddenRows: parsed.hiddenRows || {},
                 rowOrder: parsed.rowOrder || {},
@@ -205,24 +209,25 @@
 
     function buildLogoEl(link) {
         link.innerHTML = '';
-        if (config.logoUrl) {
+        if (config.logoBase64) {
+            const img = document.createElement('img');
+            img.className = 'nl-img';
+            img.src = config.logoBase64;
+            img.alt = 'Logo';
+            link.appendChild(img);
+        } else if (config.logoUrl) {
             const img = document.createElement('img');
             img.className = 'nl-img';
             img.src = config.logoUrl;
             img.alt = 'Logo';
             link.appendChild(img);
         } else {
-            const svgEl = document.querySelector('header svg#logo, .header svg#logo');
-            if (svgEl) {
-                const clone = svgEl.cloneNode(true);
-                clone.style.cssText = 'width:50px;height:50px;fill:#FFD700;';
-                link.appendChild(clone);
-            } else {
-                const span = document.createElement('span');
-                span.className = 'nl-text';
-                span.textContent = '\u2736 HAREM ALTIN';
-                link.appendChild(span);
-            }
+            // "fetih-logo.svg" varsayılan (B64 icinde)
+            const img = document.createElement('img');
+            img.className = 'nl-img';
+            img.src = 'data:image/svg+xml;base64,' + DEFAULT_LOGO_B64;
+            img.alt = 'Logo';
+            link.appendChild(img);
         }
     }
 
@@ -283,6 +288,18 @@
                 row.setAttribute('data-harem-hidden', 'true');
             } else {
                 row.removeAttribute('data-harem-hidden');
+                // Kayıtlı renkleri uygula
+                for (let k in config.prices) {
+                    if (k.replace(/\s+/g, '') === rawName.replace(/\s+/g, '')) {
+                        const pc = config.prices[k];
+                        if (pc.bgColor) row.style.backgroundColor = pc.bgColor;
+                        else row.style.removeProperty('background-color');
+
+                        if (pc.textColor) row.style.color = pc.textColor;
+                        else row.style.removeProperty('color');
+                        break;
+                    }
+                }
             }
         });
     }
@@ -419,7 +436,12 @@
 </div>
 <div class="adm-pane" id="adm-logo">
   <div class="fg">
-    <span class="fl">Logo URL</span>
+    <span class="fl">Logo Dosyasi (SVG/PNG)</span>
+    <input type="file" id="adm-logo-file" accept="image/svg+xml,image/png,image/jpeg">
+    <div id="adm-logo-preview" style="margin-top:10px;text-align:center;"></div>
+  </div>
+  <div class="fg">
+    <span class="fl">Veya Logo URL</span>
     <input type="text" id="adm-logo-url" placeholder="https://ornek.com/logo.png">
   </div>
   <div class="fg">
@@ -635,15 +657,24 @@
             const name = nc.textContent.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
             if (!name || seen.has(name)) return;
             seen.add(name);
-            const c = config.prices[name] || { buyOffset: 0, sellOffset: 0 };
+            const c = config.prices[name] || { buyOffset: 0, sellOffset: 0, bgColor: '', textColor: '' };
             const item = document.createElement('div');
             item.className = 'api';
             item.dataset.n = name;
             item.innerHTML = `
 <span class="apn">${name}</span>
-<div class="og">
-  <div style="flex:1"><span class="fl">Alis Farki</span><input type="number" class="bo" value="${c.buyOffset}" step="0.01"></div>
-  <div style="flex:1"><span class="fl">Satis Farki</span><input type="number" class="so" value="${c.sellOffset}" step="0.01"></div>
+<div class="og" style="flex-direction:column;gap:10px;">
+  <div style="display:flex;gap:8px;">
+    <div style="flex:1"><span class="fl">Alis Farki</span><input type="number" class="bo" value="${c.buyOffset}" step="0.01"></div>
+    <div style="flex:1"><span class="fl">Satis Farki</span><input type="number" class="so" value="${c.sellOffset}" step="0.01"></div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <div style="flex:1"><span class="fl">Arka Plan</span><input type="color" class="bg-col" value="${c.bgColor || '#1a1a1a'}"></div>
+    <div style="flex:1"><span class="fl">Yazi Rengi</span><input type="color" class="txt-col" value="${c.textColor || '#e0e0e0'}"></div>
+    <div style="width:40px;display:flex;align-items:center;justify-content:center;">
+       <button class="hb hb-s" style="padding:4px 8px;font-size:10px;" onclick="this.parentNode.parentNode.querySelectorAll('input[type=color]').forEach(i=>i.value=i.defaultValue);return false;">X</button>
+    </div>
+  </div>
 </div>`;
             el.appendChild(item);
         });
@@ -652,8 +683,35 @@
     function loadAdminValues() {
         const lu = document.getElementById('adm-logo-url');
         const ll = document.getElementById('adm-logo-link');
+        const lpv = document.getElementById('adm-logo-preview');
+
         if (lu) lu.value = config.logoUrl || '';
         if (ll) ll.value = config.logoLink || '';
+
+        if (lpv) {
+            lpv.innerHTML = '';
+            const testSrc = config.logoBase64 || config.logoUrl || ('data:image/svg+xml;base64,' + DEFAULT_LOGO_B64);
+            const img = document.createElement('img');
+            img.style.maxHeight = '60px';
+            img.src = testSrc;
+            lpv.appendChild(img);
+        }
+
+        // Logo file listener
+        const lf = document.getElementById('adm-logo-file');
+        if (lf) {
+            lf.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (re) => {
+                    config.logoBase64 = re.target.result;
+                    if (lpv) lpv.querySelector('img').src = config.logoBase64;
+                };
+                reader.readAsDataURL(file);
+            };
+        }
+
         loadSectionsTab();
         loadRowsTab();
         loadPricesTab();
@@ -687,13 +745,25 @@
             });
         });
 
-        // Fiyatlar
+        // Fiyatlar & Renkler
         config.prices = {};
         document.querySelectorAll('.api').forEach(item => {
             const name = item.dataset.n;
             const buy = parseFloat(item.querySelector('.bo').value) || 0;
             const sell = parseFloat(item.querySelector('.so').value) || 0;
-            if (buy !== 0 || sell !== 0) config.prices[name] = { buyOffset: buy, sellOffset: sell, type: 'fixed' };
+            const bg = item.querySelector('.bg-col').value;
+            const txt = item.querySelector('.txt-col').value;
+
+            // Default olmayan renkleri veya farklari kaydet
+            if (buy !== 0 || sell !== 0 || bg !== '#1a1a1a' || txt !== '#e0e0e0') {
+                config.prices[name] = {
+                    buyOffset: buy,
+                    sellOffset: sell,
+                    bgColor: bg === '#1a1a1a' ? '' : bg,
+                    textColor: txt === '#e0e0e0' ? '' : txt,
+                    type: 'fixed'
+                };
+            }
         });
 
         saveConfig();
