@@ -1,0 +1,23 @@
+# Görevler: Harem Altın Özelleştirilebilir Eklenti ve Proxy Sistemi
+
+- [ ] **Araştırma ve Planlama**
+    - [ ] Hedef sitenin (canlipiyasalar.haremaltin.com) HTML yapısının analizi (mümkünse)
+    - [ ] Çözüm Mimarisi ve En İyi Yöntem Belirlenmesi (Extension vs Proxy)
+    - [ ] `implementation_plan.md` oluşturulması
+
+- [ ] **Çekirdek Modüllerin Geliştirilmesi (Vanilla JS)**
+    - [ ] `logo_manager.js`: Logo değiştirme fonksiyonu
+    - [ ] `price_manager.js`: Fiyat manipülasyonu ve MutationObserver yapısı
+    - [ ] `admin_panel.js`: Yönetim paneli UI ve ayar yönetimi
+    - [ ] `storage.js`: Ayarların saklanması (LocalStorage adaptation)
+
+- [ ] **Tarayıcı Eklentisi (Chrome Extension)**
+    - [ ] `manifest.json`
+    - [ ] Content Script entegrasyonu
+
+- [ ] **Sunucu Bazlı Çözüm (Cloudflare Worker / Reverse Proxy)**
+    - [ ] Cloudflare Worker scripti (HTML rewrite ve script injection)
+
+- [ ] **Dokümantasyon ve Teslim**
+    - [ ] Kurulum ve kullanım talimatları
+    - [ ] Kodların birleştirilmesi ve sunumu

@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Harem Altın Özelleştirici",
+  "version": "1.0",
+  "description": "Harem Altın Canlı Piyasalar sayfası için özelleştirme ve yönetim aracı.",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "*://canlipiyasalar.haremaltin.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://canlipiyasalar.haremaltin.com/*"
+      ],
+      "js": [
+        "harem_core.js"
+      ],
+      "run_at": "document_end"
+    }
+  ]
+}
