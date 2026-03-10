@@ -38,23 +38,26 @@
                 position:sticky; top:0; left:0; right:0; z-index:9000;
                 display:flex; align-items:center; justify-content:center;
                 padding:12px 24px;
-                background:linear-gradient(135deg,#1a1a1a,#2a2a2a);
-                border-bottom:1px solid rgba(255,215,0,.2);
+                background:#141414;
                 box-shadow:0 4px 20px rgba(0,0,0,.4);
             }
             #harem-custom-navbar .nl { display:flex;align-items:center;text-decoration:none;cursor:pointer; }
             #harem-custom-navbar .nl-img {
                 max-height:54px;max-width:220px;object-fit:contain;
-                filter:drop-shadow(0 2px 8px rgba(255,215,0,.25));
-                transition:filter .3s,transform .3s;
             }
-            #harem-custom-navbar .nl-img:hover { filter:drop-shadow(0 4px 16px rgba(255,215,0,.5));transform:scale(1.04); }
+            /* Color Theme #e9907a */
             #harem-custom-navbar .nl-text {
-                color:#FFD700;font-family:'Segoe UI',Arial,sans-serif;
+                color:#e9907a;font-family:'Segoe UI',Arial,sans-serif;
                 font-size:22px;font-weight:700;letter-spacing:2px;
                 padding:8px 16px;border-radius:8px;transition:background .2s;
             }
-            #harem-custom-navbar .nl-text:hover { background:rgba(255,215,0,.1); }
+            #harem-custom-navbar .nl-text:hover { background:rgba(233,144,122,.1); }
+
+            /* Basliklar icin ozel modern font */
+            @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&display=swap');
+            .dashboard-grid .box tbody td .item.title, .box .head .title, .adm-hdr h3, .rsg-ttl {
+                font-family: 'Plus Jakarta Sans', sans-serif !important;
+            }
 
             section.dashboard-content,.dashboard-content.container-fluid {
                 padding-left:80px!important;padding-right:80px!important;padding-top:24px!important;
@@ -83,15 +86,42 @@
             }
             #harem-admin-modal.open { display:flex; }
 
-            .adm-hdr { background:#252525;padding:18px 28px;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center;flex-shrink:0; }
-            .adm-hdr h3 { margin:0;font-size:19px;color:#FFD700;font-weight:600; }
+            .dashboard-grid .box table { border-collapse: separate !important; border-spacing: 0 8px !important; width: 100%; }
+            .dashboard-grid .box tbody tr { background: #1a1a1a; transition: transform 0.2s, background 0.2s, color 0.2s; border-radius: 8px; }
+            .dashboard-grid .box tbody tr:hover { transform: translateY(-1px); background: #222; }
+            
+            /* Harem altinin default span veya div hoverlari yuzunden cikan renkleri iptal et */
+            .dashboard-grid .box table tr:hover td, 
+            .dashboard-grid .box table tr:hover th, 
+            .dashboard-grid .box table tr:hover span,
+            .dashboard-grid .box table th:hover span { background: transparent !important; }
+            .dashboard-grid .box table td,
+            .dashboard-grid .box table th { background: transparent !important; }
+
+            .dashboard-grid .box tbody td {
+                border-top: 1px solid #333 !important;
+                border-bottom: 1px solid #333 !important;
+            }
+            .dashboard-grid .box tbody td:first-child {
+                border-left: 1px solid #333 !important;
+                border-top-left-radius: 8px;
+                border-bottom-left-radius: 8px;
+            }
+            .dashboard-grid .box tbody td:last-child {
+                border-right: 1px solid #333 !important;
+                border-top-right-radius: 8px;
+                border-bottom-right-radius: 8px;
+            }
+
+            .adm-hdr { background:#252525;padding:18px 28px;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center;flex-shrink:0; border-radius: 16px 16px 0 0; }
+            .adm-hdr h3 { margin:0;font-size:19px;color:#e9907a;font-weight:600; display:flex; align-items:center; }
             .adm-close { cursor:pointer;font-size:24px;color:#888;transition:color .2s;line-height:1; }
             .adm-close:hover { color:#fff; }
 
             .adm-tabs { display:flex;background:#1f1f1f;border-bottom:1px solid #333;flex-shrink:0; }
             .adm-tab { padding:11px 20px;cursor:pointer;color:#888;font-size:13px;font-weight:500;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;user-select:none; }
             .adm-tab:hover { color:#ccc; }
-            .adm-tab.active { color:#FFD700;border-bottom-color:#FFD700; }
+            .adm-tab.active { color:#e9907a;border-bottom-color:#e9907a; }
 
             .adm-pane { display:none;padding:20px 28px;overflow-y:auto;flex:1; }
             .adm-pane::-webkit-scrollbar { width:6px; }
@@ -106,7 +136,7 @@
                 width:100%;padding:9px 12px;background:#0f0f0f;border:1px solid #333;
                 color:#fff;border-radius:8px;font-size:13px;box-sizing:border-box;transition:border-color .2s;
             }
-            #harem-admin-modal input:focus { border-color:#FFD700;outline:none; }
+            #harem-admin-modal input:focus { border-color:#e9907a;outline:none; }
 
             .sc {
                 display:flex;align-items:center;gap:12px;background:#252525;padding:12px 14px;
@@ -114,7 +144,7 @@
                 cursor:grab;transition:background .15s,border-color .15s;user-select:none;
             }
             .sc:hover { background:#2d2d2d; }
-            .sc.dot { border-top:2px solid #FFD700; }
+            .sc.dot { border-top:2px solid #e9907a; }
             .dh { color:#555;font-size:18px;cursor:grab;flex-shrink:0; }
             .sc-lbl { flex:1;font-size:14px;color:#e0e0e0; }
 
@@ -122,18 +152,18 @@
             .tgl input { display:none; }
             .ts { position:absolute;inset:0;background:#444;border-radius:22px;cursor:pointer;transition:background .2s; }
             .ts::before { content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .2s; }
-            .tgl input:checked+.ts { background:#FFD700; }
+            .tgl input:checked+.ts { background:#e9907a; }
             .tgl input:checked+.ts::before { transform:translateX(20px); }
 
             .rsg { margin-bottom:18px; }
-            .rsg-ttl { font-size:11px;color:#FFD700;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;padding:4px 0;border-bottom:1px solid #333; }
+            .rsg-ttl { font-size:11px;color:#e9907a;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;padding:4px 0;border-bottom:1px solid #333; }
             .rc {
                 display:flex;align-items:center;gap:10px;background:#252525;padding:10px 14px;
                 border-radius:8px;margin-bottom:6px;border:1px solid #333;
                 cursor:grab;user-select:none;transition:background .15s,border-color .15s;
             }
             .rc:hover { background:#2d2d2d; }
-            .rc.dot { border-top:2px solid #FFD700; }
+            .rc.dot { border-top:2px solid #e9907a; }
             .rc-lbl { flex:1;font-size:13px;color:#e0e0e0; }
 
             .apg { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
@@ -141,11 +171,14 @@
             .apn { font-weight:600;color:#fff;margin-bottom:8px;display:block;font-size:12px; }
             .og { display:flex;gap:8px; }
 
-            .adm-ftr { padding:16px 28px;background:#252525;border-top:1px solid #333;display:flex;gap:10px;justify-content:flex-end;flex-shrink:0; }
+            .adm-ftr { padding:16px 28px;background:#252525;border-top:1px solid #333;display:flex;gap:10px;justify-content:flex-end;flex-shrink:0; border-radius: 0 0 16px 16px; }
+            .pcl { display:flex; gap:4px; margin-top:2px; flex-wrap:wrap; }
+            .pc { width:16px; height:16px; border-radius:50%; cursor:pointer; border:1px solid #333; }
+            .pc:hover { transform:scale(1.1); }
             .hb { padding:10px 22px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;transition:opacity .2s,transform .1s; }
             .hb:hover { opacity:.9; }
             .hb:active { transform:scale(.98); }
-            .hb-p { background:#FFD700;color:#000; }
+            .hb-p { background:#e9907a;color:#000; }
             .hb-d { background:#cf3535;color:#fff; }
             .hb-s { background:#333;color:#ccc; }
 
@@ -292,11 +325,61 @@
                 for (let k in config.prices) {
                     if (k.replace(/\s+/g, '') === rawName.replace(/\s+/g, '')) {
                         const pc = config.prices[k];
-                        if (pc.bgColor) row.style.backgroundColor = pc.bgColor;
-                        else row.style.removeProperty('background-color');
+                        if (pc.bgColor) {
+                            // Hex to RGB
+                            let r = 0, g = 0, b = 0;
+                            let hex = pc.bgColor.replace('#', '');
+                            if (hex.length === 3) {
+                                r = parseInt(hex[0] + hex[0], 16);
+                                g = parseInt(hex[1] + hex[1], 16);
+                                b = parseInt(hex[2] + hex[2], 16);
+                            } else if (hex.length === 6) {
+                                r = parseInt(hex.substring(0, 2), 16);
+                                g = parseInt(hex.substring(2, 4), 16);
+                                b = parseInt(hex.substring(4, 6), 16);
+                            }
 
-                        if (pc.textColor) row.style.color = pc.textColor;
-                        else row.style.removeProperty('color');
+                            // Arka plani ekstra koyulastir (esas rengin cok kucuk bir yuzdesini karanlik griye ekle)
+                            const baseDark = 22; // ~#161616 base
+                            const tintFactor = 0.15; // 15% tint
+                            row.style.backgroundColor = `rgba(${baseDark + r * tintFactor}, ${baseDark + g * tintFactor}, ${baseDark + b * tintFactor}, 1)`;
+
+                            const borderColor = `rgba(${Math.min(r * 0.9, 255)}, ${Math.min(g * 0.9, 255)}, ${Math.min(b * 0.9, 255)}, 0.4)`;
+
+                            row.querySelectorAll('td').forEach(td => {
+                                // Sadece alt ve uste cizgi cek
+                                td.style.setProperty('border-top', `1px solid ${borderColor}`, 'important');
+                                td.style.setProperty('border-bottom', `1px solid ${borderColor}`, 'important');
+                            });
+                            // Ilk ve son hucrelerde yan cizgiler
+                            const firstTd = row.querySelector('td:first-child');
+                            const lastTd = row.querySelector('td:last-child');
+                            if (firstTd) firstTd.style.setProperty('border-left', `1px solid ${borderColor}`, 'important');
+                            if (lastTd) lastTd.style.setProperty('border-right', `1px solid ${borderColor}`, 'important');
+                        } else {
+                            row.style.removeProperty('background-color');
+                            // Resets
+                            row.querySelectorAll('td').forEach(td => {
+                                td.style.removeProperty('border-top');
+                                td.style.removeProperty('border-bottom');
+                            });
+                            const firstTd = row.querySelector('td:first-child');
+                            const lastTd = row.querySelector('td:last-child');
+                            if (firstTd) firstTd.style.removeProperty('border-left');
+                            if (lastTd) lastTd.style.removeProperty('border-right');
+                        }
+
+                        // Text color sadece TITLE (Baslik) icin uygulansin, 
+                        // bylece artis dusus oklarinin yesil/kirmizi renkleri bozulmaz
+                        const titleEl = row.querySelector('.item.title');
+                        if (titleEl) {
+                            if (pc.textColor) titleEl.style.setProperty('color', pc.textColor, 'important');
+                            else titleEl.style.removeProperty('color');
+                        }
+
+                        // row text color temizle
+                        row.style.removeProperty('color');
+
                         break;
                     }
                 }
@@ -417,14 +500,14 @@
         modal.id = 'harem-admin-modal';
         modal.innerHTML = `
 <div class="adm-hdr">
-  <h3>&#9881;&#65039; Panel Ayarlari</h3>
+  <h3><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="margin-right:8px;"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg> Panel Ayarlari</h3>
   <span class="adm-close" id="adm-x">&times;</span>
 </div>
 <div class="adm-tabs">
-  <div class="adm-tab active" data-tab="sections">&#128203; Bolumler</div>
-  <div class="adm-tab" data-tab="rows">&#128200; Satirlar</div>
-  <div class="adm-tab" data-tab="logo">&#128444; Logo</div>
-  <div class="adm-tab" data-tab="prices">&#128176; Fiyatlar</div>
+  <div class="adm-tab active" data-tab="sections"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="vertical-align:text-bottom;margin-right:4px;"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg> Bolumler</div>
+  <div class="adm-tab" data-tab="rows"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="vertical-align:text-bottom;margin-right:4px;"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg> Satirlar</div>
+  <div class="adm-tab" data-tab="logo"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="vertical-align:text-bottom;margin-right:4px;"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg> Logo</div>
+  <div class="adm-tab" data-tab="prices"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="vertical-align:text-bottom;margin-right:4px;"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg> Fiyatlar</div>
 </div>
 <div class="adm-pane active" id="adm-sections">
   <p style="color:#888;font-size:12px;margin:0 0 12px;">Bolümleri gizle/göster veya surükleyerek sirala.</p>
@@ -652,10 +735,23 @@
         if (!rows.length) { el.innerHTML = '<div style="color:orange;grid-column:1/-1;padding:10px;">Ana sayfada oldugunuzdan emin olun.</div>'; return; }
         const seen = new Set();
         rows.forEach(row => {
+            // Sadece gorunen ve aktif satirlari listele
+            if (row.getAttribute('data-harem-hidden') === 'true') return;
+
             const nc = row.querySelector('td:first-child');
             if (!nc) return;
-            const name = nc.textContent.replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
+            const name = nc.textContent.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
             if (!name || seen.has(name)) return;
+
+            // Ayrica, gizli rows arasinda var mi kontrol et
+            let isHidden = false;
+            for (let k in config.hiddenRows) {
+                if (config.hiddenRows[k] && k.replace(/\s+/g, '') === name.replace(/\s+/g, '')) {
+                    isHidden = true; break;
+                }
+            }
+            if (isHidden) return;
+
             seen.add(name);
             const c = config.prices[name] || { buyOffset: 0, sellOffset: 0, bgColor: '', textColor: '' };
             const item = document.createElement('div');
@@ -669,10 +765,24 @@
     <div style="flex:1"><span class="fl">Satis Farki</span><input type="number" class="so" value="${c.sellOffset}" step="0.01"></div>
   </div>
   <div style="display:flex;gap:8px;">
-    <div style="flex:1"><span class="fl">Arka Plan</span><input type="color" class="bg-col" value="${c.bgColor || '#1a1a1a'}"></div>
+    <div style="flex:1"><span class="fl">Arka Plan</span>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <input type="color" class="bg-col" value="${c.bgColor || '#1a1a1a'}" style="width:30px;height:30px;padding:0;border:none;">
+            <div class="pcl">
+               <div class="pc" style="background:#DEE5D4" onclick="this.parentNode.previousElementSibling.value='#DEE5D4';"></div>
+               <div class="pc" style="background:#F6E9DF" onclick="this.parentNode.previousElementSibling.value='#F6E9DF';"></div>
+               <div class="pc" style="background:#E2CEB1" onclick="this.parentNode.previousElementSibling.value='#E2CEB1';"></div>
+               <div class="pc" style="background:#DED6D1" onclick="this.parentNode.previousElementSibling.value='#DED6D1';"></div>
+               <div class="pc" style="background:#E8EAE6" onclick="this.parentNode.previousElementSibling.value='#E8EAE6';"></div>
+               <div class="pc" style="background:#CFDAC8" onclick="this.parentNode.previousElementSibling.value='#CFDAC8';"></div>
+               <div class="pc" style="background:#D0B8A8" onclick="this.parentNode.previousElementSibling.value='#D0B8A8';"></div>
+               <div class="pc" style="background:#DFE0E2" onclick="this.parentNode.previousElementSibling.value='#DFE0E2';"></div>
+            </div>
+        </div>
+    </div>
     <div style="flex:1"><span class="fl">Yazi Rengi</span><input type="color" class="txt-col" value="${c.textColor || '#e0e0e0'}"></div>
     <div style="width:40px;display:flex;align-items:center;justify-content:center;">
-       <button class="hb hb-s" style="padding:4px 8px;font-size:10px;" onclick="this.parentNode.parentNode.querySelectorAll('input[type=color]').forEach(i=>i.value=i.defaultValue);return false;">X</button>
+       <button class="hb hb-s" style="padding:4px 8px;font-size:10px;margin-top:20px;" onclick="this.parentNode.parentNode.querySelectorAll('input[type=color]').forEach(i=>{i.value=i.defaultValue;});return false;">X</button>
     </div>
   </div>
 </div>`;
@@ -745,8 +855,10 @@
             });
         });
 
-        // Fiyatlar & Renkler
-        config.prices = {};
+        // Keep existing prices not currently in screen
+        const oldPrices = config.prices || {};
+        config.prices = { ...oldPrices };
+
         document.querySelectorAll('.api').forEach(item => {
             const name = item.dataset.n;
             const buy = parseFloat(item.querySelector('.bo').value) || 0;
@@ -763,6 +875,8 @@
                     textColor: txt === '#e0e0e0' ? '' : txt,
                     type: 'fixed'
                 };
+            } else {
+                delete config.prices[name];
             }
         });
 
@@ -889,6 +1003,42 @@
                 box.classList.remove('dot');
             });
         });
+    }
+
+    function safelySwapSvgSymbols() {
+        const upPath = '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline>';
+        const downPath = '<polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline>';
+
+        let attempts = 0;
+        const iv = setInterval(() => {
+            attempts++;
+            const upArrow = document.getElementById('upArrow');
+            const downArrow = document.getElementById('downArrow');
+            if (upArrow && downArrow) {
+                if (!upArrow.hasAttribute('data-harem-swapped')) {
+                    upArrow.innerHTML = upPath;
+                    upArrow.setAttribute('viewBox', '0 0 24 24');
+                    upArrow.setAttribute('fill', 'none');
+                    upArrow.setAttribute('stroke', 'currentColor');
+                    upArrow.setAttribute('stroke-width', '2.5');
+                    upArrow.setAttribute('stroke-linecap', 'round');
+                    upArrow.setAttribute('stroke-linejoin', 'round');
+                    upArrow.setAttribute('data-harem-swapped', 'true');
+                }
+                if (!downArrow.hasAttribute('data-harem-swapped')) {
+                    downArrow.innerHTML = downPath;
+                    downArrow.setAttribute('viewBox', '0 0 24 24');
+                    downArrow.setAttribute('fill', 'none');
+                    downArrow.setAttribute('stroke', 'currentColor');
+                    downArrow.setAttribute('stroke-width', '2.5');
+                    downArrow.setAttribute('stroke-linecap', 'round');
+                    downArrow.setAttribute('stroke-linejoin', 'round');
+                    downArrow.setAttribute('data-harem-swapped', 'true');
+                }
+                clearInterval(iv);
+            }
+            if (attempts > 20) clearInterval(iv);
+        }, 500);
     }
 
     /* ───────────── INIT ───────────── */
