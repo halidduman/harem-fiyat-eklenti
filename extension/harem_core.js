@@ -389,7 +389,7 @@
                         // bylece artis dusus oklarinin yesil/kirmizi renkleri bozulmaz
                         const titleEl = row.querySelector('.item.title');
                         if (titleEl) {
-                            if (pc.customName) {
+                            if (pc.customName && typeof pc.customName === 'string') {
                                 titleEl.innerHTML = pc.customName.replace(/\n/g, '<br>');
                             }
                             if (pc.textColor) titleEl.style.setProperty('color', pc.textColor, 'important');
