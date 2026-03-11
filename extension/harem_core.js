@@ -43,7 +43,7 @@
             }
             #harem-custom-navbar .nl { display:flex;align-items:center;text-decoration:none;cursor:pointer; }
             #harem-custom-navbar .nl-img {
-                max-height:72px;max-width:300px;object-fit:contain;
+                max-height:90px;max-width:400px;object-fit:contain;
             }
             /* Color Theme #e9907a */
             #harem-custom-navbar .nl-text {
@@ -61,6 +61,9 @@
 
             section.dashboard-content,.dashboard-content.container-fluid {
                 padding-left:80px!important;padding-right:80px!important;padding-top:24px!important;
+            }
+            .dashboard-grid .box {
+                padding-bottom: 12px !important; /* Kutu altinin kesilmemesi icin ekstra bosluk */
             }
             .dashboard-grid .box,
             .dashboard-grid .box .list-table,
@@ -95,9 +98,13 @@
             .dashboard-grid .box table tr:hover th, 
             .dashboard-grid .box table tr:hover span,
             .dashboard-grid .box table th:hover span,
-            .dashboard-grid .box table a:hover { background-color: transparent !important; background: transparent !important; }
+            .dashboard-grid .box table a:hover,
+            .dashboard-grid .box table td a.item:hover,
+            .dashboard-grid .box table td .item.title:hover { background-color: transparent !important; background: transparent !important; }
             .dashboard-grid .box table td,
-            .dashboard-grid .box table th { background-color: transparent !important; background: transparent !important; }
+            .dashboard-grid .box table th,
+            .dashboard-grid .box table td a.item,
+            .dashboard-grid .box table td .item.title { background-color: transparent !important; background: transparent !important; }
 
             .dashboard-grid .box tbody td {
                 border-top: 1px solid #333 !important;
