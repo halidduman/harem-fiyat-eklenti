@@ -43,7 +43,7 @@
             }
             #harem-custom-navbar .nl { display:flex;align-items:center;text-decoration:none;cursor:pointer; }
             #harem-custom-navbar .nl-img {
-                max-height:54px;max-width:220px;object-fit:contain;
+                max-height:72px;max-width:300px;object-fit:contain;
             }
             /* Color Theme #e9907a */
             #harem-custom-navbar .nl-text {
@@ -95,9 +95,9 @@
             .dashboard-grid .box table tr:hover th, 
             .dashboard-grid .box table tr:hover span,
             .dashboard-grid .box table th:hover span,
-            .dashboard-grid .box table a:hover { background: transparent !important; }
+            .dashboard-grid .box table a:hover { background-color: transparent !important; background: transparent !important; }
             .dashboard-grid .box table td,
-            .dashboard-grid .box table th { background: transparent !important; }
+            .dashboard-grid .box table th { background-color: transparent !important; background: transparent !important; }
 
             .dashboard-grid .box tbody td {
                 border-top: 1px solid #333 !important;
@@ -281,6 +281,16 @@
         return null;
     }
 
+    function getOriginalName(row) {
+        let orig = row.getAttribute('data-tr-orig');
+        if (orig) return orig;
+        const nc = row.querySelector('td:first-child');
+        if (!nc) return '';
+        orig = nc.textContent.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+        row.setAttribute('data-tr-orig', orig);
+        return orig;
+    }
+
     function applyVisibility() {
         document.querySelectorAll('.box').forEach(box => {
             const name = getBoxName(box);
@@ -297,11 +307,9 @@
 
     function applyRowVisibility() {
         document.querySelectorAll('.dashboard-grid table tbody tr').forEach(row => {
-            const nc = row.querySelector('td:first-child');
-            if (!nc) return;
-            // innerText taranmasi anlik reflow/render'a sebep olup titremeye yol acar.
-            const rawName = nc.textContent.replace(/\s+/g, ' ').trim();
-            let name = nc.textContent.replace(/\s+/g, ' ').trim();
+            const origName = getOriginalName(row);
+            if (!origName) return;
+            const rawName = origName;
 
             // Eğer ismin içinde bitişik kelime kaldıysa (örn: Hasyerine HAS ALTIN), düzeltmek zor olabilir.
             // Daha garanti bir yöntem için config'deki isimlerle kaba bir eşleşme yapıyoruz:
@@ -374,6 +382,9 @@
                         // bylece artis dusus oklarinin yesil/kirmizi renkleri bozulmaz
                         const titleEl = row.querySelector('.item.title');
                         if (titleEl) {
+                            if (pc.customName) {
+                                titleEl.innerHTML = pc.customName.replace(/\n/g, '<br>');
+                            }
                             if (pc.textColor) titleEl.style.setProperty('color', pc.textColor, 'important');
                             else titleEl.style.removeProperty('color');
                         }
@@ -396,20 +407,14 @@
 
         const sarrafNames = new Set();
         sarrafBox.querySelectorAll('table tbody tr').forEach(row => {
-            const nc = row.querySelector('td:first-child');
-            if (nc) {
-                let name = nc.textContent.replace(/\s+/g, ' ').trim().replace(/\s+/g, '');
-                sarrafNames.add(name);
-            }
+            const name = getOriginalName(row);
+            if (name) sarrafNames.add(name.replace(/\s+/g, ''));
         });
 
         altinBox.querySelectorAll('table tbody tr').forEach(row => {
-            const nc = row.querySelector('td:first-child');
-            if (nc) {
-                let name = nc.textContent.replace(/\s+/g, ' ').trim().replace(/\s+/g, '');
-                if (sarrafNames.has(name)) {
-                    row.remove();
-                }
+            const name = getOriginalName(row);
+            if (name && sarrafNames.has(name.replace(/\s+/g, ''))) {
+                row.remove();
             }
         });
     }
@@ -431,13 +436,8 @@
                 // Build a name→row map
                 const nameMap = {};
                 rows.forEach(r => {
-                    const nc = r.querySelector('td:first-child');
-                    if (nc) {
-                        // textContent ile hizli okuma (flicker yapmamasi icin innerText kullanmiyoruz)
-                        const rawName = nc.textContent.replace(/\s+/g, ' ').trim();
-                        // isimleri boşlukları silerek eşleştir
-                        nameMap[rawName.replace(/\\s+/g, '')] = r;
-                    }
+                    const origName = getOriginalName(r);
+                    if (origName) nameMap[origName.replace(/\s+/g, '')] = r;
                 });
 
                 // Re-insert in saved order
@@ -456,10 +456,8 @@
             if (!boxName) return;
             const names = [];
             box.querySelectorAll('table tbody tr').forEach(row => {
-                const nc = row.querySelector('td:first-child');
-                if (nc) {
-                    names.push(nc.textContent.replace(/\s+/g, ' ').trim());
-                }
+                const origName = getOriginalName(row);
+                if (origName) names.push(origName);
             });
             if (names.length) order[boxName] = names;
         });
@@ -633,11 +631,7 @@
             const seenInBox = new Set();
 
             dataRows.forEach(row => {
-                const nc = row.querySelector('td:first-child');
-                if (!nc) return;
-                // Ekranda okunabilir, ayni zamanda DOM'da da ayni okunan format
-                const name = nc.textContent.replace(/\s+/g, ' ').trim();
-
+                const name = getOriginalName(row);
                 if (!name || seenInBox.has(name)) return;
                 seenInBox.add(name);
 
@@ -689,11 +683,10 @@
             const rows = Array.from(tbody.querySelectorAll('tr'));
             let sr = null, dr = null;
             rows.forEach(r => {
-                const nc = r.querySelector('td:first-child');
-                if (!nc) return;
-                const n = nc.textContent.replace(/\s+/g, ' ').trim();
-                if (n.replace(/\\s+/g, '') === srcName.replace(/\\s+/g, '')) sr = r;
-                if (n.replace(/\\s+/g, '') === dstName.replace(/\\s+/g, '')) dr = r;
+                const n = getOriginalName(r);
+                if (!n) return;
+                if (n.replace(/\s+/g, '') === srcName.replace(/\s+/g, '')) sr = r;
+                if (n.replace(/\s+/g, '') === dstName.replace(/\s+/g, '')) dr = r;
             });
             if (!sr || !dr) return;
             const si = rows.indexOf(sr), di = rows.indexOf(dr);
@@ -739,9 +732,7 @@
             // Sadece gorunen ve aktif satirlari listele
             if (row.getAttribute('data-harem-hidden') === 'true') return;
 
-            const nc = row.querySelector('td:first-child');
-            if (!nc) return;
-            const name = nc.textContent.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+            const name = getOriginalName(row);
             if (!name || seen.has(name)) return;
 
             // Ayrica, gizli rows arasinda var mi kontrol et
@@ -754,13 +745,16 @@
             if (isHidden) return;
 
             seen.add(name);
-            const c = config.prices[name] || { buyOffset: 0, sellOffset: 0, bgColor: '', textColor: '' };
+            const c = config.prices[name] || { buyOffset: 0, sellOffset: 0, bgColor: '', textColor: '', customName: '' };
             const item = document.createElement('div');
             item.className = 'api';
             item.dataset.n = name;
             item.innerHTML = `
 <span class="apn">${name}</span>
 <div class="og" style="flex-direction:column;gap:10px;">
+  <div style="display:flex;gap:8px;">
+    <div style="flex:1"><span class="fl">Ozel Isim (Opsiyonel)</span><input type="text" class="cn" value="${c.customName || ''}" placeholder="Bos birakirsaniz orjinali cikar" style="margin-bottom:8px;"></div>
+  </div>
   <div style="display:flex;gap:8px;">
     <div style="flex:1"><span class="fl">Alis Farki</span><input type="number" class="bo" value="${c.buyOffset}" step="0.01"></div>
     <div style="flex:1"><span class="fl">Satis Farki</span><input type="number" class="so" value="${c.sellOffset}" step="0.01"></div>
@@ -862,14 +856,16 @@
 
         document.querySelectorAll('.api').forEach(item => {
             const name = item.dataset.n;
+            const customName = item.querySelector('.cn') ? item.querySelector('.cn').value.trim() : '';
             const buy = parseFloat(item.querySelector('.bo').value) || 0;
             const sell = parseFloat(item.querySelector('.so').value) || 0;
             const bg = item.querySelector('.bg-col').value;
             const txt = item.querySelector('.txt-col').value;
 
             // Default olmayan renkleri veya farklari kaydet
-            if (buy !== 0 || sell !== 0 || bg !== '#1a1a1a' || txt !== '#e0e0e0') {
+            if (buy !== 0 || sell !== 0 || bg !== '#1a1a1a' || txt !== '#e0e0e0' || customName !== '') {
                 config.prices[name] = {
+                    customName: customName,
                     buyOffset: buy,
                     sellOffset: sell,
                     bgColor: bg === '#1a1a1a' ? '' : bg,
@@ -897,12 +893,10 @@
         if (observer) observer.disconnect();
         try {
             document.querySelectorAll('.dashboard-grid table tbody tr').forEach(row => {
-                const nc = row.querySelector('td:first-child');
-                if (!nc) return;
+                const origName = getOriginalName(row);
+                if (!origName) return;
 
-                // Hızlı okuma içi textContent
-                const rawName = nc.textContent.replace(/\s+/g, ' ').trim();
-                const safeDom = rawName.replace(/\\s+/g, '');
+                const safeDom = origName.replace(/\s+/g, '');
 
                 let pName = null;
                 for (let k in config.prices) {
