@@ -389,9 +389,6 @@
                         // bylece artis dusus oklarinin yesil/kirmizi renkleri bozulmaz
                         const titleEl = row.querySelector('.item.title');
                         if (titleEl) {
-                            if (pc.customName && typeof pc.customName === 'string') {
-                                titleEl.innerHTML = pc.customName.replace(/\n/g, '<br>');
-                            }
                             if (pc.textColor) titleEl.style.setProperty('color', pc.textColor, 'important');
                             else titleEl.style.removeProperty('color');
                         }
@@ -760,9 +757,6 @@
 <span class="apn">${name}</span>
 <div class="og" style="flex-direction:column;gap:10px;">
   <div style="display:flex;gap:8px;">
-    <div style="flex:1"><span class="fl">Ozel Isim (Opsiyonel)</span><input type="text" class="cn" value="${c.customName || ''}" placeholder="Bos birakirsaniz orjinali cikar" style="margin-bottom:8px;"></div>
-  </div>
-  <div style="display:flex;gap:8px;">
     <div style="flex:1"><span class="fl">Alis Farki</span><input type="number" class="bo" value="${c.buyOffset}" step="0.01"></div>
     <div style="flex:1"><span class="fl">Satis Farki</span><input type="number" class="so" value="${c.sellOffset}" step="0.01"></div>
   </div>
@@ -863,16 +857,14 @@
 
         document.querySelectorAll('.api').forEach(item => {
             const name = item.dataset.n;
-            const customName = item.querySelector('.cn') ? item.querySelector('.cn').value.trim() : '';
             const buy = parseFloat(item.querySelector('.bo').value) || 0;
             const sell = parseFloat(item.querySelector('.so').value) || 0;
             const bg = item.querySelector('.bg-col').value;
             const txt = item.querySelector('.txt-col').value;
 
             // Default olmayan renkleri veya farklari kaydet
-            if (buy !== 0 || sell !== 0 || bg !== '#1a1a1a' || txt !== '#e0e0e0' || customName !== '') {
+            if (buy !== 0 || sell !== 0 || bg !== '#1a1a1a' || txt !== '#e0e0e0') {
                 config.prices[name] = {
-                    customName: customName,
                     buyOffset: buy,
                     sellOffset: sell,
                     bgColor: bg === '#1a1a1a' ? '' : bg,
