@@ -1229,6 +1229,10 @@
 
     // Admin panelinden mevcut degerleri yukle
     function loadAdminValues() {
+        const lu = document.getElementById('adm-logo-url');
+        const ll = document.getElementById('adm-logo-link');
+        const lpv = document.getElementById('adm-logo-preview');
+
         if (lu) lu.value = config.logoUrl || '';
         if (ll) ll.value = config.logoLink || '';
 
@@ -1575,7 +1579,17 @@
     function getPct(key) {
         const hist = _priceHistory[key];
         if (!hist || hist.length < 2) return null;
-        const old = hist[0].v, cur = hist[hist.length - 1].v;
+        
+        // Piyasada stabiliteyi doğru ölçmek için tüm geçmişi DEĞİL, son 3 saati veya son 20 kaydı baz al.
+        const now = Date.now();
+        const cutoff = now - (3 * 60 * 60 * 1000); // 3 saat
+        let recent = hist.filter(h => h.t >= cutoff);
+        
+        if (recent.length < 2) recent = hist.slice(-20); // Fallback: son 20 kayıt
+        if (recent.length < 2) return null;
+
+        const old = recent[0].v;
+        const cur = recent[recent.length - 1].v;
         return ((cur - old) / old) * 100;
     }
 
@@ -1651,6 +1665,41 @@
         }
     }
 
+    /* ───────────── AKILLI YORUM MOTORU (Worker Destekli) ───────────── */
+    function getSmartComment(topAssetKey) {
+        if (!window.HaremSmartAnalysis) return '';
+        const sa = window.HaremSmartAnalysis;
+        
+        // Çapraz piyasa durumu (Ons çıkarken Çeyrek düşüyor vb)
+        const ons = sa['ONS'] ? sa['ONS'].daily : null;
+        const ceyrek = sa['ÇEYREK'] ? sa['ÇEYREK'].daily : null;
+        
+        if (ons && ceyrek) {
+            if (ons.pct > 0.5 && ceyrek.pct < -0.5) return ' (Ons ↑ ama Çeyrek ↓: Piyasa kararsız, yön net değil 🤔)';
+            if (ons.pct < -0.5 && ceyrek.pct > 0.5) return ' (Ons ↓ ama Çeyrek ↑: Fiyat dengesizliği var 🤔)';
+        }
+
+        const tData = sa[topAssetKey];
+        if (!tData || !tData.daily || !tData.weekly || !tData.monthly) return '';
+        
+        const dTrend = tData.daily.trend;
+        const wTrend = tData.weekly.trend;
+        const mTrend = tData.monthly.trend;
+        const vol = tData.daily.volatility;
+        
+        if (vol > 1.2) return ' (Piyasa aşırı oynak, dikkatli olunmalı ⚠️)';
+        if (vol < 0.15 && dTrend === 'yatay' && wTrend === 'yatay') return ' (Piyasa sakin, büyük hareket beklenmiyor 😐)';
+
+        if (dTrend === 'yukari' && wTrend === 'yukari' && mTrend === 'yukari') return ' (Güçlü yükseliş trendi devam ediyor 🚀)';
+        if (dTrend === 'asagi' && wTrend === 'asagi' && mTrend === 'asagi') return ' (Ağır düşüş trendi baskın 📉)';
+        if (dTrend === 'yukari' && wTrend === 'asagi') return ' (Kısa vadeli tepki yükselişi olabilir ⚠️)';
+        if (dTrend === 'asagi' && wTrend === 'yukari') return ' (Kısa vade kâr satışı, genel yön yukarı 📊)';
+        if (dTrend === 'asagi' && wTrend === 'asagi') return ' (Düşüş baskısı devam ediyor 📉)';
+        if (dTrend === 'yukari' && wTrend === 'yukari') return ' (Kısa ve Orta vade yukarı yönlü 👍)';
+        
+        return '';
+    }
+
     /* ───────────── ASİSTAN ANALİZ ───────────── */
     function analyzeMarket() {
         const hasPrice    = recordPrice('HASALTIN');
@@ -1685,9 +1734,14 @@
             return { state:'neutral', bg:'#141414', varlik:'—', durum:'Stabil', mesaj:'😐 Piyasa şu an sakin.', pctStr:'', pct: 0 };
         }
 
-        // Mutlak değerce en büyük değişim
+        // Mutlak değerce en büyük değişim (sadece sıralamak için)
         candidates.sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct));
-        const top = candidates[0];
+        
+        // CAROUSEL MANTIĞI: Her fetch'te sıradaki varlığı göster
+        if (typeof window._haremCarouselIndex === 'undefined') window._haremCarouselIndex = 0;
+        const top = candidates[window._haremCarouselIndex % candidates.length];
+        window._haremCarouselIndex++;
+
         const pct = top.pct;
         const pctStr = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
 
@@ -1696,11 +1750,15 @@
         const allDown = candidates.every(c => c.pct < -0.05);
         const mixed   = candidates.some(c => c.pct > 0.1) && candidates.some(c => c.pct < -0.1);
 
-        let trendNote = '';
-        if (asstSettings.trendAnalysis) {
-            if (allUp && candidates.length >= 2)    trendNote = ' (Genel Yükseliş Eğilimi)';
-            else if (allDown && candidates.length >= 2) trendNote = ' (Genel Düşüş Eğilimi)';
-            else if (mixed)                         trendNote = ' (Karmaşık Yönlü Trend)';
+        let smartNote = '';
+        if (asstSettings.smartMode === false && asstSettings.trendAnalysis === true) {
+            // Sadece lokal hafif-trend (klasik)
+            if (allUp && candidates.length >= 2)    smartNote = ' (Genel Yükseliş Eğilimi)';
+            else if (allDown && candidates.length >= 2) smartNote = ' (Genel Düşüş Eğilimi)';
+            else if (mixed)                         smartNote = ' (Karmaşık Yönlü Trend)';
+        } else {
+            // Worker Akilli Yorum Motoru
+            smartNote = getSmartComment(top.key);
         }
 
         // Varlığa Göre Arka Plan Temel Rengi
@@ -1709,48 +1767,108 @@
         if (top.key === 'ÇEYREK')   baseBg = '#101422'; // Çeyrek -> Daha Mavimsi Karanlık
         if (top.key === 'ONS')      baseBg = '#22141c'; // Ons -> Daha Pembemsi/Mor Karanlık
 
-        // Durum tespiti (Tavsiyesiz, objektif)
-        let state, bg, durum, mesaj;
+        // Durum tespiti (Doğal Dil Mesaj Havuzu)
+        const msgPool = {
+            up1: [ // HAFİF YÜKSELİŞ (+0 – +0.3)
+                "Yukarı doğru hafif bir kıpırdanma var.",
+                "Fiyat kendini yukarı deniyor.",
+                "Küçük küçük yukarı adımlar geliyor.",
+                "Hareket var ama henüz güçlü değil.",
+                "Yukarı yönlü sinyal zayıf da olsa hissediliyor."
+            ],
+            up2: [ // ORTA YÜKSELİŞ (+0.3 – +0.8)
+                "Toparlanma netleşmeye başladı.",
+                "Yukarı yön biraz daha ağırlık kazandı.",
+                "Alıcılar sahneye çıkıyor gibi.",
+                "Yükseliş ivmesi oluşuyor.",
+                "Fiyat yukarıda tutunmaya çalışıyor."
+            ],
+            up3: [ // GÜÇLÜ YÜKSELİŞ (+0.8 – +1.5)
+                "Yukarı hareket iyice belirginleşti.",
+                "Alım tarafı ciddi şekilde baskın.",
+                "Momentum yukarı dönmüş durumda.",
+                "Fiyat güçlü şekilde yukarı itiliyor.",
+                "Trend yukarı kayıyor."
+            ],
+            up4: [ // ÇOK GÜÇLÜ (+1.5+)
+                "Piyasada ciddi bir hızlanma var.",
+                "Yükseliş agresifleşti.",
+                "Fiyat yukarı doğru akıyor.",
+                "Alıcılar kontrolü ele almış durumda.",
+                "Momentum zirveye oynuyor."
+            ],
+            down1: [ // KARARSIZ (0 – -0.3)
+                "Yukarı denemeler zayıflıyor.",
+                "Fiyat biraz nefesleniyor gibi.",
+                "Kararsız bir seyir var.",
+                "Hareket yön arıyor.",
+                "Momentum düşüşe göz kırpıyor."
+            ],
+            down2: [ // ORTA DÜŞÜŞ (-0.3 – -0.8)
+                "Satış baskısı hissedilmeye başladı.",
+                "Yukarı denemeler geri çevriliyor.",
+                "Fiyat aşağı doğru süzülüyor.",
+                "Alıcı tarafı zayıflıyor.",
+                "Piyasa geri çekiliyor."
+            ],
+            down3: [ // GÜÇLÜ DÜŞÜŞ (-0.8 – -1.5)
+                "Satış tarafı net şekilde baskın.",
+                "Fiyat aşağı yönlü kırılmış durumda.",
+                "Aşağı hareket hız kazanıyor.",
+                "Kontrol satıcılarda.",
+                "Momentum aşağı dönmüş."
+            ],
+            down4: [ // SERT DÜŞÜŞ (-1.5+)
+                "Piyasada sert bir boşalma var.",
+                "Fiyat hızlı şekilde aşağı çekiliyor.",
+                "Satış dalgası güçlü geliyor.",
+                "Kontrol tamamen satıcılarda.",
+                "Aşağı yönlü hareket agresifleşti."
+            ]
+        };
 
-        if (pct >= 2) {
-            state='rocket'; bg = top.key === 'HASALTIN' ? '#0b3d1f' : (top.key === 'ÇEYREK' ? '#0d2d47' : '#4d1e3d');
-            durum='Hızlı Yükseliş';
-            mesaj=`${top.label} ${pctStr} oranında yükseliş gösterdi.${trendNote}`;
-        } else if (pct >= 1) {
-            state='panic'; bg = top.key === 'HASALTIN' ? '#14301c' : (top.key === 'ÇEYREK' ? '#142a40' : '#3d1a2c');
-            durum='Güçlü Yükseliş';
-            mesaj=`${top.label} ${pctStr} seviyesinde bir artış kaydetti.${trendNote}`;
+        const getRandomMsg = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        let state, bg, durum, baseMsg;
+        let glow = false;
+
+        if (pct >= 1.5) {
+            state='rocket'; bg = '#0ea5e9'; glow = true; durum='Çok Güçlü'; baseMsg = getRandomMsg(msgPool.up4); // Biraz daha parlak mavi-yeşil neon
+        } else if (pct >= 0.8) {
+            state='happy'; bg = '#166534'; durum='Güçlü Yükseliş'; baseMsg = getRandomMsg(msgPool.up3);
         } else if (pct >= 0.3) {
-            state='worried'; bg = top.key === 'HASALTIN' ? '#1a2e20' : (top.key === 'ÇEYREK' ? '#161d2d' : '#2b141d');
-            durum='Orta Yükseliş';
-            mesaj=`${top.label} fiyatında ${pctStr} kısmi artış gözlemlendi.${trendNote}`;
-        } else if (pct >= 0.0) {
-            state='happy'; bg=baseBg;
-            durum='Hafif Yükseliş / Sabit';
-            mesaj=`${top.label} stabil ve hafif pozitif (${pctStr}).${trendNote}`;
-        } else if (pct > -0.1) {
-            state='neutral'; bg=baseBg;
-            durum='Stabil';
-            mesaj=`${top.label} fiyatında yatay seyir sürüyor (${pctStr}).${trendNote}`;
+            state='happy'; bg = '#22c55e'; durum='Orta Yükseliş'; baseMsg = getRandomMsg(msgPool.up2);
+        } else if (pct > 0) {
+            state='neutral'; bg = '#4ade80'; durum='Hafif Yükseliş'; baseMsg = getRandomMsg(msgPool.up1);
         } else if (pct > -0.3) {
-            state='worried'; bg = top.key === 'HASALTIN' ? '#2e251a' : (top.key === 'ÇEYREK' ? '#2a1717' : '#301815');
-            durum='Hafif Düşüş';
-            mesaj=`${top.label} fiyatında ufak bir azalma oldu (${pctStr}).${trendNote}`;
-        } else if (pct > -1) {
-            state='worried'; bg = top.key === 'HASALTIN' ? '#3d261a' : (top.key === 'ÇEYREK' ? '#3b1818' : '#3d1c15');
-            durum='Orta Düşüş';
-            mesaj=`${top.label} fiyatında ${pctStr} oranında gerileme mevcut.${trendNote}`;
-        } else if (pct > -2) {
-            state='panic'; bg = top.key === 'HASALTIN' ? '#4a1a14' : (top.key === 'ÇEYREK' ? '#421212' : '#4f1a18');
-            durum='Güçlü Düşüş';
-            mesaj=`${top.label} şu an ${pctStr} belirgin düşüşte.${trendNote}`;
+            state='worried'; bg = '#facc15'; durum='Kararsız'; baseMsg = getRandomMsg(msgPool.down1);
+        } else if (pct > -0.8) {
+            state='worried'; bg = '#f97316'; durum='Orta Düşüş'; baseMsg = getRandomMsg(msgPool.down2);
+        } else if (pct > -1.5) {
+            state='panic'; bg = '#ef4444'; durum='Güçlü Düşüş'; baseMsg = getRandomMsg(msgPool.down3);
         } else {
-            state='panic'; bg = top.key === 'HASALTIN' ? '#5c0f0f' : (top.key === 'ÇEYREK' ? '#570a0a' : '#5c1010');
-            durum='Sert Düşüş';
-            mesaj=`${top.label} yüksek oranda değer kaybetti (${pctStr}).${trendNote}`;
+            state='panic'; bg = '#991b1b'; glow = true; durum='Sert Düşüş'; baseMsg = getRandomMsg(msgPool.down4);
         }
 
-        return { state, bg, varlik: top.label, durum, mesaj, pctStr, pct };
+        // Momentum / Tweak eklentisi
+        window._haremLastPct = window._haremLastPct || {};
+        const oldPct = window._haremLastPct[top.key];
+        let tweakNote = '';
+        
+        if (typeof oldPct !== 'undefined') {
+            const diff = pct - oldPct;
+            if (pct < 0 && oldPct < 0) {
+                if (pct > oldPct && diff > 0.2) tweakNote = ' ➜ (açıkca düşüş yavaşlıyor)';
+                if (pct < oldPct && diff < -0.2) tweakNote = ' ➜ (satış baskısı artıyor)';
+            } else if (pct > 0 && oldPct > 0) {
+                if (pct > oldPct && diff > 0.2) tweakNote = ' ➜ (yükseliş ivme kazanıyor)';
+                if (pct < oldPct && diff < -0.2) tweakNote = ' ➜ (yükseliş ivme kaybediyor)';
+            }
+        }
+        window._haremLastPct[top.key] = pct;
+
+        let mesaj = `${baseMsg} (${pctStr})${tweakNote}${smartNote}`;
+        
+        return { state, bg, varlik: top.label, durum, mesaj, pctStr, pct, glow };
     }
 
     let lastNotifTime = 0;
@@ -1785,14 +1903,24 @@
         const nav    = document.getElementById('harem-custom-navbar');
         if (!faceEl || !msgEl || !nav) return;
 
-        const { state, bg, varlik, durum, mesaj, pctStr, pct } = analyzeMarket();
+        const { state, bg, varlik, durum, mesaj, pctStr, pct, glow } = analyzeMarket();
+
+        // Aynı mesajsa text DOM'unu tekrar fade-in yapıp kullanıcıyı rahatsız etme
+        if (window._lastHaremMesaj === mesaj) {
+            nav.style.background = bg; // Yine de rengi tazele
+            if (glow) nav.style.boxShadow = `0 0 25px ${bg}, inset 0 0 10px ${bg}`;
+            else nav.style.boxShadow = '0 4px 20px rgba(0,0,0,.4)';
+            return;
+        }
+        window._lastHaremMesaj = mesaj;
 
         // Bildirim kontrolü
         checkAndNotify(state, durum, mesaj, pct);
 
-        // Dinamik renk ayarı ZORLA AÇIK
+        // Dinamik renk ayarı ZORLA AÇIK (Glow destegi)
         nav.style.background = bg;
-        nav.style.boxShadow  = '0 4px 20px rgba(0,0,0,.4)';
+        if (glow) nav.style.boxShadow = `0 0 25px ${bg}, inset 0 0 10px ${bg}`;
+        else nav.style.boxShadow = '0 4px 20px rgba(0,0,0,.4)';
 
         // Yüz ikonunu güncelle (Lucide)
         if (!faceEl.dataset.state || faceEl.dataset.state !== state) {
@@ -1822,7 +1950,7 @@
         // Mesaj güncelle (fade)
         msgEl.style.opacity = '0';
         setTimeout(() => {
-            msgEl.innerHTML = `<span class="msg-label">Piyasa Asistanı — ${varlik}</span><span class="msg-main">${mesaj}</span>`;
+            msgEl.innerHTML = `<span class="msg-label">Piyasa Asistanı <span style="background:#fff;color:#000;padding:2px 8px;border-radius:4px;font-weight:900;margin-left:6px;font-size:11px;letter-spacing:0.5px;box-shadow:0 2px 4px rgba(0,0,0,0.2)">&mdash; ${varlik}</span></span><span class="msg-main">${mesaj}</span>`;
             msgEl.style.opacity = '1';
         }, 300);
     }
@@ -1842,6 +1970,19 @@
             else if (asstSettings.msgType === 'detailed') msgEl.style.fontSize = '14px';
         }
 
+        // Web Worker'i baslat (Akilli Motor)
+        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
+            try {
+                const wUrl = chrome.runtime.getURL('worker/worker.js');
+                window.haremAnalysisWorker = new Worker(wUrl);
+                window.haremAnalysisWorker.onmessage = (e) => {
+                    if (e.data && e.data.status === 'success') {
+                        window.HaremSmartAnalysis = e.data.data;
+                    }
+                };
+            } catch(e) { console.log('Harem Worker Init Failed:', e); }
+        }
+
         // Önce IDB'den geçmiş yükle
         loadHistoryFromIDB().then(history => {
             Object.assign(_priceHistory, history);
@@ -1856,11 +1997,11 @@
         if (asstIntervalTimer) clearInterval(asstIntervalTimer);
 
         let iv = asstSettings.fetchInterval * 1000 || 10000;
-        if (asstSettings.autoMode || asstSettings.smartMode) {
-            const h = new Date().getHours();
-            // Sabah 10 ile akşam 18 arası daha sık, gece daha yavaş (Otomatik Mod)
-            iv = (h > 9 && h < 18) ? 10000 : 30000;
-        }
+        // Kullanıcı kendi saniyesini istiyorsa override etme:
+        // if (asstSettings.autoMode || asstSettings.smartMode) {
+        //     const h = new Date().getHours();
+        //     iv = (h > 9 && h < 18) ? 10000 : 30000;
+        // }
 
         // Yüz BAŞLANGIÇTA ZORLA GÖSTER
         const faceEl = document.getElementById('harem-face');
@@ -1873,6 +2014,15 @@
             const style = document.createElement('style');
             style.innerHTML = '#harem-face { animation: none !important; }';
             document.head.appendChild(style);
+        }
+
+        // Worker periyodik tetikleme (180 saniye)
+        if (window.haremAnalysisTimer) clearInterval(window.haremAnalysisTimer);
+        if (window.haremAnalysisWorker) {
+            window.haremAnalysisWorker.postMessage('analyze');
+            window.haremAnalysisTimer = setInterval(() => {
+                window.haremAnalysisWorker.postMessage('analyze');
+            }, 180000);
         }
 
         // İlk kez hemen çalıştır (IDB yüklendiği için artık hazırdır)
