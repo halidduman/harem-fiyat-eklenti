@@ -135,19 +135,6 @@
                 display: inline-block;
             }
 
-            /* Marquee Animasyonu */
-            #fetih-bot-trigger.is-open #asst-msg {
-                animation: marquee 20s linear infinite;
-                animation-delay: 3s;
-            }
-            
-            @keyframes marquee {
-                0% { transform: translateX(0); }
-                20% { transform: translateX(0); } 
-                80% { transform: translateX(-35%); } 
-                100% { transform: translateX(0); }
-            }
-
             .has-card-active {
                 background: linear-gradient(135deg, var(--primary) 0%, #c5a059 100%) !important;
                 border: none !important;
@@ -235,7 +222,7 @@
                                 <span style="font-size:10px; font-weight:900; text-transform:uppercase; opacity:0.6; letter-spacing:2px; display:block; margin-bottom:10px">Ana Varlık</span>
                                 <h2 class="font-headline" style="font-size:38px; font-weight:900; margin:0">Has Altın (24K)</h2>
                             </div>
-                            <div style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.1); padding:8px 14px; border-radius:100px; font-size:11px; font-weight:900; border: 2px solid #c6a059;">
+                            <div style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.1); padding:8px 14px; border-radius:100px; font-size:11px; font-weight:900; border: 1px solid rgba(0,0,0,0.25);">
                                 <div class="live-dot"></div>
                                 CANLI
                             </div>
@@ -333,11 +320,29 @@
     /* ───────────── NOTIFICATIONS & SOUND ───────────── */
     let audioCtx = null;
     const NOTIFY_CONFIG = {
-        threshold: 0.08, // % change threshold for sudden movement
-        cooldown: 5000,  // ms between notifications for the same asset
+        threshold: 0.20, // % change threshold for sudden movement (Gürültü filtresi eklendi)
+        cooldown: 120000,  // 2 dakika cooldown (Aynı uyarı tekrar etmesin diye)
     };
     const lastNotify = {};
+    const lastStepPrice = {}; // Fiyat adımlarını takip etmek için
+    const TL_STEP_CONFIG = {
+        'HASALTIN': 50,
+        'YENICEKREK': 50,
+        'YENIATA': 50
+    };
     let soundEnabled = localStorage.getItem('fetihSoundEnabled') === 'true'; 
+
+    function playSingleBeep(isUp = true) {
+        if (!soundEnabled || !audioUnlocked || !audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(isUp ? 880 : 440, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+    }
 
     function initAudio() {
         if (audioCtx) return;
@@ -426,6 +431,7 @@
 
         if (audioCtx.state === 'suspended') {
             audioCtx.resume().then(() => {
+                
                 // Sessiz bir test sesi çal — aktif hale getirmek için
                 const osc  = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
@@ -549,9 +555,16 @@
         }
     }
 
+           /* ───────────── OPTIMIZED SYNC & OBSERVER ───────────── */
+    let lastDataString = "";
+
     function sync() {
         const data = {};
-        document.querySelectorAll('.dashboard-grid table tbody tr, .market-data table tbody tr, .full-height-table tr, .full-height-table a.item.title').forEach(el => {
+        const sourceRows = document.querySelectorAll('.dashboard-grid table tbody tr, .market-data table tbody tr, .full-height-table tr, .full-height-table a.item.title');
+        
+        if (!sourceRows.length) return;
+
+        sourceRows.forEach(el => {
             let name, buy, sell, rate, dir;
             if (el.tagName === 'A') {
                 name = el.textContent.trim().toUpperCase();
@@ -560,25 +573,66 @@
                 const rEl = sEl?.nextElementSibling;
                 buy = bEl?.textContent.trim();
                 sell = sEl?.textContent.trim();
-                rate = rEl?.textContent.trim() || '%0.00';
-                dir = rEl?.classList.contains('drop') ? 'down' : (rEl?.classList.contains('rise') ? 'up' : '');
+                rate = rEl?.textContent.trim() || '0.00';
+                
+                // Sayısal kontrol ile kesin yön tespiti
+                const cleanRate = rate.replace(',', '.');
+                const match = cleanRate.match(/[+-]?\d+(\.\d+)?/);
+                const numRate = match ? parseFloat(match[0]) : 0;
+                
+                dir = '';
+                if (numRate > 0) dir = 'up';
+                else if (numRate < 0) dir = 'down';
             } else {
                 name = el.querySelector('td:first-child, a.title, .item-name')?.textContent.trim().toUpperCase();
                 buy = el.querySelector('.buy, .price:nth-child(2), td:nth-child(2)')?.textContent.trim();
                 sell = el.querySelector('.sell, .price:nth-child(3), td:nth-child(3)')?.textContent.trim();
                 const rateEl = el.querySelector('.rate, .item.rate');
-                rate = rateEl ? rateEl.textContent.trim() : '%0.00';
-                dir = rateEl ? (rateEl.classList.contains('drop') ? 'down' : (rateEl.classList.contains('rise') ? 'up' : '')) : '';
+                rate = rateEl ? rateEl.textContent.trim() : '0.00';
+                
+                // Rakamı ayıkla (Örn: "▼ %-0.15" -> -0.15)
+                const cleanRate = rate.replace(',', '.');
+                const match = cleanRate.match(/[+-]?\d+(\.\d+)?/);
+                const numRate = match ? parseFloat(match[0]) : 0;
+                
+                dir = '';
+                if (numRate > 0) dir = 'up';
+                else if (numRate < 0) dir = 'down';
             }
+
+            // ─── YENİ: TL BAREM TAKİBİ (Step Filter) ───
+            const cleanName = (name || '').replace(/\s+/g, '');
+            const stepThreshold = TL_STEP_CONFIG[cleanName];
+            if (stepThreshold && buy && buy !== '-') {
+                const currentPrice = parseFloat(buy.replace('.','').replace(',','.'));
+                if (!lastStepPrice[cleanName]) {
+                    lastStepPrice[cleanName] = currentPrice;
+                } else {
+                    const diff = Math.abs(currentPrice - lastStepPrice[cleanName]);
+                    if (diff >= stepThreshold) {
+                        const isUp = currentPrice > lastStepPrice[cleanName];
+                        lastStepPrice[cleanName] = currentPrice; // Yeni baremi sabitle
+                        
+                        // Uyarı ver
+                        playSingleBeep(isUp);
+                        if (window._fetihSetMessage) {
+                            window._fetihSetMessage(`🎯 Barem Aşıldı: ${name} ${isUp ? 'yükselerek' : 'düşerek'} ${currentPrice} TL seviyesine ulaştı!`, true);
+                        }
+                    }
+                }
+            }
+
             if (name && buy && sell) {
-                const cleanName = name.replace(/\s+/g, '');
                 data[cleanName] = { name, buy, sell, rate, dir };
             }
         });
 
-        if (Object.keys(data).length === 0) return;
+        // Veri değişmediyse UI güncellemesini atla (CPU tasarrufu)
+        const currentDataString = JSON.stringify(data);
+        if (currentDataString === lastDataString) return;
+        lastDataString = currentDataString;
 
-        // Big Boxes Mapping
+        // Big Boxes
         const mapping = {
             'HASALTIN': ['val-has-buy', 'val-has-sell'],
             'HAS': ['val-has-buy', 'val-has-sell'],
@@ -586,7 +640,6 @@
             'ONS': ['val-ons-buy', 'val-ons-sell'],
             'ONSALTIN': ['val-ons-buy', 'val-ons-sell']
         };
-
         Object.entries(mapping).forEach(([key, ids]) => {
             if (data[key]) {
                 const assetLabel = key.includes('HAS') ? 'Has Altın' : (key.includes('GRAM') ? 'Gram Altın' : 'ONS');
@@ -595,108 +648,112 @@
             }
         });
 
-        // Overview
+        // Overview & Table - Sadece içerik değiştiğinde DOM'a dokun
+        requestAnimationFrame(() => {
+            renderOverview(data);
+            renderTable(data);
+        });
+    }
+
+    function renderOverview(data) {
         const overview = document.getElementById('overview-grid');
-        if (overview) {
-            const requested = [
-                { key: 'ESKİÇEYREK', label: 'Eski Çeyrek', mult: '1x' },
-                { key: 'ESKİYARIM',  label: 'Eski Yarım', mult: '×2' },
-                { key: 'ESKİTAM',    label: 'Eski Tam',   mult: '×4' },
-                { key: 'ESKİATA',    label: 'Eski Ata',   star: true },
-                { key: 'ESKİGREMSE', label: 'Eski Gremse', mult: '×10' }
-            ];
-            overview.innerHTML = requested.map(item => {
-                const v = data[item.key] || { buy: '-', sell: '-', rate: '%0.00', dir: '' };
-                const badge = item.mult ? `<span class="mult-badge">${item.mult}</span>` : 
-                             (item.star ? `<span class="star-badge"><span class="material-symbols-outlined" style="font-size:12px;color:#e9c176">star</span></span>` : '');
-                
-                const arrow = v.dir === 'up' ? `<span class="material-symbols-outlined" style="color:var(--success);font-size:16px;vertical-align:text-bottom">arrow_upward</span>` : 
-                             (v.dir === 'down' ? `<span class="material-symbols-outlined" style="color:var(--error);font-size:16px;vertical-align:text-bottom">arrow_downward</span>` : '');
-                const rateColor = v.dir === 'up' ? 'var(--success)' : (v.dir === 'down' ? 'var(--error)' : 'var(--outline)');
+        if (!overview) return;
+        const requested = [
+            { key: 'ESKİÇEYREK', label: 'Eski Çeyrek', mult: '1x' },
+            { key: 'ESKİYARIM',  label: 'Eski Yarım', mult: '×2' },
+            { key: 'ESKİTAM',    label: 'Eski Tam',   mult: '×4' },
+            { key: 'ESKİATA',    label: 'Eski Ata',   star: true },
+            { key: 'ESKİGREMSE', label: 'Eski Gremse', mult: '×10' }
+        ];
+        
+        overview.innerHTML = requested.map(item => {
+            const v = data[item.key] || { buy: '-', sell: '-', rate: '%0.00', dir: '' };
+            const badge = item.mult ? `<span class="mult-badge">${item.mult}</span>` : 
+                         (item.star ? `<span class="star-badge"><span class="material-symbols-outlined" style="font-size:12px;color:#e9c176">star</span></span>` : '');
+            
+            const arrow = v.dir === 'up' ? `<span class="material-symbols-outlined" style="color:var(--success);font-size:16px;vertical-align:text-bottom">arrow_upward</span>` : 
+                         (v.dir === 'down' ? `<span class="material-symbols-outlined" style="color:var(--error);font-size:16px;vertical-align:text-bottom">arrow_downward</span>` : '');
+            const rateColor = v.dir === 'up' ? 'var(--success)' : (v.dir === 'down' ? 'var(--error)' : 'var(--outline)');
 
-                const dBuy = (v.buy && v.buy !== '-' && v.buy !== 'NaN') ? `${arrow} ${v.buy}` : '<span class="material-symbols-outlined loading-icon" style="font-size:16px">sync</span>';
-                const dSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? `${arrow} ${v.sell}` : '<span class="material-symbols-outlined loading-icon" style="font-size:16px">sync</span>';
+            const dBuy = (v.buy && v.buy !== '-' && v.buy !== 'NaN') ? `${arrow} ${v.buy}` : '<span class="material-symbols-outlined loading-icon" style="font-size:16px">sync</span>';
+            const dSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? `${arrow} ${v.sell}` : '<span class="material-symbols-outlined loading-icon" style="font-size:16px">sync</span>';
 
-                return `
-                    <div class="mini-card">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                            <div style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.9; letter-spacing:1px">${item.label}</div>
-                            ${badge}
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
-                            <span style="font-size:9px; opacity:0.5; font-weight:900; color:#fff">AL</span>
-                            <span class="t-val" style="font-size:17px; font-weight:800">${dBuy}</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(255,255,255,0.1)">
-                            <span style="font-size:9px; opacity:0.5; font-weight:900; color:#fff">SAT</span>
-                            <span class="t-val" style="font-size:17px; font-weight:900; color:var(--primary)">${dSell}</span>
-                        </div>
+            return `
+                <div class="mini-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <div style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.9; letter-spacing:1px">${item.label}</div>
+                        ${badge}
                     </div>
-                `;
-            }).join('');
-        }
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+                        <span style="font-size:9px; opacity:0.5; font-weight:900; color:#fff">AL</span>
+                        <span class="t-val" style="font-size:17px; font-weight:800">${dBuy}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(255,255,255,0.1)">
+                        <span style="font-size:9px; opacity:0.5; font-weight:900; color:#fff">SAT</span>
+                        <span class="t-val" style="font-size:17px; font-weight:900; color:var(--primary)">${dSell}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
 
-        // Table update
+    function renderTable(data) {
         const tbody = document.getElementById('sync-tbody');
-        if (tbody) {
-            tbody.innerHTML = Object.values(data).map(v => {
-                const arrow = v.dir === 'up' ? `<span class="material-symbols-outlined" style="color:var(--success);font-size:20px;vertical-align:bottom">arrow_drop_up</span>` : 
-                             (v.dir === 'down' ? `<span class="material-symbols-outlined" style="color:var(--error);font-size:20px;vertical-align:bottom">arrow_drop_down</span>` : '');
-                const rateColor = v.dir === 'up' ? 'var(--success)' : (v.dir === 'down' ? 'var(--error)' : 'var(--outline)');
-
-                const tBuy = (v.buy && v.buy !== '-' && v.buy !== 'NaN') ? `${arrow}${v.buy}` : '<span class="material-symbols-outlined loading-icon">sync</span>';
-                const tSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? `${arrow}${v.sell}` : '<span class="material-symbols-outlined loading-icon">sync</span>';
-                const safeName = (v.name || '').replace('ALTIN', ' ALTIN').replace('ESKI', 'ESKİ ').trim();
-                
-                return `
-                <tr>
-                    <td style="font-weight:800; color:#fff; letter-spacing:2px">${safeName}</td>
-                    <td class="t-val" style="font-size:22px">${tBuy}</td>
-                    <td class="t-val" style="color:var(--primary); font-size:22px">${tSell}</td>
-                    <td style="text-align:right">
-                        <div style="display:inline-flex; align-items:center; gap:4px; font-weight:900; font-size:16px; color:${rateColor}; background:rgba(255,255,255,0.05); padding:6px 12px; border-radius:8px">
-                            ${v.rate}
-                        </div>
-                    </td>
-                </tr>
-            `}).join('');
-        }
-
-        // Bot mesajı artık fetih_analyst.js tarafından yönetiliyor.
+        if (!tbody) return;
+        tbody.innerHTML = Object.values(data).map(v => {
+            const arrow = v.dir === 'up' ? `<span class="material-symbols-outlined" style="color:var(--success);font-size:20px;vertical-align:bottom">arrow_drop_up</span>` : 
+                         (v.dir === 'down' ? `<span class="material-symbols-outlined" style="color:var(--error);font-size:20px;vertical-align:bottom">arrow_drop_down</span>` : '');
+            const rateColor = v.dir === 'up' ? 'var(--success)' : (v.dir === 'down' ? 'var(--error)' : 'var(--outline)');
+            const tBuy = (v.buy && v.buy !== '-' && v.buy !== 'NaN') ? `${arrow}${v.buy}` : '<span class="material-symbols-outlined loading-icon">sync</span>';
+            const tSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? `${arrow}${v.sell}` : '<span class="material-symbols-outlined loading-icon">sync</span>';
+            const safeName = (v.name || '').replace('ALTIN', ' ALTIN').replace('ESKI', 'ESKİ ').trim();
+            
+            return `
+            <tr>
+                <td style="font-weight:800; color:#fff; letter-spacing:2px">${safeName}</td>
+                <td class="t-val" style="font-size:22px">${tBuy}</td>
+                <td class="t-val" style="color:var(--primary); font-size:22px">${tSell}</td>
+                <td style="text-align:right">
+                    <div style="display:inline-flex; align-items:center; gap:4px; font-weight:900; font-size:16px; color:${rateColor}; background:rgba(255,255,255,0.05); padding:6px 12px; border-radius:8px">
+                        ${v.rate}
+                    </div>
+                </td>
+            </tr>
+        `}).join('');
     }
 
     /* ───────────── BOOT ───────────── */
     function boot() {
-        // Cloudflare veya güvenlik doğrulaması ekranındaysak (Örn: "Bir dakika lütfen") bekle
         const titleText = document.title.toLowerCase();
-        const bodyText = document.body ? document.body.innerText.toLowerCase() : '';
-        
-        if (titleText.includes('bir dakika') || 
-            titleText.includes('just a moment') || 
-            titleText.includes('cloudflare') ||
-            bodyText.includes('güvenlik doğrulaması') ||
-            bodyText.includes('bot olmadığınızı') ||
-            document.querySelector('#challenge-running') ||
-            document.querySelector('#cf-challenge-running')) {
-            
-            console.log('Güvenlik ekranı tespit edildi, bekleniyor...');
+        if (titleText.includes('bir dakika') || titleText.includes('cloudflare')) {
             setTimeout(boot, 3000);
             return;
         }
 
-        // Sayfada fiyat tabloları ve en az bir veri satırı henüz yüklenmediyse bekle
         const dataExists = document.querySelector('.dashboard-grid table tr, .market-data table tr, .full-height-table tr');
         if (!dataExists) {
-            console.log('Veri satırları aranıyor...');
             setTimeout(boot, 1500);
             return;
         }
 
-        // Veriler geldiğinde arayüzü enjekte et
         if (!document.getElementById('fetih-root')) {
             injectStyles();
             injectUI();
-            setInterval(sync, 1000);
+            
+            // MutationObserver: Sitedeki değişiklikleri izle, timer'ı kapat ve DEBOUNCE ekle
+            let syncTimeout;
+            const observer = new MutationObserver(() => {
+                if (syncTimeout) clearTimeout(syncTimeout);
+                syncTimeout = setTimeout(sync, 100); // 100ms Debounce (Performans artışı)
+            });
+            
+            const target = document.querySelector('.dashboard-grid') || document.body;
+            observer.observe(target, { childList: true, subtree: true, characterData: true });
+            
+            sync(); // İlk yüklemede çalıştır
+            
+            // Backup Timer: Sadece her şeyin yolunda olduğundan emin olmak için 5 saniyede bir
+            setInterval(sync, 5000);
         }
     }
 
