@@ -175,6 +175,68 @@
                 background: #CBA65F; /* İstenen Altın Tonu */
                 box-shadow: 0 0 10px rgba(203, 166, 95, 0.4);
             }
+
+            /* ── COMPARISON DASHBOARD ── */
+            #fetih-dash-modal {
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+                z-index: 2147483647; display: none; align-items: center; justify-content: center;
+                opacity: 0; transition: opacity 0.4s ease;
+            }
+            #fetih-dash-modal.active { display: flex; opacity: 1; }
+
+            .dash-container {
+                width: 90%; max-width: 850px; height: 520px; /* Daha da kompakt boyut */
+                background: #111; border: 1px solid rgba(233,193,118,0.3);
+                border-radius: 32px; display: flex; flex-direction: column; overflow: hidden;
+                box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            }
+
+            .dash-header {
+                padding: 30px 40px; border-bottom: 1px solid rgba(233,193,118,0.1);
+                display: flex; justify-content: space-between; align-items: center;
+            }
+
+            .dash-tabs { display: flex; gap: 20px; padding: 20px 40px; background: rgba(0,0,0,0.2); }
+            .dash-tab {
+                padding: 10px 20px; border-radius: 12px; cursor: pointer;
+                font-weight: 800; font-size: 13px; color: var(--outline);
+                transition: all 0.3s; border: 1px solid transparent;
+            }
+            .dash-tab.active {
+                background: rgba(233,193,118,0.1); color: var(--primary);
+                border-color: rgba(233,193,118,0.3);
+            }
+
+            .dash-content { flex: 1; padding: 20px 30px; overflow: hidden; }
+
+            .comparison-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+            .comp-card {
+                padding: 20px; background: rgba(255,255,255,0.03); border-radius: 24px;
+                border: 1px solid rgba(255,255,255,0.05); transition: transform 0.3s;
+            }
+            .comp-card:hover { transform: translateY(-5px); border-color: rgba(233,193,118,0.2); }
+
+            .price-indicator-bar {
+                width: 100%; height: 6px; background: rgba(255,255,255,0.1);
+                border-radius: 10px; margin: 40px 0; position: relative;
+                overflow: hidden;
+            }
+            .price-progress {
+                position: absolute; top: 0; left: 0; height: 100%;
+                background: linear-gradient(90deg, var(--error), var(--primary), var(--success));
+                width: 100%; opacity: 0.8;
+            }
+            .price-marker {
+                position: absolute; top: -6px; width: 4px; height: 18px;
+                background: #fff; border-radius: 2px; transform: translateX(-50%);
+                box-shadow: 0 0 10px #fff; transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .stat-label { font-size: 10px; font-weight: 900; color: var(--outline); text-transform: uppercase; margin-bottom: 8px; display: block; }
+            .stat-val { font-family: 'Manrope', sans-serif; font-size: 20px; font-weight: 900; }
+            .stat-diff { font-size: 13px; font-weight: 700; margin-top: 2px; }
+            .stat-detail { font-size: 9px; opacity: 0.5; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; display: flex; flex-direction: column; gap: 1px; }
         `;
 
         document.head.appendChild(style);
@@ -297,12 +359,90 @@
                     </div>
                 </div>
             </main>
+
+            <!-- Comparison Dashboard Modal -->
+            <div id="fetih-dash-modal">
+                <div class="dash-container">
+                    <div class="dash-header">
+                        <div style="display:flex; align-items:center; gap:15px">
+                            <div class="siri-orb" style="width:48px; height:48px">
+                                <span class="material-symbols-outlined siri-icon" style="font-size:24px">analytics</span>
+                            </div>
+                            <div>
+                                <h2 class="font-headline" style="margin:0; font-size:22px">Fetih Piyasa Analizi</h2>
+                                <span style="font-size:12px; opacity:0.6; font-weight:700">Canlı Karşılaştırmalı Veri Paneli</span>
+                            </div>
+                        </div>
+                        <button onclick="window.closeFetihDash()" style="background:none; border:none; color:var(--outline); cursor:pointer">
+                            <span class="material-symbols-outlined" style="font-size:32px">close</span>
+                        </button>
+                    </div>
+
+                    <div class="dash-tabs" id="dash-tabs-list">
+                        <div class="dash-tab active" data-asset="HAS">HAS ALTIN</div>
+                        <div class="dash-tab" data-asset="CEYREK">ÇEYREK ALTIN</div>
+                        <div class="dash-tab" data-asset="ONS">ONS ALTIN</div>
+                    </div>
+
+                    <div class="dash-content">
+                        <!-- Horizontal Indicator -->
+                        <div style="margin-bottom: 25px">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px">
+                                <span class="stat-label">30 Günlük Aralık (Dip - Zirve)</span>
+                                <span id="dash-current-price" class="t-val" style="color:var(--primary); font-size:16px">-- TL</span>
+                            </div>
+                            <div class="price-indicator-bar" style="margin: 20px 0">
+                                <div class="price-progress"></div>
+                                <div id="price-marker" class="price-marker" style="left: 50%"></div>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:800; opacity:0.5">
+                                <span id="dash-range-low">-- TL</span>
+                                <span id="dash-range-high">-- TL</span>
+                            </div>
+                        </div>
+
+                        <!-- Comparison Cards -->
+                        <div class="comparison-grid">
+                            <div class="comp-card">
+                                <span class="stat-label">Düne Göre</span>
+                                <div id="comp-yesterday-diff" class="stat-diff">--</div>
+                                <div class="stat-detail" id="comp-yesterday-detail">
+                                    <span>Henüz veri yok</span>
+                                </div>
+                            </div>
+                            <div class="comp-card">
+                                <span class="stat-label">Geçen Haftaya Göre</span>
+                                <div id="comp-weekly-diff" class="stat-diff">--</div>
+                                <div class="stat-detail" id="comp-weekly-detail">
+                                    <span>Henüz veri yok</span>
+                                </div>
+                            </div>
+                            <div class="comp-card">
+                                <span class="stat-label">1 Ay Önceye Göre</span>
+                                <div id="comp-monthly-diff" class="stat-diff">--</div>
+                                <div class="stat-detail" id="comp-monthly-detail">
+                                    <span>Henüz veri yok</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Analysis Insights -->
+                        <div id="dash-insight" style="margin-top:25px; padding:15px 20px; background:rgba(233,193,118,0.05); border-radius:16px; border-left:4px solid var(--primary)">
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px">
+                                <span class="material-symbols-outlined" style="color:var(--primary); font-size:18px">lightbulb</span>
+                                <span style="font-weight:900; font-size:12px; text-transform:uppercase">Bot Analizi</span>
+                            </div>
+                            <p id="dash-insight-text" style="margin:0; font-size:13px; line-height:1.5; opacity:0.85">Veriler yükleniyor...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
         document.body.appendChild(root);
 
         // Event Listener'ları bağla (Isolated World hatasını önlemek için)
         const botTrigger = document.getElementById('fetih-bot-trigger');
-        if (botTrigger) botTrigger.addEventListener('click', () => window.toggleFetihBot());
+        if (botTrigger) botTrigger.addEventListener('click', () => window.openFetihDash());
 
         const soundBtn = document.getElementById('fetih-sound-btn');
         if (soundBtn) {
@@ -315,6 +455,16 @@
                 soundBtn.style.background = 'rgba(74, 222, 128, 0.1)';
             }
         }
+
+        // Dashboard Tabs Listeners (UI enjekte edildikten sonra bağlanmalı)
+        document.querySelectorAll('.dash-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentDashAsset = tab.dataset.asset;
+                updateDashData();
+            });
+        });
     }
 
     /* ───────────── NOTIFICATIONS & SOUND ───────────── */
@@ -501,6 +651,74 @@
         trigger.classList.toggle('is-open');
     };
 
+    /* ─── DASHBOARD LOGIC ─── */
+    let currentDashAsset = 'HAS';
+    window.openFetihDash = function() {
+        unlockAudio();
+        const modal = document.getElementById('fetih-dash-modal');
+        if (modal) {
+            modal.classList.add('active');
+            updateDashData();
+        }
+    };
+    window.closeFetihDash = function() {
+        const modal = document.getElementById('fetih-dash-modal');
+        if (modal) modal.classList.remove('active');
+    };
+
+    async function updateDashData() {
+        if (typeof window.getFetihAssetAnalysis !== 'function') return;
+        
+        const data = await window.getFetihAssetAnalysis(currentDashAsset);
+        if (!data) return;
+
+        // Current Price
+        document.getElementById('dash-current-price').textContent = data.current + ' TL';
+        
+        // Range & Marker
+        if (data.range) {
+            document.getElementById('dash-range-low').textContent = data.range.low + ' TL';
+            document.getElementById('dash-range-high').textContent = data.range.high + ' TL';
+            
+            const total = data.range.high - data.range.low;
+            const current = data.current - data.range.low;
+            const pct = Math.min(100, Math.max(0, (current / total) * 100));
+            document.getElementById('price-marker').style.left = pct + '%';
+        }
+
+        // Comparison Cards
+        const setComp = (idPrefix, compData, label) => {
+            const diffEl   = document.getElementById(`comp-${idPrefix}-diff`);
+            const detailEl = document.getElementById(`comp-${idPrefix}-detail`);
+            
+            if (!compData) {
+                diffEl.textContent = 'Veri yok';
+                diffEl.style.color = 'var(--outline)';
+                detailEl.innerHTML = `<span>Henüz geçmiş veri toplanmadı.</span>`;
+                return;
+            }
+            
+            const sign = compData.pct > 0 ? '+' : '';
+            const color = compData.pct > 0 ? 'var(--success)' : (compData.pct < 0 ? 'var(--error)' : 'var(--outline)');
+            const diffTL = (data.current - compData.price).toFixed(2);
+            
+            diffEl.innerHTML = `${sign}${compData.pct}% <span style="font-size:0.8em; opacity:0.6; margin-left:5px">(${sign}${diffTL} TL)</span>`;
+            diffEl.style.color = color;
+            
+            detailEl.innerHTML = `
+                <span>${label}: ${compData.price} TL</span>
+                <span>Bugün: ${data.current} TL</span>
+            `;
+        };
+
+        setComp('yesterday', data.yesterday, 'Dün');
+        setComp('weekly',    data.weekly,    'Geçen Hafta');
+        setComp('monthly',   data.monthly,   '1 Ay Önce');
+
+        // Insight Text
+        document.getElementById('dash-insight-text').innerHTML = data.insight || 'Seçilen varlık için analiz hazırlanıyor...';
+    }
+
     const priceHistory = {};
     const HISTORY_WINDOW_MS = 10000; // 10 saniye momentum penceresi
 
@@ -627,6 +845,20 @@
 
             if (name && buy && sell) {
                 data[cleanName] = { name, buy, sell, rate, dir };
+                
+                // ─── YENİ: Site Oranından Ani Hareket Takibi ───
+                // Eğer saniyeler içinde %0.1'lik bir değişim varsa (site kendi hesapladığı oranı güncellerse)
+                const numRate = parseFloat(rate.replace('%','').replace(',','.'));
+                if (!isNaN(numRate)) {
+                    if (!this.lastSiteRates) this.lastSiteRates = {};
+                    if (this.lastSiteRates[cleanName] !== undefined) {
+                        const diff = Math.abs(numRate - this.lastSiteRates[cleanName]);
+                        if (diff >= 0.1) { // 0.1% ani sapma
+                            notifySuddenMove(name, numRate > this.lastSiteRates[cleanName] ? 'up' : 'down', diff);
+                        }
+                    }
+                    this.lastSiteRates[cleanName] = numRate;
+                }
             }
         });
 

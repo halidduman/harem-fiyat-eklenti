@@ -17,7 +17,8 @@
         FAST_INTERVAL_MS: 15 * 1000,                  // 15 saniye (aktif piyasada)
         SHORT_WINDOW: 3,
         LONG_WINDOW: 10,
-        ASSETS: ['HAS', 'CEYREK', 'ATA', 'ONS'],
+        ASSETS: ['HAS', 'CEYREK', 'ONS'], // Has, Çeyrek ve Ons odaklı
+        ROTATION_INTERVAL_MS: 30000, // Daha seyrek rotasyon (30 saniye)
     };
 
     /* ─── İZLENEN VARLIKLAR ─── */
@@ -202,7 +203,8 @@
         
         if (!bestRecord) return null;
         const pct = calcPctChange(bestRecord.price, currentPrice);
-        return { pct: +pct.toFixed(2), price: bestRecord.price };
+        const diffTL = +(currentPrice - bestRecord.price).toFixed(2);
+        return { pct: +pct.toFixed(2), price: bestRecord.price, diffTL: diffTL };
     }
 
     async function calcLevels(asset) {
@@ -301,10 +303,11 @@
                 <span class="material-symbols-outlined" style="font-size:14px;">schedule</span>${timeStr}ye göre
             </span>`;
             
-            // Ani fırlama / Spike kontrolü (Kısa Vade ve >= %0.2 değişim)
-            if (Math.abs(diffPct) >= 0.2 && category === 'Kısa Vade') {
+            // Ani fırlama / Spike kontrolü (Kısa Vade ve >= %0.15 değişim)
+            if (Math.abs(diffPct) >= 0.15 && category === 'Kısa Vade') {
                 const emojiDir = diffTL > 0 ? 'Ani yükseliş' : 'Sert düşüş';
                 m = `⚠️ ${emojiDir}: ${m}`;
+                m.isImportant = true; // Flag for priority
             }
 
             return m;
@@ -347,8 +350,74 @@
         const monthlyMsg = createMsg(monthlyRec, 'Aylık');
         if (monthlyMsg) messages.push(monthlyMsg);
 
+        // Sadece önemli olanları veya trend değişimlerini filtrele (Gürültü azaltma)
+        // Eğer çok fazla mesaj varsa, sadece önemli olanları (Spike veya >= %0.1 günlük değişim) tutabiliriz.
         return messages;
     }
+
+    /* ─── DASHBOARD API ─── */
+    window.getFetihAssetAnalysis = async function(asset) {
+        const now = Date.now();
+        const records = await getLevelRecords(asset, now - 31 * 24 * 60 * 60 * 1000);
+        const current = readCurrentPrice(asset);
+        if (!current && records.length === 0) return null;
+        
+        const price = current ?? records[records.length - 1]?.price;
+        
+        const findAt = (msBack) => {
+            const target = now - msBack;
+            let best = null;
+            let minDiff = Infinity;
+            // 2 saatlik tolerans (verinin seyrek olma ihtimaline karşı)
+            const tolerance = Math.max(msBack * 0.2, 2 * 60 * 60 * 1000); 
+            
+            for (const r of records) {
+                const diff = Math.abs(r.ts - target);
+                if (diff < minDiff && diff < tolerance) {
+                    minDiff = diff;
+                    best = r;
+                }
+            }
+            if (!best) return null;
+            return { 
+                price: best.price, 
+                pct: +calcPctChange(best.price, price).toFixed(2),
+                diffTL: +(price - best.price).toFixed(2)
+            };
+        };
+
+        const levels = await calcLevels(asset);
+        const range = levels.monthly || levels.weekly || levels.daily;
+
+        // Gelişmiş Insight mantığı
+        const day = findAt(24 * 60 * 60 * 1000);
+        const week = findAt(7 * 24 * 60 * 60 * 1000);
+        
+        let insight = `<b>${ASSET_KEYS[asset][1]}</b> şu anda stabilize olmuş durumda. `;
+        
+        if (day) {
+            const dir = day.pct > 0 ? 'yükseliş' : 'düşüş';
+            const intensity = Math.abs(day.pct) > 0.5 ? 'belirgin bir' : 'hafif';
+            if (Math.abs(day.pct) > 0.05) {
+                insight = `<b>${ASSET_KEYS[asset][1]}</b> son 24 saatte ${intensity} ${dir} grafiği çiziyor. `;
+            }
+        }
+        
+        if (range) {
+            if (price >= range.high * 0.995) insight += "Mevcut fiyat, periyodun en yüksek seviyelerinde seyrediyor (Zirve direnci).";
+            else if (price <= range.low * 1.005) insight += "Fiyat şu an periyodun dip seviyelerinde, destek bulmaya çalışıyor.";
+            else insight += `Varlık, periyodun orta bandında (${range.low} - ${range.high}) hareket ediyor.`;
+        }
+
+        return {
+            current: price,
+            yesterday: day,
+            weekly: week,
+            monthly: findAt(30 * 24 * 60 * 60 * 1000),
+            range: range,
+            insight: insight
+        };
+    };
 
     /* ═══════════════════════════════════════
        VERİ TOPLAMA
@@ -382,6 +451,8 @@
             } catch (_) { /* sessiz geç */ }
         }
         if (results.length) {
+            // Sadece "Önemli" mesajlar varsa veya periyodik analiz yapılıyorsa güncelle
+            // Kullanıcı gürültüden şikayetçi olduğu için rotasyonu seyreltiyoruz.
             cachedAnalysis.comments = results;
             cachedAnalysis.idx = 0;
             rotateComment();
@@ -392,9 +463,22 @@
         if (!cachedAnalysis.comments || !cachedAnalysis.comments.length) return;
         const msg = document.getElementById('asst-msg');
         if (!msg) return;
+        
+        // Eğer dashboard açıksa rotasyonu durdurabiliriz ama gerek yok.
         const text = cachedAnalysis.comments[cachedAnalysis.idx % cachedAnalysis.comments.length];
-        cachedAnalysis.idx++;
-        setMessage(msg, text);
+        
+        // Sadece Önemli (⚠️) mesajları veya nadir durumları göster
+        // Ama kullanıcı "kaydadeğer" dediği için burada bir filtre daha uygulayabiliriz.
+        const isImportant = text.includes('⚠️') || text.includes('%0.1') || text.includes('%0.2');
+        
+        if (isImportant || Math.random() > 0.7) { // %30 şansla normal mesajlar çıksın
+            cachedAnalysis.idx++;
+            setMessage(msg, text);
+        } else {
+            // Eğer önemli değilse bir sonrakine geçmeyi dene
+            cachedAnalysis.idx++;
+            // Çok derin recursion olmasın diye sınırlı tutulabilir ama 15-30 sn'de bir çalıştığı için sorun olmaz.
+        }
     }
 
     function highlightMsg(text) {
@@ -567,11 +651,11 @@
             collectTimer = setInterval(() => {
                 patchAssetElements();
                 collectSnapshot();
-            }, interval);
+            }, 5000); // 5 saniyede bir kontrol et (ID atamaları için önemli)
         }, 8000);
 
-        // Yorum rotasyonu: her 15 saniyede bir varlık ve kategori değiştir
-        commentTimer = setInterval(rotateComment, 15000);
+        // Yorum rotasyonu: 30 saniyede bir (Kullanıcı isteğiyle gürültü azaltıldı)
+        commentTimer = setInterval(rotateComment, CFG.ROTATION_INTERVAL_MS);
     }
 
     if (document.readyState === 'loading') {
