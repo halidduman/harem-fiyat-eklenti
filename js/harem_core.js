@@ -189,14 +189,14 @@
         let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
         link.type = 'image/svg+xml';
         link.rel = 'shortcut icon';
-        link.href = chrome.runtime.getURL('f-logo.svg');
+        link.href = chrome.runtime.getURL('assets/f-logo.svg');
         document.getElementsByTagName('head')[0].appendChild(link);
 
         const root = document.createElement('div');
         root.id = 'fetih-root';
         root.innerHTML = `
             <nav>
-                <img src="${chrome.runtime.getURL('fetih.svg')}" style="height:32px; width:auto; display:block;" alt="Fetih Logo">
+                <img src="${chrome.runtime.getURL('assets/fetih.svg')}" style="height:32px; width:auto; display:block;" alt="Fetih Logo">
                 <div style="display:flex;align-items:center;gap:10px">
                     <div id="fetih-bot-trigger">
                         <div class="siri-orb">
@@ -334,6 +334,9 @@
 
     function playSingleBeep(isUp = true) {
         if (!soundEnabled || !audioUnlocked || !audioCtx) return;
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume().catch(() => {});
+        }
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'sine';
@@ -352,11 +355,11 @@
     }
 
     function playBeep(freq, duration, type = 'sine', volume = 0.8) {
-        if (!soundEnabled) return;
+        if (!soundEnabled || !audioUnlocked || !audioCtx) return;
         try {
-            initAudio();
-            if (!audioCtx) return;
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(() => {});
+            }
             
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
@@ -662,26 +665,28 @@
             { key: 'ESKİÇEYREK', label: 'Eski Çeyrek', mult: '1x' },
             { key: 'ESKİYARIM',  label: 'Eski Yarım', mult: '×2' },
             { key: 'ESKİTAM',    label: 'Eski Tam',   mult: '×4' },
-            { key: 'ESKİATA',    label: 'Eski Ata',   star: true },
-            { key: 'ESKİGREMSE', label: 'Eski Gremse', mult: '×10' }
+            { key: 'ESKİGREMSE', label: 'Eski Gremse', mult: '×10' },
+            { key: 'ESKİATA',    label: 'Eski Ata',   star: true }
         ];
         
         overview.innerHTML = requested.map(item => {
             const v = data[item.key] || { buy: '-', sell: '-', rate: '%0.00', dir: '' };
-            const badge = item.mult ? `<span class="mult-badge">${item.mult}</span>` : 
-                         (item.star ? `<span class="star-badge"><span class="material-symbols-outlined" style="font-size:12px;color:#e9c176">star</span></span>` : '');
+            const isAta = item.key === 'ESKİATA';
+            const accentColor = isAta ? '#ff9800' : 'var(--primary)'; // Slightly orange for Eski Ata
+            
+            const badge = item.mult ? `<span class="mult-badge" style="${isAta ? 'color:#ff9800; border-color:rgba(255,152,0,0.3); background:rgba(255,152,0,0.1);' : ''}">${item.mult}</span>` : 
+                         (item.star ? `<span class="star-badge" style="${isAta ? 'border-color:rgba(255,152,0,0.4); background:rgba(255,152,0,0.1);' : ''}"><span class="material-symbols-outlined" style="font-size:12px;color:${accentColor}">star</span></span>` : '');
             
             const arrow = v.dir === 'up' ? `<span class="material-symbols-outlined" style="color:var(--success);font-size:16px;vertical-align:text-bottom">arrow_upward</span>` : 
                          (v.dir === 'down' ? `<span class="material-symbols-outlined" style="color:var(--error);font-size:16px;vertical-align:text-bottom">arrow_downward</span>` : '');
-            const rateColor = v.dir === 'up' ? 'var(--success)' : (v.dir === 'down' ? 'var(--error)' : 'var(--outline)');
 
             const dBuy = (v.buy && v.buy !== '-' && v.buy !== 'NaN') ? `${arrow} ${v.buy}` : '<span class="material-symbols-outlined loading-icon" style="font-size:16px">sync</span>';
             const dSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? `${arrow} ${v.sell}` : '<span class="material-symbols-outlined loading-icon" style="font-size:16px">sync</span>';
 
             return `
-                <div class="mini-card">
+                <div class="mini-card" style="${isAta ? 'border-color:rgba(255,152,0,0.4);' : ''}">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                        <div style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.9; letter-spacing:1px">${item.label}</div>
+                        <div style="font-size:11px; font-weight:900; color:${accentColor}; opacity:0.9; letter-spacing:1px">${item.label}</div>
                         ${badge}
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
@@ -690,7 +695,7 @@
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(255,255,255,0.1)">
                         <span style="font-size:9px; opacity:0.5; font-weight:900; color:#fff">SAT</span>
-                        <span class="t-val" style="font-size:17px; font-weight:900; color:var(--primary)">${dSell}</span>
+                        <span class="t-val" style="font-size:17px; font-weight:900; color:${accentColor}">${dSell}</span>
                     </div>
                 </div>
             `;

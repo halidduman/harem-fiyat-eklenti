@@ -13,8 +13,8 @@
         DB_VERSION: 1,
         STORE: 'prices',
         MAX_AGE_MS: 6 * 30 * 24 * 60 * 60 * 1000,   // 6 ay
-        COLLECT_INTERVAL_MS: 60 * 60 * 1000,          // 1 saat (varsayılan)
-        FAST_INTERVAL_MS: 30 * 60 * 1000,             // 30 dakika (performans uygunsa)
+        COLLECT_INTERVAL_MS: 60 * 1000,               // 1 dakika
+        FAST_INTERVAL_MS: 15 * 1000,                  // 15 saniye (aktif piyasada)
         SHORT_WINDOW: 3,
         LONG_WINDOW: 10,
         ASSETS: ['HAS', 'CEYREK', 'ATA', 'ONS'],
@@ -254,10 +254,10 @@
 
     /* ─── ANA ANALİZ FONKSİYONU ─── */
     async function analyzeAsset(asset) {
-        // Son 6.5 saatlik tüm verileri çek (Çoklu zaman dilimi için)
-        let records = await getLevelRecords(asset, Date.now() - 6.5 * 60 * 60 * 1000);
+        const now = Date.now();
+        // Tüm geçmişi çek (Aylık dahil)
+        let records = await getLevelRecords(asset, now - 31 * 24 * 60 * 60 * 1000);
         
-        // Eğer veritabanında çok az kayıt varsa, eski yöntemle son N adeti almayı garantile
         if (records.length < 3) {
             records = await getRecords(asset, CFG.LONG_WINDOW + 1);
         }
@@ -265,140 +265,89 @@
         const label = ASSET_KEYS[asset][1];
 
         if (records.length < 2) {
-            return `${label}: Analiz için veri toplanıyor...`;
+            return [`${label}: Analiz için veri toplanıyor...`];
         }
 
-        // Kronolojik sırala
         records.sort((a, b) => a.ts - b.ts);
-
-        // Uzun vadeli ilk nokta, bir önceki nokta ve anlık değer
-        const first   = records[0].price;
-        const prev    = records[records.length - 2].price;
         const current = readCurrentPrice(asset) ?? records[records.length - 1].price;
+        const messages = [];
 
-        // ── FARK HESAPLARI ──
-        // Mevcut ile ilk (uzun vadeli periyottaki) kayıt kıyaslanır
-        const diffTL  = +(current - first).toFixed(2);
-        const diffPct = +calcPctChange(first, current).toFixed(2);
-        const absPct  = Math.abs(diffPct);
-
-        // ── 1. HAFTA SONU & SIFIR HAREKET ──
-        const allSame = records.every(r => r.price === first);
-        if (allSame && isWeekend()) {
-            return `${label} yatay seyrediyor. Piyasa kapalı.`;
-        }
-
-        // ── 2. NOISE FILTER (GÜRÜLTÜ FİLTRESİ) ──
-        const NOISE_THRESHOLD = 0.05;
-
-        // ── 3. STATE ENGINE (DURUM MOTORU) ──
-        let state = 'STABLE';
-        if (absPct < NOISE_THRESHOLD) {
-            state = 'STABLE';
-        } else if (diffPct >= 1.0) {
-            state = 'SPIKE_UP';
-        } else if (diffPct <= -1.0) {
-            state = 'SPIKE_DOWN';
-        } else if (diffPct >= 0.3) {
-            state = 'STRONG_UP';
-        } else if (diffPct <= -0.3) {
-            state = 'STRONG_DOWN';
-        } else if (diffPct >= NOISE_THRESHOLD) {
-            state = 'UP_TREND';
-        } else if (diffPct <= -NOISE_THRESHOLD) {
-            state = 'DOWN_TREND';
-        }
-
-        // STABLE durumunda gereksiz detaylara girme, temiz bir "Yatay" mesajı ver
-        if (state === 'STABLE') {
-            return `${label} piyasası yatay seyrediyor. (Fark: %${diffPct})`;
-        }
-
-        // ── 4. TREND CONSISTENCY & CONFIDENCE SCORE (GÜVEN SKORU) ──
-        let upCount = 0;
-        let downCount = 0;
-        let validTfCount = 0;
-        
-        // 30dk, 1s, 3s, 6s periyotlarındaki değişimlere bak
-        const timeframes = [0.5, 1, 3, 6]; 
-        timeframes.forEach(tf => {
-            const tfChange = getTimeframeChange(records, current, tf);
-            if (tfChange && tfChange.pct !== null) {
-                validTfCount++;
-                if (tfChange.pct >= NOISE_THRESHOLD) upCount++;
-                else if (tfChange.pct <= -NOISE_THRESHOLD) downCount++;
-            }
-        });
-
-        let confidenceScore = 50; // Taban skor
-        let trendComment = '';
-        
-        if (validTfCount >= 3) {
-            if (upCount >= 3) {
-                trendComment = 'Uzun vadede yukarı yön ağırlıklı';
-                confidenceScore += 30;
-            } else if (downCount >= 3) {
-                trendComment = 'Uzun vadede aşağı yön ağırlıklı';
-                confidenceScore += 30;
-            } else {
-                trendComment = 'Zaman dilimleri arası uyumsuzluk (Dalgalı)';
-                confidenceScore -= 10;
-            }
-        }
-        
-        if (state === 'STRONG_UP' || state === 'STRONG_DOWN') confidenceScore += 10;
-        if (state === 'SPIKE_UP' || state === 'SPIKE_DOWN') confidenceScore += 20;
-
-        // ── 5. MINI PATTERN DETECTION (ANLIK TEPKİLER) ──
-        let patternComment = '';
-        if (records.length >= 3) {
-            const p2 = records[records.length - 3].price;
-            const p1  = prev;
-            const p0  = current;
+        // Yardımcı mesaj oluşturucu
+        const createMsg = (rec, category) => {
+            if (!rec) return null;
+            const diffTL = +(current - rec.price).toFixed(2);
+            const diffPct = +calcPctChange(rec.price, current).toFixed(2);
             
-            const move1 = ((p1 - p2) / p2 * 100);
-            const move2 = ((p0 - p1) / p1 * 100);
+            // Eğer değişim yoksa ve kısa vade değilse gereksiz mesaj üretme
+            if (diffTL === 0 && category !== 'Kısa Vade') return null;
 
-            // Güçlü geri çekilmeler (Reversal Spikes)
-            if (move1 >= 0.5 && move2 <= -0.3) {
-                patternComment = '⚠️ Hızlı yükseliş sonrası sert geri çekilme başladı.';
-            } else if (move1 <= -0.5 && move2 >= 0.3) {
-                patternComment = '⚠️ Sert düşüş sonrası hızlı toparlanma geldi.';
-            } else if (move1 > 0.1 && move2 < 0) {
-                patternComment = 'Yükseliş denemesi sonrası geri çekilme (Düzeltme).';
-            } else if (move1 < -0.1 && move2 > 0) {
-                patternComment = 'Düşüş denemesi sonrası tepki alımı geldi.';
+            const sign = diffTL > 0 ? '+' : '';
+            const pctColor = diffTL > 0 ? '#4ade80' : (diffTL < 0 ? '#f87171' : '#9ca3af');
+            const dirWord = diffTL > 0 ? 'yükselişte' : (diffTL < 0 ? 'düşüşte' : 'yatay');
+            
+            const gapMs = now - rec.ts;
+            const gapMin = Math.floor(gapMs / 60000);
+            const gapH = Math.floor(gapMin / 60);
+            const gapD = Math.floor(gapH / 24);
+            
+            let timeStr = 'Az önce';
+            if (gapD > 0) timeStr = `${gapD}g önce`;
+            else if (gapH > 0) timeStr = gapMin % 60 > 0 ? `${gapH}sa ${gapMin % 60}dk` : `${gapH}sa`;
+            else if (gapMin > 0) timeStr = `${gapMin}dk`;
+
+            let m = `${label} <span style="display:inline-block;width:1px;height:12px;background:var(--primary);margin:0 10px;vertical-align:middle;opacity:0.5"></span> `;
+            m += `${sign}${diffTL} TL <span style="color:${pctColor}">%${sign}${diffPct}</span> ${dirWord}.`;
+            m += ` <span style="color:gray; opacity:0.85; font-size:0.9em; margin-left:6px; display:inline-flex; align-items:center; gap:4px; vertical-align:middle;">
+                <span class="material-symbols-outlined" style="font-size:14px;">schedule</span>${timeStr}ye göre
+            </span>`;
+            
+            // Ani fırlama / Spike kontrolü (Kısa Vade ve >= %0.2 değişim)
+            if (Math.abs(diffPct) >= 0.2 && category === 'Kısa Vade') {
+                const emojiDir = diffTL > 0 ? 'Ani yükseliş' : 'Sert düşüş';
+                m = `⚠️ ${emojiDir}: ${m}`;
             }
-        }
 
-        // ── 6. TEMPLATE ENGINE (MESAJ OLUŞTURMA) ──
-        const sign    = diffTL > 0 ? '+' : '';
-        const pctColor = diffTL > 0 ? '#4ade80' : '#f87171';
-        const dirWord = diffTL > 0 ? 'yükselişte' : 'düşüşte';
-        
-        // Temel Yapı: [ÜRÜN] | [FARK] + [YÜZDE] + [DURUM]
-        let msg = `${label} <span style="display:inline-block;width:1px;height:12px;background:var(--primary);margin:0 10px;vertical-align:middle;opacity:0.5"></span> ${sign}${diffTL} TL <span style="color:${pctColor}">%${sign}${diffPct}</span> ${dirWord}.`;
-        
-        // Ek Yorumlar
-        if (patternComment) {
-            msg += ` <span style="border-bottom: 1px solid var(--primary); color: var(--primary);">${patternComment}</span>`;
-        } else {
-            // Pattern yoksa Momentum ve Seviye analizi ekle
-            const momentum = detectMomentum(records);
-            if (momentum === 'accelerating') {
-                msg += `<span style="opacity:0.6">${diffTL > 0 ? ' (Artış hızlanıyor)' : ' (Düşüş hızlanıyor)'}</span>`;
-            } else if (momentum === 'decelerating') {
-                msg += '<span style="opacity:0.6"> (Hareket yavaşlıyor)</span>';
+            return m;
+        };
+
+        const findBestRecord = (targetMsBack, fallback) => {
+            const targetTs = now - targetMsBack;
+            const limitTs = now - targetMsBack * 2; // tolerans
+            let best = null;
+            let minDiff = Infinity;
+            for (let i = records.length - 1; i >= 0; i--) {
+                const r = records[i];
+                if (r.ts < limitTs && best) break;
+                const diff = Math.abs(r.ts - targetTs);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    best = r;
+                }
             }
-        }
-        
-        // Eğer durum SPIKE ise Acil formatına çevir
-        if (state.includes('SPIKE')) {
-            const emojiDir = state === 'SPIKE_UP' ? 'Ani yükseliş' : 'Sert düşüş';
-            msg = `⚠️ ${emojiDir}: ${msg}`;
-        }
+            return best || fallback;
+        };
 
-        return msg;
+        // 1. Kısa Vade (1 dk öncesi)
+        const shortRec = findBestRecord(60 * 1000, records[records.length - 2]);
+        const shortMsg = createMsg(shortRec, 'Kısa Vade');
+        if (shortMsg) messages.push(shortMsg);
+
+        // 2. Günlük (24 saat)
+        const dailyRec = findBestRecord(24 * 60 * 60 * 1000, null);
+        const dailyMsg = createMsg(dailyRec, 'Günlük');
+        if (dailyMsg) messages.push(dailyMsg);
+
+        // 3. Haftalık (7 gün)
+        const weeklyRec = findBestRecord(7 * 24 * 60 * 60 * 1000, null);
+        const weeklyMsg = createMsg(weeklyRec, 'Haftalık');
+        if (weeklyMsg) messages.push(weeklyMsg);
+
+        // 4. Aylık (30 gün)
+        const monthlyRec = findBestRecord(30 * 24 * 60 * 60 * 1000, null);
+        const monthlyMsg = createMsg(monthlyRec, 'Aylık');
+        if (monthlyMsg) messages.push(monthlyMsg);
+
+        return messages;
     }
 
     /* ═══════════════════════════════════════
@@ -425,8 +374,11 @@
         const results = [];
         for (const asset of CFG.ASSETS) {
             try {
-                const comment = await analyzeAsset(asset);
-                if (comment) results.push(comment);
+                const comments = await analyzeAsset(asset);
+                if (comments && comments.length) {
+                    if (Array.isArray(comments)) results.push(...comments);
+                    else results.push(comments);
+                }
             } catch (_) { /* sessiz geç */ }
         }
         if (results.length) {
@@ -476,8 +428,8 @@
         if (trigger) {
             trigger.classList.add('is-open');
             if (botTimer) clearTimeout(botTimer);
-            // Acil mesajlar 10 saniye kalsın, normal mesajlar 22 saniye (25sn rotasyon - 3sn boşluk)
-            const duration = isUrgent ? 10000 : 22000;
+            // Acil mesajlar 8 saniye kalsın, normal mesajlar 12 saniye (15sn rotasyon - 3sn boşluk)
+            const duration = isUrgent ? 8000 : 12000;
             botTimer = setTimeout(() => trigger.classList.remove('is-open'), duration);
         }
     }
@@ -618,8 +570,8 @@
             }, interval);
         }, 8000);
 
-        // Yorum rotasyonu: her 25 saniyede bir varlık değiştir
-        commentTimer = setInterval(rotateComment, 25000);
+        // Yorum rotasyonu: her 15 saniyede bir varlık ve kategori değiştir
+        commentTimer = setInterval(rotateComment, 15000);
     }
 
     if (document.readyState === 'loading') {

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Fetih Kuyumculuk Premium Bot",
+  "name": "Harem Altın Css",
   "version": "2.0",
-  "description": "Harem Altın anlık piyasa verilerini kullanarak zaman serisi analizi yapan, geçmiş fiyatlarla kıyaslama ve anomali tespiti sağlayan eklenti.",
+  "description": "Harem Altın canlı piyasa takip ve analiz eklentisi.",
   "permissions": [
     "storage",
     "alarms"
@@ -12,14 +12,14 @@
     "*://canlidoviz.com/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "js/background.js"
   },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "f-logo.svg",
-      "48": "f-logo.svg",
-      "128": "f-logo.svg"
+      "16": "assets/f-logo.svg",
+      "48": "assets/f-logo.svg",
+      "128": "assets/f-logo.svg"
     }
   },
   "content_scripts": [
@@ -28,8 +28,8 @@
         "*://canlipiyasalar.haremaltin.com/*"
       ],
       "js": [
-        "harem_core.js",
-        "fetih_analyst.js"
+        "js/harem_core.js",
+        "js/fetih_analyst.js"
       ],
       "run_at": "document_idle"
     }
@@ -37,9 +37,8 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "worker/worker.js",
-        "fetih.svg",
-        "f-logo.svg"
+        "assets/fetih.svg",
+        "assets/f-logo.svg"
       ],
       "matches": [
         "*://canlipiyasalar.haremaltin.com/*"
