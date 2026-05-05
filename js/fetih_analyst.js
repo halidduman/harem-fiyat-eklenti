@@ -279,9 +279,8 @@
             if (!rec) return null;
             const diffTL = +(current - rec.price).toFixed(2);
             const diffPct = +calcPctChange(rec.price, current).toFixed(2);
-            
-            // Eğer değişim yoksa ve kısa vade değilse gereksiz mesaj üretme
-            if (diffTL === 0 && category !== 'Kısa Vade') return null;
+            // %1 altındaki "normal" değişimleri raporlama (USER REQUEST)
+            if (Math.abs(diffPct) < 1.0) return null;
 
             const sign = diffTL > 0 ? '+' : '';
             const pctColor = diffTL > 0 ? '#4ade80' : (diffTL < 0 ? '#f87171' : '#9ca3af');
@@ -303,11 +302,10 @@
                 <span class="material-symbols-outlined" style="font-size:14px;">schedule</span>${timeStr}ye göre
             </span>`;
             
-            // Ani fırlama / Spike kontrolü (Kısa Vade ve >= %0.15 değişim)
-            if (Math.abs(diffPct) >= 0.15 && category === 'Kısa Vade') {
-                const emojiDir = diffTL > 0 ? 'Ani yükseliş' : 'Sert düşüş';
-                m = `⚠️ ${emojiDir}: ${m}`;
-                m.isImportant = true; // Flag for priority
+            // Sert Hareket Kontrolü (>= %1.5 değişim "Sert" kabul edilir)
+            if (Math.abs(diffPct) >= 1.5) {
+                const emojiDir = diffTL > 0 ? 'Hızlı yükseliş' : 'Hızlı düşüş';
+                m = `🚀 ${emojiDir}: ${m}`;
             }
 
             return m;
@@ -467,9 +465,8 @@
         // Eğer dashboard açıksa rotasyonu durdurabiliriz ama gerek yok.
         const text = cachedAnalysis.comments[cachedAnalysis.idx % cachedAnalysis.comments.length];
         
-        // Sadece Önemli (⚠️) mesajları veya nadir durumları göster
-        // Ama kullanıcı "kaydadeğer" dediği için burada bir filtre daha uygulayabiliriz.
-        const isImportant = text.includes('⚠️') || text.includes('%0.1') || text.includes('%0.2');
+        // Sadece Önemli veya yüksek oranlı mesajları göster
+        const isImportant = text.includes('🚀') || text.includes('🚨') || text.includes('⚠️');
         
         if (isImportant || Math.random() > 0.7) { // %30 şansla normal mesajlar çıksın
             cachedAnalysis.idx++;

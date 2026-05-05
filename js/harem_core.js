@@ -373,7 +373,7 @@
                                 <span style="font-size:12px; opacity:0.6; font-weight:700">Canlı Karşılaştırmalı Veri Paneli</span>
                             </div>
                         </div>
-                        <button onclick="window.closeFetihDash()" style="background:none; border:none; color:var(--outline); cursor:pointer">
+                        <button id="fetih-dash-close" style="background:none; border:none; color:var(--outline); cursor:pointer">
                             <span class="material-symbols-outlined" style="font-size:32px">close</span>
                         </button>
                     </div>
@@ -444,6 +444,9 @@
         const botTrigger = document.getElementById('fetih-bot-trigger');
         if (botTrigger) botTrigger.addEventListener('click', () => window.openFetihDash());
 
+        const closeBtn = document.getElementById('fetih-dash-close');
+        if (closeBtn) closeBtn.addEventListener('click', () => window.closeFetihDash());
+
         const soundBtn = document.getElementById('fetih-sound-btn');
         if (soundBtn) {
             soundBtn.addEventListener('click', () => window._fetihToggleSound());
@@ -470,10 +473,13 @@
     /* ───────────── NOTIFICATIONS & SOUND ───────────── */
     let audioCtx = null;
     const NOTIFY_CONFIG = {
-        threshold: 0.20, // % change threshold for sudden movement (Gürültü filtresi eklendi)
-        cooldown: 120000,  // 2 dakika cooldown (Aynı uyarı tekrar etmesin diye)
+        min_report_pct: 1.0,  // %1.0 - Raporlama Alt Sınırı (Normal piyasayı yoksay)
+        fast_move_pct: 3.0,   // %3.0 - Hızlı Hareket
+        extreme_pct: 5.0,     // %5.0 - Ekstrem/Kriz Durumu
+        cooldown: 300000,     // 5 dakika cooldown (Stabilizasyon süresi)
     };
     const lastNotify = {};
+    const stableTrack = {}; // Stabilizasyon takibi için
     const lastStepPrice = {}; // Fiyat adımlarını takip etmek için
     const TL_STEP_CONFIG = {
         'HASALTIN': 50,
@@ -548,19 +554,44 @@
 
     function notifySuddenMove(assetName, direction, pct) {
         const now = Date.now();
-        if (lastNotify[assetName] && (now - lastNotify[assetName] < NOTIFY_CONFIG.cooldown)) return;
+        
+        // Stabilizasyon Kontrolü: 5 dakika içinde benzer bir hareket olduysa ve fiyat yerinde sayıyorsa sus
+        if (lastNotify[assetName] && (now - lastNotify[assetName] < NOTIFY_CONFIG.cooldown)) {
+            // Eğer yeni değişim eskisine çok yakınsa (%0.2'den az fark varsa), piyasa "stabilize" olmuş demektir
+            if (Math.abs(pct - (stableTrack[assetName] || 0)) < 0.2) {
+                return; 
+            }
+        }
+
+        // %1 altındaki "normal" hareketleri tamamen yoksay
+        if (pct < NOTIFY_CONFIG.min_report_pct) return;
+
         lastNotify[assetName] = now;
+        stableTrack[assetName] = pct; // Son raporlanan oranı kaydet
 
-        // Ses çalma işlemi artık mesaj görüntüleyiciye (setMessage) devredildi.
-        // Böylece hem canlı fiyat takibinden hem de analiz botundan gelen uyarılar ses çıkaracak.
-
-        // Inform the Bot — yeşil=yükseliş, kırmızı=düşüş
+        const isExtreme = pct >= NOTIFY_CONFIG.extreme_pct;
+        const isFast = pct >= NOTIFY_CONFIG.fast_move_pct;
+        
         if (window.fetihBotNotify) {
-            const dirText  = direction === 'up' ? 'Ani yükseliş' : 'Sert düşüş';
-            const icon     = direction === 'up' ? 'trending_up'  : 'trending_down';
-            const color    = direction === 'up' ? '#4ade80'       : '#f87171';
+            let dirText, icon, color;
+            
+            if (isExtreme) {
+                dirText = direction === 'up' ? '🚨 EKSTREM YÜKSELİŞ (KRİZ/HABER)' : '🚨 EKSTREM DÜŞÜŞ (KRİZ/HABER)';
+                icon    = 'emergency';
+                color   = direction === 'up' ? '#4ade80' : '#f87171';
+            } else if (isFast) {
+                dirText = direction === 'up' ? '🚀 Hızlı Artış' : '📉 Hızlı Azalış';
+                icon    = direction === 'up' ? 'rocket_launch' : 'trending_down';
+                color   = direction === 'up' ? '#4ade80' : '#f87171';
+            } else {
+                // %1 - %3 arası
+                dirText = direction === 'up' ? '📈 Belirgin Artış' : '📉 Belirgin Azalış';
+                icon    = direction === 'up' ? 'trending_up' : 'trending_down';
+                color   = direction === 'up' ? '#4ade80' : '#f87171';
+            }
+
             window.fetihBotNotify(
-                `⚠️ ${dirText}: ${assetName} %${pct.toFixed(2)} hareket etti.`,
+                `${dirText}: ${assetName} %${pct.toFixed(2)} seviyesine ulaştı.`,
                 icon,
                 color
             );
@@ -753,26 +784,23 @@
                 el.classList.add(direction);
             }
 
-            // Kümülatif 10-saniye momentum analizi
-            if (priceHistory[assetName].length >= 2) {
-                const prices = priceHistory[assetName].map(h => h.price);
-                const minPrice = Math.min(...prices);
-                const maxPrice = Math.max(...prices);
-                
-                // En düşükten tepeye değişim %si (Yükseliş momentumu)
-                const upPct = ((newNum - minPrice) / minPrice) * 100;
-                // En yüksekten dibe değişim %si (Düşüş momentumu)
-                const downPct = ((maxPrice - newNum) / maxPrice) * 100;
+                // Kümülatif 10-saniye momentum analizi
+                if (priceHistory[assetName].length >= 2) {
+                    const prices = priceHistory[assetName].map(h => h.price);
+                    const minPrice = Math.min(...prices);
+                    const maxPrice = Math.max(...prices);
+                    
+                    const upPct = ((newNum - minPrice) / minPrice) * 100;
+                    const downPct = ((maxPrice - newNum) / maxPrice) * 100;
 
-                // Öncelikli Uyarı (10 saniyelik birikimli değişime bakıyoruz)
-                if (upPct >= NOTIFY_CONFIG.threshold) {
-                    notifySuddenMove(assetName, 'up', upPct);
-                    priceHistory[assetName] = [{ price: newNum, time: now }]; // Tetiklendiğinde sıfırla
-                } else if (downPct >= NOTIFY_CONFIG.threshold) {
-                    notifySuddenMove(assetName, 'down', downPct);
-                    priceHistory[assetName] = [{ price: newNum, time: now }];
+                    if (upPct >= NOTIFY_CONFIG.min_report_pct) {
+                        notifySuddenMove(assetName, 'up', upPct);
+                        priceHistory[assetName] = [{ price: newNum, time: now }];
+                    } else if (downPct >= NOTIFY_CONFIG.min_report_pct) {
+                        notifySuddenMove(assetName, 'down', downPct);
+                        priceHistory[assetName] = [{ price: newNum, time: now }];
+                    }
                 }
-            }
         }
     }
 
@@ -843,23 +871,21 @@
                 }
             }
 
-            if (name && buy && sell) {
-                data[cleanName] = { name, buy, sell, rate, dir };
-                
-                // ─── YENİ: Site Oranından Ani Hareket Takibi ───
-                // Eğer saniyeler içinde %0.1'lik bir değişim varsa (site kendi hesapladığı oranı güncellerse)
-                const numRate = parseFloat(rate.replace('%','').replace(',','.'));
-                if (!isNaN(numRate)) {
-                    if (!this.lastSiteRates) this.lastSiteRates = {};
-                    if (this.lastSiteRates[cleanName] !== undefined) {
-                        const diff = Math.abs(numRate - this.lastSiteRates[cleanName]);
-                        if (diff >= 0.1) { // 0.1% ani sapma
-                            notifySuddenMove(name, numRate > this.lastSiteRates[cleanName] ? 'up' : 'down', diff);
+                if (name && buy && sell) {
+                    data[cleanName] = { name, buy, sell, rate, dir };
+                    
+                    const numRate = parseFloat(rate.replace('%','').replace(',','.'));
+                    if (!isNaN(numRate)) {
+                        if (!this.lastSiteRates) this.lastSiteRates = {};
+                        if (this.lastSiteRates[cleanName] !== undefined) {
+                            const diff = Math.abs(numRate - this.lastSiteRates[cleanName]);
+                            if (diff >= NOTIFY_CONFIG.min_report_pct) { 
+                                notifySuddenMove(name, numRate > this.lastSiteRates[cleanName] ? 'up' : 'down', diff);
+                            }
                         }
+                        this.lastSiteRates[cleanName] = numRate;
                     }
-                    this.lastSiteRates[cleanName] = numRate;
                 }
-            }
         });
 
         // Veri değişmediyse UI güncellemesini atla (CPU tasarrufu)
