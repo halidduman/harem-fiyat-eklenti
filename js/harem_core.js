@@ -135,15 +135,15 @@
                 max-width: 0; opacity: 0;
                 padding: 0;
                 display: flex; align-items: center;
-                transition: max-width 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease, margin 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                transition: max-width 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease, margin 0.6s cubic-bezier(0.4, 0, 0.2, 1);
                 will-change: max-width, opacity, margin;
                 margin-left: 0; margin-right: 0;
             }
 
             #fetih-bot-trigger.is-open .bot-msg-text {
-                max-width: 800px; /* Sabit bir üst sınır takılmayı azaltır */
+                max-width: 500px; /* Daha gerçekçi bir sınır animasyon gecikmesini önler */
                 opacity: 1;
-                margin-left: 10px; margin-right: 20px; /* Padding yerine margin */
+                margin-left: 10px; margin-right: 20px;
             }
 
             #asst-msg {
