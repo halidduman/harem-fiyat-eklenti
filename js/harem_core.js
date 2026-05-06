@@ -67,14 +67,13 @@
             .card-3 { grid-column: span 3; }
 
             /* Table Styles - SPACIOUS & READABLE */
-            .fetih-table-box { width: 100%; background: var(--surface-container); border-radius: 8px; overflow: hidden; border: 1px solid rgba(233, 193, 118, 0.2); }
-            table { width: 100%; border-collapse: separate; border-spacing: 0; }
-            th { padding: 30px 60px; text-align: left; font-size: 11px; font-weight: 900; text-transform: uppercase; color: var(--outline); letter-spacing: 3px; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(233,193,118,0.1); }
-            td { padding: 30px 60px; font-size: 20px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,0.04); }
-            th:first-child, td:first-child { padding-left: 80px; }
-            th:last-child, td:last-child { padding-right: 80px; text-align: right; }
-            tr:nth-child(even) { background: rgba(255,255,255,0.02); }
-            tr:hover { background: rgba(233, 193, 118, 0.05); }
+            #fetih-root .fetih-table-box { width: 100%; background: transparent; border: none; }
+            #fetih-root table { width: 100% !important; border-collapse: separate !important; border-spacing: 0 20px !important; }
+            #fetih-root th { padding: 15px 40px !important; text-align: left !important; font-size: 16px !important; font-weight: 900 !important; text-transform: uppercase !important; color: var(--outline) !important; letter-spacing: 2px !important; border: none !important; border-bottom: 2px solid rgba(233,193,118,0.2) !important; }
+            #fetih-root td { padding: 25px 40px !important; border: none !important; background: rgba(255,255,255,0.02) !important; transition: all 0.2s ease; }
+            #fetih-root th:first-child, #fetih-root td:first-child { padding-left: 50px !important; border-top-left-radius: 24px !important; border-bottom-left-radius: 24px !important; }
+            #fetih-root th:last-child, #fetih-root td:last-child { padding-right: 50px !important; text-align: right !important; border-top-right-radius: 24px !important; border-bottom-right-radius: 24px !important; }
+            #fetih-root tr:hover td { background: rgba(233, 193, 118, 0.08) !important; }
             .t-val { font-family: 'Manrope', sans-serif; font-weight: 800; }
 
             @keyframes up { 0% { color: var(--success); text-shadow: 0 0 15px rgba(74, 222, 128, 0.4); } 100% { color: inherit; } }
@@ -173,86 +172,158 @@
             .has-card-active .star-badge span { color: #000 !important; }
 
             /* Custom Scrollbar for Fetih UI */
-            #fetih-root::-webkit-scrollbar {
-                width: 10px;
+            #fetih-root::-webkit-scrollbar, #fetih-root *::-webkit-scrollbar {
+                width: 10px; height: 10px;
             }
-            #fetih-root::-webkit-scrollbar-track {
-                background: rgba(0,0,0,0.2);
+            #fetih-root::-webkit-scrollbar-track, #fetih-root *::-webkit-scrollbar-track {
+                background: rgba(0,0,0,0.2); border-radius: 10px;
             }
-            #fetih-root::-webkit-scrollbar-thumb {
+            #fetih-root::-webkit-scrollbar-thumb, #fetih-root *::-webkit-scrollbar-thumb {
                 background: rgba(255, 255, 255, 0.15);
                 border-radius: 10px;
                 border: 3px solid transparent; 
                 background-clip: content-box;
                 transition: background 0.4s ease, box-shadow 0.4s ease;
             }
-            #fetih-root::-webkit-scrollbar-thumb:hover {
+            #fetih-root::-webkit-scrollbar-thumb:hover, #fetih-root *::-webkit-scrollbar-thumb:hover {
                 background: #CDA860;
                 background-clip: content-box; /* Boyutun değişmemesi için sabit tutuyoruz */
                 box-shadow: 0 0 8px rgba(205, 168, 96, 0.4);
             }
 
-            /* ── COMPARISON DASHBOARD ── */
+            /* ── LIGHT THEME OVERRIDES ── */
+            #fetih-root.light-mode {
+                --surface: #f4f4f4;
+                --surface-container: #ffffff;
+                --card-bg: rgba(255, 255, 255, 0.95);
+                --on-surface: #1a1a1a;
+                --outline: #666666;
+            }
+            #fetih-root.light-mode nav { background: #ffffff !important; border-bottom: 1px solid rgba(0,0,0,0.1); }
+            #fetih-root.light-mode .glass-card { border: 1px solid rgba(0,0,0,0.1) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.05) !important; }
+            #fetih-root.light-mode .glass-card .t-val[style*="color:var(--primary)"] { color: #a57c2a !important; }
+            #fetih-root.light-mode th { color: #555 !important; border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
+            #fetih-root.light-mode td { background: #ffffff !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; color: #111 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.02) !important; }
+            #fetih-root.light-mode td .t-val { color: #111 !important; }
+            #fetih-root.light-mode td .t-val[style*="color:var(--primary)"] { color: #a57c2a !important; }
+            #fetih-root.light-mode h3.font-headline { color: #111 !important; }
+            #fetih-root.light-mode h2.font-headline { color: #111 !important; }
+            #fetih-root.light-mode .settings-container { background: rgba(255,255,255,0.95); border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 40px 80px rgba(0,0,0,0.1); }
+            #fetih-root.light-mode .settings-title h2 { color: #111; }
+            #fetih-root.light-mode .settings-card { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.05); }
+            #fetih-root.light-mode .settings-info h3 { color: #111; }
+            #fetih-root.light-mode .settings-info p { color: #555; }
+            #fetih-root.light-mode .settings-close-btn { color: #111; }
+            #fetih-root.light-mode .settings-close-btn:hover { background: rgba(0,0,0,0.1); }
+            #fetih-root.light-mode #fetih-dash-modal { background: rgba(255,255,255,0.6); }
+
+            /* Light Mode Scrollbars */
+            #fetih-root.light-mode::-webkit-scrollbar-track, #fetih-root.light-mode *::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
+            #fetih-root.light-mode::-webkit-scrollbar-thumb, #fetih-root.light-mode *::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border: 3px solid transparent; background-clip: content-box; }
+            #fetih-root.light-mode::-webkit-scrollbar-thumb:hover, #fetih-root.light-mode *::-webkit-scrollbar-thumb:hover { background: #a57c2a; background-clip: content-box; }
+
+            /* ── CHART OVERRIDES ── */
+            #fetih-chart-modal.active { display: flex !important; opacity: 1 !important; }
+            #fetih-chart-modal.active .chart-modal-container { transform: translateY(0) scale(1); }
+            
+            .custom-chart-btn {
+                background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--outline);
+                padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s;
+            }
+            .custom-chart-btn:hover { background: rgba(255,255,255,0.05); color: var(--on-surface); }
+            .custom-chart-btn.active { background: rgba(233,193,118,0.15); border-color: rgba(233,193,118,0.5); color: var(--primary); }
+
+            /* Hide original dropdowns */
+            #chart-injection-zone .chart-container .d-flex { display: none !important; }
+
+            /* Style original chart info to look like our bento grid */
+            #chart-injection-zone .chart-info {
+                display: flex !important; justify-content: space-around !important; width: 100% !important; margin-bottom: 20px !important;
+                background: rgba(0,0,0,0.2) !important; padding: 20px !important; border-radius: 20px !important; box-sizing: border-box !important;
+            }
+            #chart-injection-zone .chart-info ul {
+                display: flex !important; width: 100% !important; justify-content: space-around !important; list-style: none !important; margin: 0 !important; padding: 0 !important;
+            }
+            #chart-injection-zone .chart-info li {
+                display: flex !important; flex-direction: column !important; align-items: center !important; text-align: center !important;
+            }
+            #chart-injection-zone .chart-info h5 {
+                font-size: 13px !important; font-weight: 800 !important; color: var(--outline) !important; text-transform: uppercase !important; margin-bottom: 10px !important;
+            }
+            #chart-injection-zone .chart-info li:nth-child(3) h5 { display: none !important; }
+            #chart-injection-zone .chart-info li:nth-child(3)::before {
+                content: 'NET DEĞİŞİM (TL)';
+                font-size: 13px !important; font-weight: 800 !important; color: var(--outline) !important; text-transform: uppercase !important; margin-bottom: 10px !important; display: block !important;
+            }
+            #chart-injection-zone .chart-info span {
+                font-size: 32px !important; font-weight: 900 !important; color: var(--on-surface) !important; font-family: 'Manrope', sans-serif !important; letter-spacing: -1px !important;
+            }
+            #chart-injection-zone .chart-info span.rise { color: var(--success) !important; }
+            #chart-injection-zone .chart-info span.fall { color: var(--error) !important; }
+
+            #chart-injection-zone .chart-container {
+                display: flex !important; flex-direction: column !important; height: auto !important; background: transparent !important; box-shadow: none !important; padding: 0 !important;
+            }
+            #chart-injection-zone .chart {
+                height: 550px !important; width: 100% !important; position: relative !important;
+            }
+
+            /* ── SETTINGS MODAL ── */
             #fetih-dash-modal {
                 position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+                background: rgba(0,0,0,0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
                 z-index: 2147483647; display: none; align-items: center; justify-content: center;
                 opacity: 0; transition: opacity 0.4s ease;
             }
             #fetih-dash-modal.active { display: flex; opacity: 1; }
 
-            .dash-container {
-                width: 90%; max-width: 850px; height: 520px; /* Daha da kompakt boyut */
-                background: #111; border: 1px solid rgba(233,193,118,0.3);
+            .settings-container {
+                width: 90%; max-width: 480px; 
+                background: rgba(20, 20, 20, 0.85); 
+                border: 1px solid rgba(233,193,118,0.2);
                 border-radius: 32px; display: flex; flex-direction: column; overflow: hidden;
-                box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+                box-shadow: 0 40px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+                padding: 40px;
+                transform: translateY(20px) scale(0.95);
+                transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            }
+            #fetih-dash-modal.active .settings-container {
+                transform: translateY(0) scale(1);
             }
 
-            .dash-header {
-                padding: 30px 40px; border-bottom: 1px solid rgba(233,193,118,0.1);
+            .settings-header {
                 display: flex; justify-content: space-between; align-items: center;
+                margin-bottom: 40px;
+            }
+            .settings-title {
+                display: flex; align-items: center; gap: 12px;
+            }
+            .settings-title span.material-symbols-outlined {
+                font-size: 28px; color: var(--primary);
+            }
+            .settings-title h2 {
+                margin: 0; font-size: 24px; font-weight: 800; color: #fff; letter-spacing: 1px;
             }
 
-            .dash-tabs { display: flex; gap: 20px; padding: 20px 40px; background: rgba(0,0,0,0.2); }
-            .dash-tab {
-                padding: 10px 20px; border-radius: 12px; cursor: pointer;
-                font-weight: 800; font-size: 13px; color: var(--outline);
-                transition: all 0.3s; border: 1px solid transparent;
+            .settings-close-btn {
+                background: rgba(255,255,255,0.05); border: none; color: var(--outline); cursor: pointer;
+                width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                transition: all 0.2s;
             }
-            .dash-tab.active {
-                background: rgba(233,193,118,0.1); color: var(--primary);
-                border-color: rgba(233,193,118,0.3);
-            }
+            .settings-close-btn:hover { background: rgba(255,255,255,0.1); color: #fff; transform: rotate(90deg); }
 
-            .dash-content { flex: 1; padding: 20px 30px; overflow: hidden; }
+            .settings-card {
+                background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px;
+                padding: 24px; display: flex; justify-content: space-between; align-items: center;
+                margin-bottom: 20px; transition: all 0.3s ease;
+            }
+            .settings-card:hover { border-color: rgba(233,193,118,0.3); background: rgba(233,193,118,0.05); }
 
-            .comparison-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-            .comp-card {
-                padding: 20px; background: rgba(255,255,255,0.03); border-radius: 24px;
-                border: 1px solid rgba(255,255,255,0.05); transition: transform 0.3s;
+            .settings-info {
+                display: flex; flex-direction: column; gap: 6px;
             }
-            .comp-card:hover { transform: translateY(-5px); border-color: rgba(233,193,118,0.2); }
-
-            .price-indicator-bar {
-                width: 100%; height: 6px; background: rgba(255,255,255,0.1);
-                border-radius: 10px; margin: 40px 0; position: relative;
-                overflow: hidden;
-            }
-            .price-progress {
-                position: absolute; top: 0; left: 0; height: 100%;
-                background: linear-gradient(90deg, var(--error), var(--primary), var(--success));
-                width: 100%; opacity: 0.8;
-            }
-            .price-marker {
-                position: absolute; top: -6px; width: 4px; height: 18px;
-                background: #fff; border-radius: 2px; transform: translateX(-50%);
-                box-shadow: 0 0 10px #fff; transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-
-            .stat-label { font-size: 10px; font-weight: 900; color: var(--outline); text-transform: uppercase; margin-bottom: 8px; display: block; }
-            .stat-val { font-family: 'Manrope', sans-serif; font-size: 20px; font-weight: 900; }
-            .stat-diff { font-size: 13px; font-weight: 700; margin-top: 2px; }
-            .stat-detail { font-size: 9px; opacity: 0.5; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; display: flex; flex-direction: column; gap: 1px; }
+            .settings-info h3 { margin: 0; font-size: 16px; color: #e5e5e5; font-weight: 700; }
+            .settings-info p { margin: 0; font-size: 13px; color: var(--outline); font-weight: 500; }
         `;
 
         document.head.appendChild(style);
@@ -282,10 +353,8 @@
                         </div>
                         <span id="asst-msg" class="bot-msg-text"></span>
                     </div>
-                    <button id="fetih-sound-btn"
-                        title="Sesi Aç/Kapat"
-                        style="background:rgba(255,255,255,0.06);border:1px solid rgba(233,193,118,0.25);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s">
-                        <span class="material-symbols-outlined" style="font-size:18px;color:var(--outline)">volume_off</span>
+                    <button id="fetih-chart-btn" title="Geçmiş Veriler ve Grafik" style="background:rgba(255,255,255,0.06);border:1px solid rgba(233,193,118,0.25);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s; margin-left:8px;">
+                        <span class="material-symbols-outlined" style="font-size:22px;color:var(--primary)">show_chart</span>
                     </button>
                 </div>
             </nav>
@@ -359,15 +428,20 @@
 
                 <!-- Market Table -->
                 <div style="margin-top:50px">
-                    <h3 class="font-headline" style="font-size:28px; font-weight:900; text-transform:uppercase; margin-bottom:40px; padding-left:30px; color:#fff; letter-spacing:1px">Tüm Piyasa Fiyatları</h3>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding:0 40px">
+                        <h3 class="font-headline" style="font-size:24px; font-weight:700; text-transform:uppercase; color:var(--on-surface); letter-spacing:1px; margin:0">TÜM PİYASA FİYATLARI</h3>
+                        <a href="#" id="fetih-settings-btn" style="font-size:14px; font-weight:800; color:var(--primary); text-decoration:none; text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px; padding: 10px 20px; background: rgba(233, 193, 118, 0.1); border-radius: 999px; border: 1px solid rgba(233, 193, 118, 0.2); transition: all 0.3s;">
+                            <span class="material-symbols-outlined" style="font-size:18px">settings</span> AYARLAR
+                        </a>
+                    </div>
                     <div class="fetih-table-box">
                         <table>
                             <thead>
                                 <tr>
-                                    <th style="width:40%">Varlık</th>
-                                    <th>Alış Fiyatı</th>
-                                    <th>Satış Fiyatı</th>
-                                    <th>Trend</th>
+                                    <th style="width:30%">VARLIK</th>
+                                    <th>ALIŞ</th>
+                                    <th>SATIŞ</th>
+                                    <th style="text-align:right">DEĞİŞİM</th>
                                 </tr>
                             </thead>
                             <tbody id="sync-tbody"></tbody>
@@ -376,79 +450,93 @@
                 </div>
             </main>
 
-            <!-- Comparison Dashboard Modal -->
-            <div id="fetih-dash-modal">
-                <div class="dash-container">
-                    <div class="dash-header">
-                        <div style="display:flex; align-items:center; gap:15px">
-                            <div class="siri-orb" style="width:48px; height:48px">
-                                <span class="material-symbols-outlined siri-icon" style="font-size:24px">analytics</span>
+            <!-- Chart Modal -->
+            <div id="fetih-chart-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); z-index:2147483648; display:none; flex-direction:column; align-items:center; justify-content:center; opacity:0; transition:opacity 0.4s ease;">
+                <div class="chart-modal-container" style="width:95%; max-width:1200px; background:var(--surface-container); border:1px solid rgba(233,193,118,0.2); border-radius:32px; padding:30px; display:flex; flex-direction:column; transform:translateY(20px) scale(0.95); transition:transform 0.4s; box-shadow:0 40px 80px rgba(0,0,0,0.8);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <span class="material-symbols-outlined" style="font-size:32px; color:var(--primary)">monitoring</span>
+                            <h2 style="margin:0; font-size:28px; font-weight:800; color:var(--on-surface);">Piyasa Grafiği</h2>
+                        </div>
+                        <button id="fetih-chart-close" style="background:rgba(255,255,255,0.05); border:none; border-radius:50%; width:40px; height:40px; color:var(--outline); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Scroll Wrapper -->
+                    <div id="chart-scroll-wrapper" style="overflow-y:auto; overflow-x:hidden; max-height:75vh; padding-right:15px;">
+                        <!-- Custom Controls -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px; background:rgba(0,0,0,0.2); padding:15px 25px; border-radius:20px; border:1px solid rgba(255,255,255,0.05);">
+                            <div id="custom-time-controls" style="display:flex; flex-wrap:wrap; gap:10px;">
+                                ${['Gün', 'Hafta', 'Ay', '6 Ay', 'Yıl', '5 Yıl', 'Max'].map(t => `<button class="custom-chart-btn time-btn ${t==='Hafta'?'active':''}" data-val="${t}">${t}</button>`).join('')}
                             </div>
-                            <div>
-                                <h2 class="font-headline" style="margin:0; font-size:22px">Fetih Piyasa Analizi</h2>
-                                <span style="font-size:12px; opacity:0.6; font-weight:700">Canlı Karşılaştırmalı Veri Paneli</span>
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <span style="font-size:12px; font-weight:800; color:var(--outline); text-transform:uppercase;">Varlık:</span>
+                                <select id="custom-asset-select" style="background:rgba(255,255,255,0.05); border:1px solid rgba(233,193,118,0.3); color:var(--primary); font-size:14px; font-weight:700; padding:8px 16px; border-radius:12px; outline:none; cursor:pointer;">
+                                    <option value="Altın">Altın</option>
+                                    <option value="ONS">ONS</option>
+                                    <option value="USD / Kg">USD / Kg</option>
+                                    <option value="EUR / Kg">EUR / Kg</option>
+                                    <option value="14 Ayar">14 Ayar</option>
+                                    <option value="22 Ayar">22 Ayar</option>
+                                    <option value="Gümüş">Gümüş</option>
+                                    <option value="Yeni Çeyrek">Yeni Çeyrek</option>
+                                    <option value="Eski Çeyrek">Eski Çeyrek</option>
+                                    <option value="Yeni Yarım">Yeni Yarım</option>
+                                    <option value="Eski Yarım">Eski Yarım</option>
+                                    <option value="Yeni Tam">Yeni Tam</option>
+                                    <option value="Eski Tam">Eski Tam</option>
+                                    <option value="Yeni Ata">Yeni Ata</option>
+                                    <option value="Eski Ata">Eski Ata</option>
+                                    <option value="Yeni Ata5">Yeni Ata5</option>
+                                    <option value="Eski Ata5">Eski Ata5</option>
+                                    <option value="Yeni Gremese">Yeni Gremese</option>
+                                    <option value="Eski Gremese">Eski Gremese</option>
+                                </select>
                             </div>
                         </div>
-                        <button id="fetih-dash-close" style="background:none; border:none; color:var(--outline); cursor:pointer">
-                            <span class="material-symbols-outlined" style="font-size:32px">close</span>
+
+                        <!-- The Original Chart Container goes here -->
+                        <div id="chart-injection-zone" style="width:100%; min-height:550px; position:relative; overflow:visible; padding-bottom:20px;">
+                            <div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--outline);">Orijinal grafik bekleniyor...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Modal -->
+            <div id="fetih-dash-modal">
+                <div class="settings-container">
+                    <div class="settings-header">
+                        <div class="settings-title">
+                            <span class="material-symbols-outlined">settings</span>
+                            <h2>Ayarlar</h2>
+                        </div>
+                        <button id="fetih-dash-close" class="settings-close-btn">
+                            <span class="material-symbols-outlined" style="font-size:24px">close</span>
                         </button>
                     </div>
 
-                    <div class="dash-tabs" id="dash-tabs-list">
-                        <div class="dash-tab active" data-asset="HAS">HAS ALTIN</div>
-                        <div class="dash-tab" data-asset="CEYREK">ÇEYREK ALTIN</div>
-                        <div class="dash-tab" data-asset="ONS">ONS ALTIN</div>
-                    </div>
-
-                    <div class="dash-content">
-                        <!-- Horizontal Indicator -->
-                        <div style="margin-bottom: 25px">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:10px">
-                                <span class="stat-label">30 Günlük Aralık (Dip - Zirve)</span>
-                                <span id="dash-current-price" class="t-val" style="color:var(--primary); font-size:16px">-- TL</span>
+                    <div class="settings-content">
+                        <div class="settings-card">
+                            <div class="settings-info">
+                                <h3>Sistem Sesleri</h3>
+                                <p>Fiyat değişimlerindeki uyarı sesleri</p>
                             </div>
-                            <div class="price-indicator-bar" style="margin: 20px 0">
-                                <div class="price-progress"></div>
-                                <div id="price-marker" class="price-marker" style="left: 50%"></div>
-                            </div>
-                            <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:800; opacity:0.5">
-                                <span id="dash-range-low">-- TL</span>
-                                <span id="dash-range-high">-- TL</span>
-                            </div>
+                            <button id="fetih-sound-btn"
+                                title="Sesi Aç/Kapat"
+                                style="background:rgba(255,255,255,0.06);border:1px solid rgba(233,193,118,0.25);border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s; flex-shrink:0;">
+                                <span class="material-symbols-outlined" style="font-size:24px;color:var(--outline)">volume_off</span>
+                            </button>
                         </div>
-
-                        <!-- Comparison Cards -->
-                        <div class="comparison-grid">
-                            <div class="comp-card">
-                                <span class="stat-label">Düne Göre</span>
-                                <div id="comp-yesterday-diff" class="stat-diff">--</div>
-                                <div class="stat-detail" id="comp-yesterday-detail">
-                                    <span>Henüz veri yok</span>
-                                </div>
+                        <div class="settings-card" id="fetih-theme-btn" style="cursor: pointer;">
+                            <div class="settings-info">
+                                <h3>Görünüm Modu</h3>
+                                <p>Açık ve Koyu tema arasında geçiş yap</p>
                             </div>
-                            <div class="comp-card">
-                                <span class="stat-label">Geçen Haftaya Göre</span>
-                                <div id="comp-weekly-diff" class="stat-diff">--</div>
-                                <div class="stat-detail" id="comp-weekly-detail">
-                                    <span>Henüz veri yok</span>
-                                </div>
-                            </div>
-                            <div class="comp-card">
-                                <span class="stat-label">1 Ay Önceye Göre</span>
-                                <div id="comp-monthly-diff" class="stat-diff">--</div>
-                                <div class="stat-detail" id="comp-monthly-detail">
-                                    <span>Henüz veri yok</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Analysis Insights -->
-                        <div id="dash-insight" style="margin-top:25px; padding:15px 20px; background:rgba(233,193,118,0.05); border-radius:16px; border-left:4px solid var(--primary)">
-                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px">
-                                <span class="material-symbols-outlined" style="color:var(--primary); font-size:18px">lightbulb</span>
-                                <span style="font-weight:900; font-size:12px; text-transform:uppercase">Bot Analizi</span>
-                            </div>
-                            <p id="dash-insight-text" style="margin:0; font-size:13px; line-height:1.5; opacity:0.85">Veriler yükleniyor...</p>
+                            <button style="background:rgba(255,255,255,0.06);border:1px solid rgba(233,193,118,0.25);border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s; flex-shrink:0; pointer-events:none;">
+                                <span class="material-symbols-outlined" id="fetih-theme-icon" style="font-size:24px;color:var(--outline)">light_mode</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -460,6 +548,14 @@
         const botTrigger = document.getElementById('fetih-bot-trigger');
         if (botTrigger) botTrigger.addEventListener('click', () => window.openFetihDash());
 
+        const settingsBtn = document.getElementById('fetih-settings-btn');
+        if (settingsBtn) {
+            settingsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.openFetihDash();
+            });
+        }
+
         const closeBtn = document.getElementById('fetih-dash-close');
         if (closeBtn) closeBtn.addEventListener('click', () => window.closeFetihDash());
 
@@ -468,22 +564,89 @@
             soundBtn.addEventListener('click', () => window._fetihToggleSound());
             // Başlangıç durumunu yükle
             if (soundEnabled) {
-                soundBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;color:#4ade80">volume_up</span>';
+                soundBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:24px;color:#4ade80">volume_up</span>';
                 soundBtn.title = 'Ses: AÇIK';
                 soundBtn.style.borderColor = 'rgba(74, 222, 128, 0.5)';
                 soundBtn.style.background = 'rgba(74, 222, 128, 0.1)';
             }
         }
 
-        // Dashboard Tabs Listeners (UI enjekte edildikten sonra bağlanmalı)
-        document.querySelectorAll('.dash-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                currentDashAsset = tab.dataset.asset;
-                updateDashData();
+        // Theme Toggle
+        let isLightMode = localStorage.getItem('fetihLightMode') === 'true';
+        const themeIcon = document.getElementById('fetih-theme-icon');
+
+        if (isLightMode) {
+            root.classList.add('light-mode');
+            if (themeIcon) themeIcon.textContent = 'dark_mode';
+        }
+
+        const themeBtn = document.getElementById('fetih-theme-btn');
+        if (themeBtn) {
+            themeBtn.addEventListener('click', () => {
+                isLightMode = !isLightMode;
+                localStorage.setItem('fetihLightMode', isLightMode);
+                if (isLightMode) {
+                    root.classList.add('light-mode');
+                    if(themeIcon) themeIcon.textContent = 'dark_mode';
+                } else {
+                    root.classList.remove('light-mode');
+                    if(themeIcon) themeIcon.textContent = 'light_mode';
+                }
+            });
+        }
+
+        // Chart Modal Logic
+        const chartBtn = document.getElementById('fetih-chart-btn');
+        const chartModal = document.getElementById('fetih-chart-modal');
+        const chartClose = document.getElementById('fetih-chart-close');
+        const injectionZone = document.getElementById('chart-injection-zone');
+
+        if (chartBtn && chartModal) {
+            chartBtn.addEventListener('click', () => {
+                const originalChartContainer = document.querySelector('.chart-container');
+                if (originalChartContainer && !injectionZone.contains(originalChartContainer)) {
+                    injectionZone.innerHTML = '';
+                    injectionZone.appendChild(originalChartContainer);
+                    // Force resize for Chart.js
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+                }
+                chartModal.classList.add('active');
+            });
+
+            chartClose.addEventListener('click', () => {
+                chartModal.classList.remove('active');
+            });
+        }
+
+        // Hijack Dropdowns
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const val = btn.dataset.val;
+                const dropItems = injectionZone.querySelectorAll('.dropdown-item');
+                for (let item of dropItems) {
+                    if (item.textContent.trim() === val) {
+                        item.click();
+                        break;
+                    }
+                }
             });
         });
+
+        const assetSelect = document.getElementById('custom-asset-select');
+        if (assetSelect) {
+            assetSelect.addEventListener('change', (e) => {
+                const val = e.target.value;
+                const dropItems = injectionZone.querySelectorAll('.dropdown-item');
+                for (let item of dropItems) {
+                    if (item.textContent.trim() === val) {
+                        item.click();
+                        break;
+                    }
+                }
+            });
+        }
     }
 
     /* ───────────── NOTIFICATIONS & SOUND ───────────── */
@@ -984,23 +1147,31 @@
         const tbody = document.getElementById('sync-tbody');
         if (!tbody) return;
         tbody.innerHTML = Object.values(data).map(v => {
-            const arrow = v.dir === 'up' ? `<span class="material-symbols-outlined" style="color:var(--success);font-size:20px;vertical-align:bottom">arrow_drop_up</span>` :
-                (v.dir === 'down' ? `<span class="material-symbols-outlined" style="color:var(--error);font-size:20px;vertical-align:bottom">arrow_drop_down</span>` : '');
-            const rateColor = v.dir === 'up' ? 'var(--success)' : (v.dir === 'down' ? 'var(--error)' : 'var(--outline)');
-            const tBuy = (v.buy && v.buy !== '-' && v.buy !== 'NaN') ? `${arrow}${v.buy}` : '<span class="material-symbols-outlined loading-icon">sync</span>';
-            const tSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? `${arrow}${v.sell}` : '<span class="material-symbols-outlined loading-icon">sync</span>';
+            const arrowIcon = v.dir === 'down' ? 'arrow_downward' : 'arrow_upward';
+            const iconBg = 'rgba(255,255,255,0.08)';
+            const iconColor = v.dir === 'down' ? 'var(--error)' : 'var(--success)';
+            const iconHTML = `<div style="display:flex; align-items:center; justify-content:center; width:48px; height:48px; border-radius:50%; background:${iconBg}; margin-right:24px; flex-shrink:0;">
+                                <span class="material-symbols-outlined" style="font-size:28px !important; color:${iconColor} !important; font-weight:bold !important;">${arrowIcon}</span>
+                              </div>`;
+
+            const tBuy = (v.buy && v.buy !== '-' && v.buy !== 'NaN') ? v.buy : '--';
+            const tSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? v.sell : '--';
             const safeName = (v.name || '').replace('ALTIN', ' ALTIN').replace('ESKI', 'ESKİ ').trim();
+
+            const changeVal = v.rate ? (String(v.rate).includes('%') ? String(v.rate) : `%${v.rate}`) : '%0.00';
+            const changeColor = changeVal.includes('-') ? 'var(--error)' : 'var(--success)';
 
             return `
             <tr>
-                <td style="font-weight:800; color:#fff; letter-spacing:2px">${safeName}</td>
-                <td class="t-val" style="font-size:22px">${tBuy}</td>
-                <td class="t-val" style="color:var(--primary); font-size:22px">${tSell}</td>
-                <td style="text-align:right">
-                    <div style="display:inline-flex; align-items:center; gap:4px; font-weight:900; font-size:16px; color:${rateColor}; background:rgba(255,255,255,0.05); padding:6px 12px; border-radius:8px">
-                        ${v.rate}
+                <td style="font-weight:700 !important; color:var(--on-surface) !important; letter-spacing:1px !important; font-size:24px !important;">
+                    <div style="display:flex; align-items:center;">
+                        ${iconHTML}
+                        ${safeName}
                     </div>
                 </td>
+                <td class="t-val" style="font-size:32px !important; color:var(--on-surface) !important;">${tBuy}</td>
+                <td class="t-val" style="color:var(--primary) !important; font-size:32px !important; font-weight:900 !important;">${tSell}</td>
+                <td class="t-val" style="font-size:30px !important; color:${changeColor} !important; text-align:right !important;">${changeVal}</td>
             </tr>
         `}).join('');
     }
