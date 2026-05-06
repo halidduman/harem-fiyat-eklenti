@@ -40,6 +40,7 @@
     // Her asset için aktif uyarı durumu
     const activeAlerts = {}; // { assetKey: { level, direction, pct, msg, ts } }
     let lastAlertMsg = '';   // Şu an ekranda gösterilen uyarı
+    let startupCooldown = true; // İlk açılışta hatalı alarmı önle
 
     /* ═══════════════════════════════════════
        IndexedDB (değişmedi)
@@ -213,6 +214,7 @@
        ANI HAREKET ALGILAMA VE UYARI
     ═══════════════════════════════════════ */
     async function checkSuddenMoves() {
+        if (startupCooldown) return false; // Veri oturana kadar alarm verme
         let highestAlert = null;
 
         for (const asset of CFG.ASSETS) {
@@ -314,10 +316,10 @@
             const pctColor = data.pct > 0 ? '#4ade80' : (data.pct < 0 ? '#f87171' : '#888');
             const iconName = periodIcons[periodLabel] || 'schedule';
 
-            let m = `${label}: <span style="color:#fff;font-weight:800">${current.toLocaleString('tr-TR')}</span>`;
+            let m = `${label}: <span style="color:#CDA860;font-weight:800">${current.toLocaleString('tr-TR')}</span>`;
             m += ` <span style="display:inline-block;width:1px;height:12px;background:rgba(255,255,255,0.15);margin:0 8px;vertical-align:middle"></span>`;
             m += `<span style="color:${pctColor};font-weight:700">${sign}${data.pct}%</span>`;
-            m += ` <span style="color:#CDA860;font-weight:600;border-bottom:1px solid rgba(205,168,96,0.4);padding-bottom:1px;margin-left:6px">${sign}${data.diffTL} TL</span>`;
+            m += ` <span style="color:#fff;font-weight:600;border-bottom:1px solid ${pctColor};padding-bottom:1px;margin-left:6px">${sign}${data.diffTL} TL</span>`;
             m += ` <span style="color:#777;font-size:0.85em;margin-left:8px;display:inline-flex;align-items:center;gap:3px;vertical-align:middle">`;
             m += `<span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle">${iconName}</span>${periodLabel}</span>`;
 
@@ -486,13 +488,20 @@
                 const iconEl = document.querySelector('.siri-icon');
                 const orbEl  = document.querySelector('.siri-orb');
                 if (iconEl) {
-                    iconEl.textContent = 'smart_toy';
+                    const isCollecting = text.includes('toplanıyor') || text.includes('hazırlanıyor');
+                    iconEl.textContent = isCollecting ? 'progress_activity' : 'smart_toy';
                     iconEl.style.color = '';
+                    if (isCollecting) {
+                        iconEl.classList.add('fetih-loader');
+                    } else {
+                        iconEl.classList.remove('fetih-loader');
+                        iconEl.style.animation = '';
+                    }
                 }
                 if (orbEl) orbEl.style.background = '';
                 trigger.style.borderColor = '';
 
-                // 12sn göster, 8sn gizli kalsın (20sn döngü içinde)
+                // Normal mesajlar: 12sn göster, 8sn gizli kalsın
                 botTimer = setTimeout(() => trigger.classList.remove('is-open'), 12000);
             }
         }
@@ -585,6 +594,10 @@
             const msg = document.getElementById('asst-msg');
             setMessage(msg, await buildStartupMessage());
         }, 2000);
+
+        setTimeout(() => {
+            startupCooldown = false; // 20 saniye sonra alarmları aktif et
+        }, 20000);
 
         setTimeout(() => {
             patchAssetElements();

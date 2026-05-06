@@ -60,6 +60,7 @@
             @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
             @keyframes spin { 100% { transform: rotate(360deg); } }
             .loading-icon { animation: spin 2s linear infinite; color: var(--outline); font-size: 24px; }
+            .fetih-loader { animation: spin 1s linear infinite !important; color: #CDA860 !important; }
             
             .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; width: 100%; max-width: 1240px; margin: 0 auto; }
             .card-6 { grid-column: span 6; }
@@ -111,6 +112,7 @@
                 overflow: hidden; /* Kesin clipping */
                 flex-shrink: 0;
                 transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                will-change: width, border-color;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.4);
             }
             #fetih-bot-trigger:hover { border-color: rgba(233, 193, 118, 0.5); }
@@ -133,18 +135,15 @@
                 max-width: 0; opacity: 0;
                 padding: 0;
                 display: flex; align-items: center;
-                transition:
-                    max-width 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-                    opacity 0.4s ease;
-                /* İkon hizasından itibaren görünmezlik maskesi */
-                -webkit-mask-image: linear-gradient(to right, transparent, black 10px, black calc(100% - 15px), transparent);
-                mask-image: linear-gradient(to right, transparent, black 10px, black calc(100% - 15px), transparent);
+                transition: max-width 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease, margin 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                will-change: max-width, opacity, margin;
+                margin-left: 0; margin-right: 0;
             }
 
             #fetih-bot-trigger.is-open .bot-msg-text {
-                max-width: calc(100vw - 350px);
+                max-width: 800px; /* Sabit bir üst sınır takılmayı azaltır */
                 opacity: 1;
-                padding-left: 10px; padding-right: 20px;
+                margin-left: 10px; margin-right: 20px; /* Padding yerine margin */
             }
 
             #asst-msg {
@@ -498,6 +497,7 @@
     const lastNotify = {};
     const stableTrack = {}; // Stabilizasyon takibi için
     const lastStepPrice = {}; // Fiyat adımlarını takip etmek için
+    let startupCooldown = true; // Başlangıçta hatalı alarmları önlemek için
     const TL_STEP_CONFIG = {
         'HASALTIN': 50,
         'YENICEKREK': 50,
@@ -570,6 +570,7 @@
     }
 
     function notifySuddenMove(assetName, direction, pct) {
+        if (startupCooldown) return; // Başlangıçta veri oturana kadar sus
         const now = Date.now();
 
         // Stabilizasyon Kontrolü: 5 dakika içinde benzer bir hareket olduysa ve fiyat yerinde sayıyorsa sus
@@ -958,6 +959,8 @@
             const dBuy = (v.buy && v.buy !== '-' && v.buy !== 'NaN') ? `${arrow} ${v.buy}` : '<span class="material-symbols-outlined loading-icon" style="font-size:16px">sync</span>';
             const dSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? `${arrow} ${v.sell}` : '<span class="material-symbols-outlined loading-icon" style="font-size:16px">sync</span>';
 
+            const sellId = item.key === 'ESKİÇEYREK' ? 'id="val-ceyrek-sell"' : (item.key === 'ESKİATA' ? 'id="val-ata-sell"' : '');
+
             return `
                 <div class="mini-card" style="${isAta ? 'border-color:rgba(255,152,0,0.4);' : ''}">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
@@ -970,7 +973,7 @@
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(255,255,255,0.1)">
                         <span style="font-size:9px; opacity:0.5; font-weight:900; color:#fff">SAT</span>
-                        <span class="t-val" style="font-size:17px; font-weight:900; color:${accentColor}">${dSell}</span>
+                        <span ${sellId} class="t-val" style="font-size:17px; font-weight:900; color:${accentColor}">${dSell}</span>
                     </div>
                 </div>
             `;
@@ -1019,6 +1022,9 @@
         if (!document.getElementById('fetih-root')) {
             injectStyles();
             injectUI();
+
+            // 20 saniye boyunca alarm çalma (veri oturana kadar)
+            setTimeout(() => { startupCooldown = false; }, 20000);
 
             // MutationObserver: Sitedeki değişiklikleri izle, timer'ı kapat ve DEBOUNCE ekle
             let syncTimeout;
