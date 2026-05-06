@@ -317,7 +317,7 @@
             let m = `${label}: <span style="color:#fff;font-weight:800">${current.toLocaleString('tr-TR')}</span>`;
             m += ` <span style="display:inline-block;width:1px;height:12px;background:rgba(255,255,255,0.15);margin:0 8px;vertical-align:middle"></span>`;
             m += `<span style="color:${pctColor};font-weight:700">${sign}${data.pct}%</span>`;
-            m += ` <span style="color:#e9c176;font-weight:600;border-bottom:1px solid rgba(233,193,118,0.4);padding-bottom:1px;margin-left:6px">${sign}${data.diffTL} TL</span>`;
+            m += ` <span style="color:#CDA860;font-weight:600;border-bottom:1px solid rgba(205,168,96,0.4);padding-bottom:1px;margin-left:6px">${sign}${data.diffTL} TL</span>`;
             m += ` <span style="color:#777;font-size:0.85em;margin-left:8px;display:inline-flex;align-items:center;gap:3px;vertical-align:middle">`;
             m += `<span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle">${iconName}</span>${periodLabel}</span>`;
 
@@ -451,7 +451,7 @@
     ═══════════════════════════════════════ */
     function highlightMsg(text) {
         if (!text) return '';
-        const GOLD = '#e9c176';
+        const GOLD = '#CDA860';
         let s = text;
         // Sadece Varlık isimlerini altın rengi yap (zaten tag varsa dokunma)
         ['Has Altın','Çeyrek Altın','Ons Altın','Ata Altın'].forEach(a => {

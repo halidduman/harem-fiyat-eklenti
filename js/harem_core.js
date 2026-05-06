@@ -17,7 +17,7 @@
             @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap');
 
             :root {
-                --primary: #e9c176;
+                --primary: #CDA860;
                 --surface: #0f0f0f;
                 --surface-container: #1a1a1a;
                 --card-bg: rgba(35, 35, 35, 0.9);
@@ -82,7 +82,23 @@
             .down { animation: down 1.2s ease; }
 
             .overview-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; width: 100%; max-width: 1240px; }
-            .mini-card { padding: 20px 24px; background: var(--card-bg); border: 1px solid rgba(233,193,118,0.2); border-radius: 24px; text-align: left; }
+            .mini-card { padding: 20px 24px; background: var(--card-bg); border: 1px solid rgba(233,193,118,0.2); border-radius: 24px; text-align: left; position: relative; }
+            
+            /* Gremse ile Ata arasına dik çizgi ve ekstra mesafe */
+            .overview-grid > div:nth-child(5) {
+                margin-left: 14px; /* Ekstra boşluk */
+            }
+            .overview-grid > div:nth-child(5)::before {
+                content: "";
+                position: absolute;
+                left: -16px; /* (16px gap + 14px margin) / 2 = 15px, +1px offset */
+                top: 15px;
+                bottom: 15px;
+                width: 2px;
+                background: #CDA860;
+                opacity: 0.8;
+                border-radius: 2px;
+            }
             
             /* ── NAVBAR BOT ── */
             #fetih-bot-trigger {
@@ -165,15 +181,16 @@
                 background: rgba(0,0,0,0.2);
             }
             #fetih-root::-webkit-scrollbar-thumb {
-                background: rgba(255, 255, 255, 0.1); /* Koyu Gri */
+                background: rgba(255, 255, 255, 0.15);
                 border-radius: 10px;
-                border: 2px solid transparent; 
+                border: 3px solid transparent; 
                 background-clip: content-box;
-                transition: all 0.3s ease;
+                transition: background 0.4s ease, box-shadow 0.4s ease;
             }
             #fetih-root::-webkit-scrollbar-thumb:hover {
-                background: #CBA65F; /* İstenen Altın Tonu */
-                box-shadow: 0 0 10px rgba(203, 166, 95, 0.4);
+                background: #CDA860;
+                background-clip: content-box; /* Boyutun değişmemesi için sabit tutuyoruz */
+                box-shadow: 0 0 8px rgba(205, 168, 96, 0.4);
             }
 
             /* ── COMPARISON DASHBOARD ── */
@@ -920,11 +937,11 @@
         const overview = document.getElementById('overview-grid');
         if (!overview) return;
         const requested = [
-            { key: 'ESKİÇEYREK', label: 'Eski Çeyrek', mult: '1x' },
-            { key: 'ESKİYARIM', label: 'Eski Yarım', mult: '×2' },
-            { key: 'ESKİTAM', label: 'Eski Tam', mult: '×4' },
-            { key: 'ESKİGREMSE', label: 'Eski Gremse', mult: '×10' },
-            { key: 'ESKİATA', label: 'Eski Ata', star: true }
+            { key: 'ESKİÇEYREK', label: 'Çeyrek', mult: '1x' },
+            { key: 'ESKİYARIM', label: 'Yarım', mult: '×2' },
+            { key: 'ESKİTAM', label: 'Tam', mult: '×4' },
+            { key: 'ESKİGREMSE', label: 'Gremse', mult: '×10' },
+            { key: 'ESKİATA', label: 'Ata', star: true }
         ];
 
         overview.innerHTML = requested.map(item => {
