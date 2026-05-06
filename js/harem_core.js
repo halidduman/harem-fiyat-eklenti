@@ -9,7 +9,7 @@
     /* ───────────── CSS INJECTION ───────────── */
     function injectStyles() {
         if (document.getElementById('fetih-overhaul-styles')) return;
-        
+
         const style = document.createElement('style');
         style.id = 'fetih-overhaul-styles';
         style.textContent = `
@@ -281,7 +281,7 @@
                     <div class="glass-card card-6 has-card-active" style="padding:35px 45px; position:relative; overflow:hidden">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:35px">
                             <div>
-                                <span style="font-size:10px; font-weight:900; text-transform:uppercase; opacity:0.6; letter-spacing:2px; display:block; margin-bottom:10px">Ana Varlık</span>
+                                <span style="font-size:10px; font-weight:900; text-transform:uppercase; opacity:0.6; letter-spacing:2px; display:block; margin-bottom:10px">Fetih Kuyumculuk</span>
                                 <h2 class="font-headline" style="font-size:38px; font-weight:900; margin:0">Has Altın (24K)</h2>
                             </div>
                             <div style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.1); padding:8px 14px; border-radius:100px; font-size:11px; font-weight:900; border: 1px solid rgba(0,0,0,0.25);">
@@ -486,12 +486,12 @@
         'YENICEKREK': 50,
         'YENIATA': 50
     };
-    let soundEnabled = localStorage.getItem('fetihSoundEnabled') === 'true'; 
+    let soundEnabled = localStorage.getItem('fetihSoundEnabled') === 'true';
 
     function playSingleBeep(isUp = true) {
         if (!soundEnabled || !audioUnlocked || !audioCtx) return;
         if (audioCtx.state === 'suspended') {
-            audioCtx.resume().catch(() => {});
+            audioCtx.resume().catch(() => { });
         }
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -507,22 +507,22 @@
         if (audioCtx) return;
         try {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        } catch (e) {}
+        } catch (e) { }
     }
 
     function playBeep(freq, duration, type = 'sine', volume = 0.8) {
         if (!soundEnabled || !audioUnlocked || !audioCtx) return;
         try {
             if (audioCtx.state === 'suspended') {
-                audioCtx.resume().catch(() => {});
+                audioCtx.resume().catch(() => { });
             }
-            
+
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
 
             osc.type = type;
             osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            
+
             gain.gain.setValueAtTime(volume, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
 
@@ -531,11 +531,11 @@
 
             osc.start();
             osc.stop(audioCtx.currentTime + duration);
-        } catch (e) {}
+        } catch (e) { }
     }
 
     function playUpSequence() {
-        for(let i=0; i<3; i++) {
+        for (let i = 0; i < 3; i++) {
             setTimeout(() => {
                 playBeep(987.77, 0.2, 'triangle', 0.6);
                 setTimeout(() => playBeep(1318.51, 0.25, 'triangle', 0.6), 150);
@@ -544,7 +544,7 @@
     }
 
     function playDownSequence() {
-        for(let i=0; i<3; i++) {
+        for (let i = 0; i < 3; i++) {
             setTimeout(() => {
                 playBeep(440, 0.2, 'sine', 0.8);
                 setTimeout(() => playBeep(329.63, 0.3, 'sine', 0.8), 150);
@@ -554,12 +554,12 @@
 
     function notifySuddenMove(assetName, direction, pct) {
         const now = Date.now();
-        
+
         // Stabilizasyon Kontrolü: 5 dakika içinde benzer bir hareket olduysa ve fiyat yerinde sayıyorsa sus
         if (lastNotify[assetName] && (now - lastNotify[assetName] < NOTIFY_CONFIG.cooldown)) {
             // Eğer yeni değişim eskisine çok yakınsa (%0.2'den az fark varsa), piyasa "stabilize" olmuş demektir
             if (Math.abs(pct - (stableTrack[assetName] || 0)) < 0.2) {
-                return; 
+                return;
             }
         }
 
@@ -571,23 +571,23 @@
 
         const isExtreme = pct >= NOTIFY_CONFIG.extreme_pct;
         const isFast = pct >= NOTIFY_CONFIG.fast_move_pct;
-        
+
         if (window.fetihBotNotify) {
             let dirText, icon, color;
-            
+
             if (isExtreme) {
                 dirText = direction === 'up' ? '🚨 EKSTREM YÜKSELİŞ (KRİZ/HABER)' : '🚨 EKSTREM DÜŞÜŞ (KRİZ/HABER)';
-                icon    = 'emergency';
-                color   = direction === 'up' ? '#4ade80' : '#f87171';
+                icon = 'emergency';
+                color = direction === 'up' ? '#4ade80' : '#f87171';
             } else if (isFast) {
                 dirText = direction === 'up' ? '🚀 Hızlı Artış' : '📉 Hızlı Azalış';
-                icon    = direction === 'up' ? 'rocket_launch' : 'trending_down';
-                color   = direction === 'up' ? '#4ade80' : '#f87171';
+                icon = direction === 'up' ? 'rocket_launch' : 'trending_down';
+                color = direction === 'up' ? '#4ade80' : '#f87171';
             } else {
                 // %1 - %3 arası
                 dirText = direction === 'up' ? '📈 Belirgin Artış' : '📉 Belirgin Azalış';
-                icon    = direction === 'up' ? 'trending_up' : 'trending_down';
-                color   = direction === 'up' ? '#4ade80' : '#f87171';
+                icon = direction === 'up' ? 'trending_up' : 'trending_down';
+                color = direction === 'up' ? '#4ade80' : '#f87171';
             }
 
             window.fetihBotNotify(
@@ -615,14 +615,14 @@
 
         if (audioCtx.state === 'suspended') {
             audioCtx.resume().then(() => {
-                
+
                 // Sessiz bir test sesi çal — aktif hale getirmek için
-                const osc  = audioCtx.createOscillator();
+                const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
                 osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.01);
-                
+
                 updateBtn();
                 audioUnlocked = true;
             }).catch(e => console.warn('Audio resume failed:', e));
@@ -631,19 +631,19 @@
             audioUnlocked = true;
         }
     }
-    document.addEventListener('click',   unlockAudio, { once: true });
+    document.addEventListener('click', unlockAudio, { once: true });
     document.addEventListener('keydown', unlockAudio, { once: true });
-    
+
     window._fetihUnlockAudio = unlockAudio; // Geriye dönük uyumluluk
     window._fetihPlayUp = playUpSequence;
     window._fetihPlayDown = playDownSequence;
-    window._fetihToggleSound = function() {
+    window._fetihToggleSound = function () {
         if (!audioUnlocked) {
             unlockAudio();
         }
         soundEnabled = !soundEnabled;
         localStorage.setItem('fetihSoundEnabled', soundEnabled);
-        
+
         const btn = document.getElementById('fetih-sound-btn');
         if (btn) {
             if (soundEnabled) {
@@ -675,7 +675,7 @@
 
     /* ───────────── DATA SYNC ───────────── */
     // Tıklanınca aç/kapat — zamanlayıcı fetih_analyst.js tarafından yönetilir
-    window.toggleFetihBot = function() {
+    window.toggleFetihBot = function () {
         unlockAudio(); // Her etkileşimde ses aktive et
         const trigger = document.getElementById('fetih-bot-trigger');
         if (!trigger) return;
@@ -684,7 +684,7 @@
 
     /* ─── DASHBOARD LOGIC ─── */
     let currentDashAsset = 'HAS';
-    window.openFetihDash = function() {
+    window.openFetihDash = function () {
         unlockAudio();
         const modal = document.getElementById('fetih-dash-modal');
         if (modal) {
@@ -692,25 +692,25 @@
             updateDashData();
         }
     };
-    window.closeFetihDash = function() {
+    window.closeFetihDash = function () {
         const modal = document.getElementById('fetih-dash-modal');
         if (modal) modal.classList.remove('active');
     };
 
     async function updateDashData() {
         if (typeof window.getFetihAssetAnalysis !== 'function') return;
-        
+
         const data = await window.getFetihAssetAnalysis(currentDashAsset);
         if (!data) return;
 
         // Current Price
         document.getElementById('dash-current-price').textContent = data.current + ' TL';
-        
+
         // Range & Marker
         if (data.range) {
             document.getElementById('dash-range-low').textContent = data.range.low + ' TL';
             document.getElementById('dash-range-high').textContent = data.range.high + ' TL';
-            
+
             const total = data.range.high - data.range.low;
             const current = data.current - data.range.low;
             const pct = Math.min(100, Math.max(0, (current / total) * 100));
@@ -719,23 +719,23 @@
 
         // Comparison Cards
         const setComp = (idPrefix, compData, label) => {
-            const diffEl   = document.getElementById(`comp-${idPrefix}-diff`);
+            const diffEl = document.getElementById(`comp-${idPrefix}-diff`);
             const detailEl = document.getElementById(`comp-${idPrefix}-detail`);
-            
+
             if (!compData) {
                 diffEl.textContent = 'Veri yok';
                 diffEl.style.color = 'var(--outline)';
                 detailEl.innerHTML = `<span>Henüz geçmiş veri toplanmadı.</span>`;
                 return;
             }
-            
+
             const sign = compData.pct > 0 ? '+' : '';
             const color = compData.pct > 0 ? 'var(--success)' : (compData.pct < 0 ? 'var(--error)' : 'var(--outline)');
             const diffTL = (data.current - compData.price).toFixed(2);
-            
+
             diffEl.innerHTML = `${sign}${compData.pct}% <span style="font-size:0.8em; opacity:0.6; margin-left:5px">(${sign}${diffTL} TL)</span>`;
             diffEl.style.color = color;
-            
+
             detailEl.innerHTML = `
                 <span>${label}: ${compData.price} TL</span>
                 <span>Bugün: ${data.current} TL</span>
@@ -743,8 +743,8 @@
         };
 
         setComp('yesterday', data.yesterday, 'Dün');
-        setComp('weekly',    data.weekly,    'Geçen Hafta');
-        setComp('monthly',   data.monthly,   '1 Ay Önce');
+        setComp('weekly', data.weekly, 'Geçen Hafta');
+        setComp('monthly', data.monthly, '1 Ay Önce');
 
         // Insight Text
         document.getElementById('dash-insight-text').innerHTML = data.insight || 'Seçilen varlık için analiz hazırlanıyor...';
@@ -756,7 +756,7 @@
     function updateValue(id, val, assetName = '') {
         const el = document.getElementById(id);
         if (!el || el.textContent === val) return;
-        
+
         if (!val || val === '-' || val === 'NaN') {
             el.innerHTML = '<span class="material-symbols-outlined loading-icon" style="font-size:32px">sync</span>';
             return;
@@ -769,48 +769,48 @@
         if (!isNaN(newNum) && assetName) {
             const now = Date.now();
             if (!priceHistory[assetName]) priceHistory[assetName] = [];
-            
+
             // Yeni fiyatı ekle
             priceHistory[assetName].push({ price: newNum, time: now });
-            
+
             // 10 saniyeden eski verileri temizle
             priceHistory[assetName] = priceHistory[assetName].filter(h => now - h.time <= HISTORY_WINDOW_MS);
-            
+
             const direction = newNum > oldNum ? 'up' : (newNum < oldNum ? 'down' : '');
-            
+
             if (direction) {
                 el.classList.remove('up', 'down');
                 void el.offsetWidth;
                 el.classList.add(direction);
             }
 
-                // Kümülatif 10-saniye momentum analizi
-                if (priceHistory[assetName].length >= 2) {
-                    const prices = priceHistory[assetName].map(h => h.price);
-                    const minPrice = Math.min(...prices);
-                    const maxPrice = Math.max(...prices);
-                    
-                    const upPct = ((newNum - minPrice) / minPrice) * 100;
-                    const downPct = ((maxPrice - newNum) / maxPrice) * 100;
+            // Kümülatif 10-saniye momentum analizi
+            if (priceHistory[assetName].length >= 2) {
+                const prices = priceHistory[assetName].map(h => h.price);
+                const minPrice = Math.min(...prices);
+                const maxPrice = Math.max(...prices);
 
-                    if (upPct >= NOTIFY_CONFIG.min_report_pct) {
-                        notifySuddenMove(assetName, 'up', upPct);
-                        priceHistory[assetName] = [{ price: newNum, time: now }];
-                    } else if (downPct >= NOTIFY_CONFIG.min_report_pct) {
-                        notifySuddenMove(assetName, 'down', downPct);
-                        priceHistory[assetName] = [{ price: newNum, time: now }];
-                    }
+                const upPct = ((newNum - minPrice) / minPrice) * 100;
+                const downPct = ((maxPrice - newNum) / maxPrice) * 100;
+
+                if (upPct >= NOTIFY_CONFIG.min_report_pct) {
+                    notifySuddenMove(assetName, 'up', upPct);
+                    priceHistory[assetName] = [{ price: newNum, time: now }];
+                } else if (downPct >= NOTIFY_CONFIG.min_report_pct) {
+                    notifySuddenMove(assetName, 'down', downPct);
+                    priceHistory[assetName] = [{ price: newNum, time: now }];
                 }
+            }
         }
     }
 
-           /* ───────────── OPTIMIZED SYNC & OBSERVER ───────────── */
+    /* ───────────── OPTIMIZED SYNC & OBSERVER ───────────── */
     let lastDataString = "";
 
     function sync() {
         const data = {};
         const sourceRows = document.querySelectorAll('.dashboard-grid table tbody tr, .market-data table tbody tr, .full-height-table tr, .full-height-table a.item.title');
-        
+
         if (!sourceRows.length) return;
 
         sourceRows.forEach(el => {
@@ -823,12 +823,12 @@
                 buy = bEl?.textContent.trim();
                 sell = sEl?.textContent.trim();
                 rate = rEl?.textContent.trim() || '0.00';
-                
+
                 // Sayısal kontrol ile kesin yön tespiti
                 const cleanRate = rate.replace(',', '.');
                 const match = cleanRate.match(/[+-]?\d+(\.\d+)?/);
                 const numRate = match ? parseFloat(match[0]) : 0;
-                
+
                 dir = '';
                 if (numRate > 0) dir = 'up';
                 else if (numRate < 0) dir = 'down';
@@ -838,12 +838,12 @@
                 sell = el.querySelector('.sell, .price:nth-child(3), td:nth-child(3)')?.textContent.trim();
                 const rateEl = el.querySelector('.rate, .item.rate');
                 rate = rateEl ? rateEl.textContent.trim() : '0.00';
-                
+
                 // Rakamı ayıkla (Örn: "▼ %-0.15" -> -0.15)
                 const cleanRate = rate.replace(',', '.');
                 const match = cleanRate.match(/[+-]?\d+(\.\d+)?/);
                 const numRate = match ? parseFloat(match[0]) : 0;
-                
+
                 dir = '';
                 if (numRate > 0) dir = 'up';
                 else if (numRate < 0) dir = 'down';
@@ -853,7 +853,7 @@
             const cleanName = (name || '').replace(/\s+/g, '');
             const stepThreshold = TL_STEP_CONFIG[cleanName];
             if (stepThreshold && buy && buy !== '-') {
-                const currentPrice = parseFloat(buy.replace('.','').replace(',','.'));
+                const currentPrice = parseFloat(buy.replace('.', '').replace(',', '.'));
                 if (!lastStepPrice[cleanName]) {
                     lastStepPrice[cleanName] = currentPrice;
                 } else {
@@ -861,7 +861,7 @@
                     if (diff >= stepThreshold) {
                         const isUp = currentPrice > lastStepPrice[cleanName];
                         lastStepPrice[cleanName] = currentPrice; // Yeni baremi sabitle
-                        
+
                         // Uyarı ver
                         playSingleBeep(isUp);
                         if (window._fetihSetMessage) {
@@ -871,21 +871,21 @@
                 }
             }
 
-                if (name && buy && sell) {
-                    data[cleanName] = { name, buy, sell, rate, dir };
-                    
-                    const numRate = parseFloat(rate.replace('%','').replace(',','.'));
-                    if (!isNaN(numRate)) {
-                        if (!this.lastSiteRates) this.lastSiteRates = {};
-                        if (this.lastSiteRates[cleanName] !== undefined) {
-                            const diff = Math.abs(numRate - this.lastSiteRates[cleanName]);
-                            if (diff >= NOTIFY_CONFIG.min_report_pct) { 
-                                notifySuddenMove(name, numRate > this.lastSiteRates[cleanName] ? 'up' : 'down', diff);
-                            }
+            if (name && buy && sell) {
+                data[cleanName] = { name, buy, sell, rate, dir };
+
+                const numRate = parseFloat(rate.replace('%', '').replace(',', '.'));
+                if (!isNaN(numRate)) {
+                    if (!this.lastSiteRates) this.lastSiteRates = {};
+                    if (this.lastSiteRates[cleanName] !== undefined) {
+                        const diff = Math.abs(numRate - this.lastSiteRates[cleanName]);
+                        if (diff >= NOTIFY_CONFIG.min_report_pct) {
+                            notifySuddenMove(name, numRate > this.lastSiteRates[cleanName] ? 'up' : 'down', diff);
                         }
-                        this.lastSiteRates[cleanName] = numRate;
                     }
+                    this.lastSiteRates[cleanName] = numRate;
                 }
+            }
         });
 
         // Veri değişmediyse UI güncellemesini atla (CPU tasarrufu)
@@ -921,22 +921,22 @@
         if (!overview) return;
         const requested = [
             { key: 'ESKİÇEYREK', label: 'Eski Çeyrek', mult: '1x' },
-            { key: 'ESKİYARIM',  label: 'Eski Yarım', mult: '×2' },
-            { key: 'ESKİTAM',    label: 'Eski Tam',   mult: '×4' },
+            { key: 'ESKİYARIM', label: 'Eski Yarım', mult: '×2' },
+            { key: 'ESKİTAM', label: 'Eski Tam', mult: '×4' },
             { key: 'ESKİGREMSE', label: 'Eski Gremse', mult: '×10' },
-            { key: 'ESKİATA',    label: 'Eski Ata',   star: true }
+            { key: 'ESKİATA', label: 'Eski Ata', star: true }
         ];
-        
+
         overview.innerHTML = requested.map(item => {
             const v = data[item.key] || { buy: '-', sell: '-', rate: '%0.00', dir: '' };
             const isAta = item.key === 'ESKİATA';
             const accentColor = isAta ? '#ff9800' : 'var(--primary)'; // Slightly orange for Eski Ata
-            
-            const badge = item.mult ? `<span class="mult-badge" style="${isAta ? 'color:#ff9800; border-color:rgba(255,152,0,0.3); background:rgba(255,152,0,0.1);' : ''}">${item.mult}</span>` : 
-                         (item.star ? `<span class="star-badge" style="${isAta ? 'border-color:rgba(255,152,0,0.4); background:rgba(255,152,0,0.1);' : ''}"><span class="material-symbols-outlined" style="font-size:12px;color:${accentColor}">star</span></span>` : '');
-            
-            const arrow = v.dir === 'up' ? `<span class="material-symbols-outlined" style="color:var(--success);font-size:16px;vertical-align:text-bottom">arrow_upward</span>` : 
-                         (v.dir === 'down' ? `<span class="material-symbols-outlined" style="color:var(--error);font-size:16px;vertical-align:text-bottom">arrow_downward</span>` : '');
+
+            const badge = item.mult ? `<span class="mult-badge" style="${isAta ? 'color:#ff9800; border-color:rgba(255,152,0,0.3); background:rgba(255,152,0,0.1);' : ''}">${item.mult}</span>` :
+                (item.star ? `<span class="star-badge" style="${isAta ? 'border-color:rgba(255,152,0,0.4); background:rgba(255,152,0,0.1);' : ''}"><span class="material-symbols-outlined" style="font-size:12px;color:${accentColor}">star</span></span>` : '');
+
+            const arrow = v.dir === 'up' ? `<span class="material-symbols-outlined" style="color:var(--success);font-size:16px;vertical-align:text-bottom">arrow_upward</span>` :
+                (v.dir === 'down' ? `<span class="material-symbols-outlined" style="color:var(--error);font-size:16px;vertical-align:text-bottom">arrow_downward</span>` : '');
 
             const dBuy = (v.buy && v.buy !== '-' && v.buy !== 'NaN') ? `${arrow} ${v.buy}` : '<span class="material-symbols-outlined loading-icon" style="font-size:16px">sync</span>';
             const dSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? `${arrow} ${v.sell}` : '<span class="material-symbols-outlined loading-icon" style="font-size:16px">sync</span>';
@@ -964,13 +964,13 @@
         const tbody = document.getElementById('sync-tbody');
         if (!tbody) return;
         tbody.innerHTML = Object.values(data).map(v => {
-            const arrow = v.dir === 'up' ? `<span class="material-symbols-outlined" style="color:var(--success);font-size:20px;vertical-align:bottom">arrow_drop_up</span>` : 
-                         (v.dir === 'down' ? `<span class="material-symbols-outlined" style="color:var(--error);font-size:20px;vertical-align:bottom">arrow_drop_down</span>` : '');
+            const arrow = v.dir === 'up' ? `<span class="material-symbols-outlined" style="color:var(--success);font-size:20px;vertical-align:bottom">arrow_drop_up</span>` :
+                (v.dir === 'down' ? `<span class="material-symbols-outlined" style="color:var(--error);font-size:20px;vertical-align:bottom">arrow_drop_down</span>` : '');
             const rateColor = v.dir === 'up' ? 'var(--success)' : (v.dir === 'down' ? 'var(--error)' : 'var(--outline)');
             const tBuy = (v.buy && v.buy !== '-' && v.buy !== 'NaN') ? `${arrow}${v.buy}` : '<span class="material-symbols-outlined loading-icon">sync</span>';
             const tSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? `${arrow}${v.sell}` : '<span class="material-symbols-outlined loading-icon">sync</span>';
             const safeName = (v.name || '').replace('ALTIN', ' ALTIN').replace('ESKI', 'ESKİ ').trim();
-            
+
             return `
             <tr>
                 <td style="font-weight:800; color:#fff; letter-spacing:2px">${safeName}</td>
@@ -1002,19 +1002,19 @@
         if (!document.getElementById('fetih-root')) {
             injectStyles();
             injectUI();
-            
+
             // MutationObserver: Sitedeki değişiklikleri izle, timer'ı kapat ve DEBOUNCE ekle
             let syncTimeout;
             const observer = new MutationObserver(() => {
                 if (syncTimeout) clearTimeout(syncTimeout);
                 syncTimeout = setTimeout(sync, 100); // 100ms Debounce (Performans artışı)
             });
-            
+
             const target = document.querySelector('.dashboard-grid') || document.body;
             observer.observe(target, { childList: true, subtree: true, characterData: true });
-            
+
             sync(); // İlk yüklemede çalıştır
-            
+
             // Backup Timer: Sadece her şeyin yolunda olduğundan emin olmak için 5 saniyede bir
             setInterval(sync, 5000);
         }
