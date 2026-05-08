@@ -360,18 +360,21 @@
             .glass-crystal .glass-card { background: rgba(255,255,255,0.04) !important; backdrop-filter: blur(60px) saturate(250%) !important; -webkit-backdrop-filter: blur(60px) saturate(250%) !important; border: 1px solid rgba(255,255,255,0.18) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.1) !important; }
             .glass-ocean .glass-card { background: linear-gradient(135deg, rgba(14,165,233,0.12), rgba(6,182,212,0.05)) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border: 1px solid rgba(14,165,233,0.25) !important; }
 
-            /* ── EFFECTS: TEXTURE (body üzerine — cam altında kalır) ── */
-            body.tex-noise::after { content:''; position:fixed; inset:0; z-index:0; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E"); background-size:256px 256px; opacity:0.06; mix-blend-mode:overlay; }
-            body.tex-mesh::after { content:''; position:fixed; inset:0; z-index:0; pointer-events:none; background-image:linear-gradient(rgba(205,168,96,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(205,168,96,0.06) 1px, transparent 1px); background-size:48px 48px; }
-            body.tex-carbon::after { content:''; position:fixed; inset:0; z-index:0; pointer-events:none; background-image:repeating-linear-gradient(45deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 4px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 4px); background-size:8px 8px; }
-            body.tex-silk::after { content:''; position:fixed; inset:0; z-index:0; pointer-events:none; background:repeating-linear-gradient(135deg, transparent, transparent 5px, rgba(255,255,255,0.018) 5px, rgba(255,255,255,0.018) 6px); }
+            /* ── EFFECTS: TEXTURE (arka planda camın altında kalır) ── */
+            #fetih-root.tex-noise #fetih-bg-tex { background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E"); background-size:256px 256px; opacity:0.06; mix-blend-mode:overlay; }
+            #fetih-root.tex-mesh #fetih-bg-tex { background-image:linear-gradient(rgba(var(--primary-rgb),0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(var(--primary-rgb),0.06) 1px, transparent 1px); background-size:48px 48px; }
+            #fetih-root.tex-carbon #fetih-bg-tex { background-image:repeating-linear-gradient(45deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 4px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 4px); background-size:8px 8px; }
+            #fetih-root.tex-silk #fetih-bg-tex { background:repeating-linear-gradient(135deg, transparent, transparent 5px, rgba(255,255,255,0.018) 5px, rgba(255,255,255,0.018) 6px); }
 
-            /* ── EFFECTS: GLOW (body arka plan — kartların arkasında) ── */
-            body.glow-soft { background-image: radial-gradient(ellipse at 50% 30%, rgba(205,168,96,0.08) 0%, transparent 60%) !important; }
-            body.glow-neon { background-image: radial-gradient(ellipse at 50% 20%, rgba(205,168,96,0.18) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(205,168,96,0.06) 0%, transparent 40%) !important; }
-            body.glow-pulse::before { content:''; position:fixed; inset:0; z-index:0; pointer-events:none; background: radial-gradient(ellipse at 50% 30%, rgba(205,168,96,0.14) 0%, transparent 55%); animation: bgPulse 3s ease-in-out infinite; }
+            /* ── EFFECTS: GLOW (arka planda ışık) ── */
+            #fetih-root.glow-soft #fetih-bg-glow { background-image: radial-gradient(ellipse at 50% 30%, rgba(var(--primary-rgb),0.12) 0%, transparent 60%); }
+            #fetih-root.glow-neon #fetih-bg-glow { background-image: radial-gradient(ellipse at 50% 20%, rgba(var(--primary-rgb),0.22) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(var(--primary-rgb),0.08) 0%, transparent 40%); }
+            #fetih-root.glow-pulse #fetih-bg-glow { background: radial-gradient(ellipse at 50% 30%, rgba(var(--primary-rgb),0.18) 0%, transparent 55%); animation: bgPulse 3s ease-in-out infinite; }
             @keyframes bgPulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
-            body.glow-halo { box-shadow: inset 0 0 120px rgba(205,168,96,0.06), inset 0 0 300px rgba(205,168,96,0.03) !important; }
+            #fetih-root.glow-halo #fetih-bg-glow { box-shadow: inset 0 0 120px rgba(var(--primary-rgb),0.08), inset 0 0 300px rgba(var(--primary-rgb),0.04); }
+
+            /* Background Elements Base Styles */
+            #fetih-bg-tex, #fetih-bg-glow { position: fixed; inset: 0; z-index: -1; pointer-events: none; transition: all 0.5s ease; }
 
             /* ── EFFECTS: FX BUTTONS ── */
             .fx-btn { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); color: var(--outline); border-radius: 10px; padding: 9px 11px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: left; transition: all 0.2s; width: 100%; display: block; }
@@ -407,6 +410,8 @@
         const root = document.createElement('div');
         root.id = 'fetih-root';
         root.innerHTML = `
+            <div id="fetih-bg-tex"></div>
+            <div id="fetih-bg-glow"></div>
             <nav>
                 <div id="fetih-main-logo" style="height:32px; width:auto; display:block; cursor:pointer;">
                     <svg class="themed-svg" width="120" height="32" viewBox="0 0 187.5 75" preserveAspectRatio="xMidYMid meet">
@@ -836,10 +841,8 @@
             const pools = { glass: GLASS_CLASSES, tex: TEX_CLASSES, glow: GLOW_CLASSES };
             const keys  = { glass: 'fetihGlass', tex: 'fetihTex', glow: 'fetihGlow' };
 
-            // Glass → #fetih-root, Texture/Glow → body
-            const target = (type === 'glass') ? r : document.body;
-            target.classList.remove(...(pools[type] || []));
-            if (value) target.classList.add(value);
+            r.classList.remove(...(pools[type] || []));
+            if (value) r.classList.add(value);
             localStorage.setItem(keys[type], value || '');
             document.querySelectorAll(`.${type}-btn`).forEach(b => b.classList.toggle('active', b.dataset[type] === value));
         }
