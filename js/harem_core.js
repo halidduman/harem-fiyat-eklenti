@@ -4,7 +4,32 @@
  */
 
 (function () {
+    if (window._fetihOverhaulActive) {
+        console.log('Fetih Premium Overhaul already active.');
+        return;
+    }
+    window._fetihOverhaulActive = true;
+
     console.log('Fetih Premium Overhaul v5.9 Starting...');
+ 
+    /* ───────────── GLOBAL STATE & EFFECTS ───────────── */
+    window._GLASS_CLASSES = window._GLASS_CLASSES || ['glass-frost','glass-liquid','glass-gold','glass-none'];
+    window._TEX_CLASSES   = window._TEX_CLASSES || ['tex-snow', ...Array.from({length: 18}, (_, i) => `tex-p${i+1}`)];
+    window._GLOW_CLASSES  = window._GLOW_CLASSES || ['glow-soft','glow-neon','glow-pulse','glow-halo','glow-orbit','glow-drift','glow-aurora'];
+    window._isPMode       = window._isPMode || false;
+    window._savedEffects  = window._savedEffects || null;
+ 
+    window.applyEffect = function(type, value) {
+        const r = document.getElementById('fetih-root');
+        if (!r) return;
+        const pools = { glass: window._GLASS_CLASSES, tex: window._TEX_CLASSES, glow: window._GLOW_CLASSES };
+        const keys  = { glass: 'fetihGlass', tex: 'fetihTex', glow: 'fetihGlow' };
+ 
+        r.classList.remove(...(pools[type] || []));
+        if (value) r.classList.add(value);
+        localStorage.setItem(keys[type], value || '');
+        document.querySelectorAll(`.${type}-btn`).forEach(b => b.classList.toggle('active', b.dataset[type] === value));
+    };
 
     /* ───────────── CSS INJECTION ───────────── */
     function injectStyles() {
@@ -62,12 +87,15 @@
                 padding-bottom: 120px; overflow-y: auto; overflow-x: hidden;
                 color: var(--on-surface) !important;
                 font-family: 'Inter', sans-serif !important;
+                scrollbar-gutter: stable;
             }
+            #fetih-root * { box-sizing: border-box !important; }
+            .section-width { width: 100% !important; max-width: 1240px !important; margin: 0 auto !important; }
 
             .glass-card {
                 background: var(--card-bg);
                 backdrop-filter: blur(24px) saturate(180%) contrast(1.05); -webkit-backdrop-filter: blur(24px) saturate(180%) contrast(1.05);
-                border: 1px solid rgba(var(--primary-rgb), 0.2);
+                border: 1px solid rgba(var(--primary-rgb), 0.3);
                 border-radius: 28px;
                 box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1), inset 0 -1px 1px rgba(0,0,0,0.2);
                 transition: all 0.3s ease;
@@ -92,31 +120,31 @@
             .loading-icon { animation: spin 2s linear infinite; color: var(--outline); font-size: 24px; }
             .fetih-loader { animation: spin 1s linear infinite !important; color: var(--primary) !important; }
             
-            .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; width: 100%; max-width: 1240px; margin: 0 auto; }
+            .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
             .card-6 { grid-column: span 6; }
             .card-3 { grid-column: span 3; }
 
             /* Table Styles - UNIFIED GLASS SLABS */
-            #fetih-root .fetih-table-box { width: 95%; max-width: 1240px; background: transparent; border: none; margin: 0 auto; box-sizing: border-box; }
-            #fetih-root table { width: 100% !important; border-collapse: separate !important; border-spacing: 0 16px !important; }
-            #fetih-root td { padding: 22px 32px !important; border: none !important; transition: all 0.2s ease; font-size: 14px !important; background: transparent; }
+            #fetih-root .fetih-table-box { background: transparent; border: none; }
+            #fetih-root table { width: 100% !important; border-collapse: separate !important; border-spacing: 0 16px !important; table-layout: auto; }
+            #fetih-root td { padding: 22px 32px !important; border: none !important; transition: all 0.2s ease; font-size: 14px !important; background: transparent; border-radius: 0 !important; box-shadow: none !important; }
             
             #fetih-root tr.glass-card td { 
                 background: rgba(255,255,255,0.035); 
                 backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%);
-                border-top: 1px solid rgba(255,255,255,0.08) !important;
-                border-bottom: 1px solid rgba(0,0,0,0.2) !important;
+                border-top: 1px solid rgba(var(--primary-rgb), 0.3) !important;
+                border-bottom: 1px solid rgba(var(--primary-rgb), 0.3) !important;
             }
             
             #fetih-root th:first-child, #fetih-root td:first-child { 
-                padding-left: 50px !important; 
-                border-top-left-radius: 24px !important; border-bottom-left-radius: 24px !important; 
-                border-left: 1px solid rgba(255,255,255,0.08) !important; 
+                padding-left: 40px !important; 
+                border-top-left-radius: 28px !important; border-bottom-left-radius: 28px !important; 
+                border-left: 1px solid rgba(var(--primary-rgb), 0.3) !important; 
             }
             #fetih-root th:last-child, #fetih-root td:last-child { 
                 padding-right: 50px !important; text-align: right !important; 
-                border-top-right-radius: 24px !important; border-bottom-right-radius: 24px !important; 
-                border-right: 1px solid rgba(0,0,0,0.2) !important; 
+                border-top-right-radius: 28px !important; border-bottom-right-radius: 28px !important; 
+                border-right: 1px solid rgba(var(--primary-rgb), 0.3) !important; 
             }
             #fetih-root tr.glass-card { filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2)); }
             #fetih-root tr:hover td { background: rgba(var(--primary-rgb), 0.08) !important; }
@@ -127,8 +155,15 @@
             .up { animation: up 1.2s ease; }
             .down { animation: down 1.2s ease; }
 
-            .overview-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; width: 100%; max-width: 1240px; }
-            .mini-card { padding: 20px 24px; background: var(--card-bg); border: 1px solid rgba(var(--primary-rgb), 0.2); border-radius: 24px; text-align: left; position: relative; }
+            .overview-grid { display: grid !important; grid-template-columns: repeat(5, 1fr) !important; gap: 12px !important; position: relative; }
+            .mini-card { padding: 16px 14px; background: var(--card-bg); border: 1px solid rgba(var(--primary-rgb), 0.3); border-radius: 24px; text-align: left; position: relative; min-width: 0; overflow: hidden; }
+            
+            /* Gremse-Ata Separator */
+            .overview-grid > div:nth-child(5)::before {
+                content: ''; position: absolute; left: -7.5px; top: 15%; height: 70%; width: 3px; 
+                background: var(--primary); opacity: 0.4; border-radius: 2px;
+            }
+            @media (max-width: 900px) { .overview-grid > div:nth-child(5)::before { display: none; } }
             
             /* ── NAVBAR BOT ── */
             #fetih-bot-trigger {
@@ -400,15 +435,23 @@
             .glass-gold .glass-card, .glass-gold tr.glass-card td { background: rgba(255,255,255,0.02) !important; backdrop-filter: blur(28px) saturate(220%) !important; -webkit-backdrop-filter: blur(28px) saturate(220%) !important; border: 1px solid rgba(var(--primary-rgb),0.3) !important; }
             .glass-gold .glass-card { box-shadow: 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 1px rgba(var(--primary-rgb),0.15) !important; }
 
-            .glass-none .glass-card:not(.has-card-active), 
-            .glass-none tr.glass-card td,
-            .glass-none .mini-card { 
+            #fetih-root.glass-none .glass-card:not(.has-card-active), 
+            #fetih-root.glass-none tr.glass-card td,
+            #fetih-root.glass-none .mini-card { 
                 backdrop-filter: none !important; -webkit-backdrop-filter: none !important; 
-                background: rgba(18, 18, 18, 0.95) !important; 
-                border: 1px solid rgba(255, 255, 255, 0.12) !important; 
+                background: #1a1a1a !important; 
+                opacity: 1 !important;
+                border: 1px solid rgba(var(--primary-rgb), 0.3) !important; 
                 box-shadow: 0 4px 24px rgba(0,0,0,0.5) !important;
             }
-            .glass-none .has-card-active { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+            #fetih-root.light-mode.glass-none .glass-card:not(.has-card-active), 
+            #fetih-root.light-mode.glass-none tr.glass-card td,
+            #fetih-root.light-mode.glass-none .mini-card { 
+                background: #f5f5f5 !important; 
+                color: #1a1a1a !important;
+                border: 1px solid rgba(var(--primary-rgb), 0.2) !important; 
+            }
+            #fetih-root.glass-none .has-card-active { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; opacity: 1 !important; }
 
             /* ── EFFECTS: TEXTURE (arka planda camın altında kalır) ── */
             /* ── EFFECTS: TEXTURE ── */
@@ -510,6 +553,48 @@
 
             /* ── LIGHT MODE: BOT TEXT FIX ── */
             #fetih-root.light-mode .bot-msg-text { color: #1a1a1a !important; }
+
+            /* ── RESPONSIVE DESIGN ── */
+            @media (max-width: 1240px) {
+                .section-width { max-width: 1100px; }
+            }
+
+            @media (max-width: 1080px) {
+                .section-width { max-width: 950px; }
+                .font-headline { font-size: 32px !important; }
+            }
+
+            @media (max-width: 900px) {
+                .bento-grid { grid-template-columns: repeat(12, 1fr); }
+                .overview-grid { grid-template-columns: repeat(3, 1fr); }
+                .card-6, .card-3 { grid-column: span 12; }
+            }
+
+            @media (max-width: 992px) {
+                .card-6, .card-3 { grid-column: span 12; }
+                .overview-grid { grid-template-columns: repeat(2, 1fr); }
+                nav { padding: 8px 20px; }
+            }
+
+            @media (max-width: 768px) {
+                #fetih-root { padding-bottom: 80px; }
+                main { padding: 20px 15px; }
+                .overview-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+                #fetih-root td { padding: 16px 20px !important; font-size: 13px !important; }
+                #fetih-root th:first-child, #fetih-root td:first-child { padding-left: 24px !important; }
+                #fetih-root th:last-child, #fetih-root td:last-child { padding-right: 24px !important; }
+                .font-headline { font-size: 28px !important; }
+                .t-val { font-size: 22px !important; }
+            }
+
+            @media (max-width: 480px) {
+                .overview-grid { grid-template-columns: 1fr; }
+                nav { flex-direction: column; gap: 10px; padding: 12px; }
+                #fetih-bot-trigger { width: 100%; }
+                .settings-container { width: 95%; padding: 20px; }
+                #fetih-root table { font-size: 12px !important; }
+                #fetih-root td { padding: 12px 15px !important; }
+            }
         `;
 
         document.head.appendChild(style);
@@ -565,10 +650,10 @@
                 </div>
             </nav>
 
-            <main style="width:100%; max-width:1440px; padding:30px 40px; box-sizing:border-box; display:flex; flex-direction:column; align-items:center;">
+            <main style="width:100%; max-width:1440px; padding:30px 40px; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; gap:25px;">
 
                 <!-- Featured Bento Grid -->
-                <div class="bento-grid">
+                <div class="bento-grid section-width">
                     <div class="glass-card card-6 has-card-active" style="padding:35px 45px; position:relative; overflow:hidden">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:35px">
                             <div>
@@ -628,20 +713,23 @@
                 </div>
 
                 <!-- Sarrafiye Overview Grid -->
-                <div style="margin-top:30px; margin-bottom: 40px">
-                    <div id="overview-grid" class="overview-grid"></div>
-                </div>
+                <div id="overview-grid" class="overview-grid section-width"></div>
 
-                <!-- Market Table -->
-                <div style="margin-top:50px">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding:0 40px">
-                        <h3 class="font-headline" style="font-size:24px; font-weight:700; text-transform:uppercase; color:var(--on-surface); letter-spacing:1px; margin:0">TÜM PİYASA FİYATLARI</h3>
-                        <a href="#" id="fetih-settings-btn" style="font-size:14px; font-weight:800; color:var(--primary); text-decoration:none; text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px; padding: 10px 20px; background: rgba(var(--primary-rgb), 0.1); border-radius: 999px; border: 1px solid rgba(var(--primary-rgb), 0.2); transition: all 0.3s;">
-                            <span class="material-symbols-outlined" style="font-size:18px">settings</span> AYARLAR
+                <!-- Market Table Section -->
+                <div class="section-width" style="margin-top: 80px;">
+                    <div style="margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:flex-end; width:100%;">
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <h3 class="font-headline" style="font-size:24px; font-weight:700; text-transform:uppercase; color:var(--on-surface); letter-spacing:1px; margin:0">TÜM PİYASA FİYATLARI</h3>
+                            <div style="width:80px; height:3px; background:var(--primary); border-radius:2px;"></div>
+                        </div>
+                        <a href="#" id="fetih-settings-btn" style="font-size:13px; font-weight:800; color:var(--primary); text-decoration:none; text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px; padding: 10px 22px; background: rgba(var(--primary-rgb), 0.1); border-radius: 999px; border: 1px solid rgba(var(--primary-rgb), 0.2); transition: all 0.3s; margin-bottom: 4px;">
+                            <span class="material-symbols-outlined" style="font-size:18px">settings</span>
+                            AYARLAR
                         </a>
                     </div>
-                    <div class="fetih-table-box">
-                        <table>
+
+                    <div class="fetih-table-box" style="width:100%;">
+                        <table style="width:100% !important;">
                             <thead>
                                 <tr>
                                     <th style="width:30%">VARLIK</th>
@@ -1011,21 +1099,6 @@
         }
 
         // --- THEME EFFECTS (Glass / Texture / Glow) ---
-        const GLASS_CLASSES = ['glass-frost','glass-liquid','glass-gold','glass-none'];
-        const TEX_CLASSES   = ['tex-snow', ...Array.from({length: 18}, (_, i) => `tex-p${i+1}`)];
-        const GLOW_CLASSES  = ['glow-soft','glow-neon','glow-pulse','glow-halo','glow-orbit','glow-drift','glow-aurora'];
-
-        function applyEffect(type, value) {
-            const r = document.getElementById('fetih-root');
-            if (!r) return;
-            const pools = { glass: GLASS_CLASSES, tex: TEX_CLASSES, glow: GLOW_CLASSES };
-            const keys  = { glass: 'fetihGlass', tex: 'fetihTex', glow: 'fetihGlow' };
-
-            r.classList.remove(...(pools[type] || []));
-            if (value) r.classList.add(value);
-            localStorage.setItem(keys[type], value || '');
-            document.querySelectorAll(`.${type}-btn`).forEach(b => b.classList.toggle('active', b.dataset[type] === value));
-        }
 
         // --- TEXTURE CONTROLS ---
         const texToggle = document.getElementById('fetih-tex-toggle');
@@ -1059,9 +1132,9 @@
         if (texOpInput) texOpInput.addEventListener('input', updateTexParams);
 
         // Bind effect buttons
-        document.querySelectorAll('.glass-btn').forEach(b => b.addEventListener('click', () => applyEffect('glass', b.dataset.glass)));
-        document.querySelectorAll('.tex-btn').forEach(b   => b.addEventListener('click', () => applyEffect('tex',   b.dataset.tex)));
-        document.querySelectorAll('.glow-btn').forEach(b  => b.addEventListener('click', () => applyEffect('glow',  b.dataset.glow)));
+        document.querySelectorAll('.glass-btn').forEach(b => b.addEventListener('click', () => window.applyEffect('glass', b.dataset.glass)));
+        document.querySelectorAll('.tex-btn').forEach(b   => b.addEventListener('click', () => window.applyEffect('tex',   b.dataset.tex)));
+        document.querySelectorAll('.glow-btn').forEach(b  => b.addEventListener('click', () => window.applyEffect('glow',  b.dataset.glow)));
 
         // Restore params & effects
         const savedSize = localStorage.getItem('fetihTexSize') || '40';
@@ -1070,9 +1143,9 @@
         if (texOpInput) texOpInput.value = savedOp * 100;
         updateTexParams();
 
-        applyEffect('glass', localStorage.getItem('fetihGlass') || '');
-        applyEffect('tex',   localStorage.getItem('fetihTex')   || '');
-        applyEffect('glow',  localStorage.getItem('fetihGlow')  || '');
+        window.applyEffect('glass', localStorage.getItem('fetihGlass') || '');
+        window.applyEffect('tex',   localStorage.getItem('fetihTex')   || '');
+        window.applyEffect('glow',  localStorage.getItem('fetihGlow')  || '');
 
         // --- THEME COLOR PICKER ---
         const themeColors = [
@@ -1360,19 +1433,17 @@
                 osc.start(); osc.stop(audioCtx.currentTime + 0.01);
 
                 updateBtn();
-                audioUnlocked = true;
-            }).catch(e => console.warn('Audio resume failed:', e));
-        } else if (audioCtx.state === 'running') {
+            });
+        } else {
             updateBtn();
-            audioUnlocked = true;
         }
+        audioUnlocked = true;
     }
-    document.addEventListener('click', unlockAudio, { once: true });
-    document.addEventListener('keydown', unlockAudio, { once: true });
 
-    window._fetihUnlockAudio = unlockAudio; // Geriye dönük uyumluluk
+    window._fetihUnlockAudio = unlockAudio;
     window._fetihPlayUp = playUpSequence;
     window._fetihPlayDown = playDownSequence;
+
     window._fetihToggleSound = function () {
         if (!audioUnlocked) {
             unlockAudio();
@@ -1396,21 +1467,19 @@
         }
     };
 
-    // Klavye kısayolları: S=ses testi, A=ayarlar, ESC=kapat
+    // Klavye kısayolları
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-        const key = e.key.toLowerCase();
+        const code = e.code;
 
-        if (key === 'escape') {
-            // Tüm açık modalları kapat
+        if (code === 'Escape') {
             window.closeFetihDash();
             window.closeFetihAnalysis();
             const chartModal = document.getElementById('fetih-chart-modal');
             if (chartModal) chartModal.classList.remove('active');
             return;
         }
-        if (key === 'a') {
-            // Ayarlar modalını aç/kapat
+        if (code === 'KeyA') {
             const modal = document.getElementById('fetih-dash-modal');
             if (modal && modal.classList.contains('active')) {
                 window.closeFetihDash();
@@ -1419,7 +1488,45 @@
             }
             return;
         }
-        if (key === 's') {
+        if (code === 'KeyP') {
+            // Toggle Ultra-Aesthetic Mode
+            if (!window._isPMode) {
+                // Save current settings to restore later
+                window._savedEffects = {
+                    glass: localStorage.getItem('fetihGlass') || '',
+                    tex: localStorage.getItem('fetihTex') || '',
+                    glow: localStorage.getItem('fetihGlow') || ''
+                };
+                
+                // Apply Ultra Mode
+                window.applyEffect('glow', 'glow-aurora');
+                window.applyEffect('tex', 'tex-p17');
+                window.applyEffect('glass', '');
+                window._isPMode = true;
+                
+                if (window._fetihSetMessage) window._fetihSetMessage("✨ Ultra Estetik Modu Aktif", true);
+            } else {
+                // Restore previous settings
+                const s = window._savedEffects || { glass: '', tex: '', glow: '' };
+                window.applyEffect('glass', s.glass);
+                window.applyEffect('tex', s.tex);
+                window.applyEffect('glow', s.glow);
+                window._isPMode = false;
+                
+                if (window._fetihSetMessage) window._fetihSetMessage("🔄 Ayarlar Geri Yüklendi", true);
+            }
+            return;
+        }
+        if (code === 'KeyH') {
+            const root = document.getElementById('fetih-root');
+            if (root) {
+                const isHidden = root.style.display === 'none';
+                root.style.display = isHidden ? 'flex' : 'none';
+                document.body.style.overflow = isHidden ? 'hidden' : 'auto';
+            }
+            return;
+        }
+        if (code === 'KeyS') {
             const isUp = Math.random() > 0.5;
             if (isUp) playUpSequence();
             else playDownSequence();
@@ -1822,7 +1929,8 @@
                 <td class="t-val" style="color:var(--primary) !important; font-size:25px !important; font-weight:900 !important;">${tSell}</td>
                 <td class="t-val" style="font-size:24px !important; color:${changeColor} !important; text-align:right !important;">${changeVal}</td>
             </tr>
-        `}).join('');
+            `;
+        }).join('');
     }
 
     /* ───────────── BOOT ───────────── */
