@@ -1491,29 +1491,21 @@
         if (code === 'KeyP') {
             // Toggle Ultra-Aesthetic Mode
             if (!window._isPMode) {
-                // Save current settings to restore later
-                window._savedEffects = {
-                    glass: localStorage.getItem('fetihGlass') || '',
-                    tex: localStorage.getItem('fetihTex') || '',
-                    glow: localStorage.getItem('fetihGlow') || ''
-                };
-                
-                // Apply Ultra Mode
+                // 1. Apply the "Ultra" combination
                 window.applyEffect('glow', 'glow-aurora');
                 window.applyEffect('tex', 'tex-p17');
-                window.applyEffect('glass', '');
+                window.applyEffect('glass', ''); 
+                
                 window._isPMode = true;
-                
-                if (window._fetihSetMessage) window._fetihSetMessage("✨ Ultra Estetik Modu Aktif", true);
+                if (window._fetihSetMessage) window._fetihSetMessage("✨ Ultra Estetik Modu: AÇIK", true);
             } else {
-                // Restore previous settings
-                const s = window._savedEffects || { glass: '', tex: '', glow: '' };
-                window.applyEffect('glass', s.glass);
-                window.applyEffect('tex', s.tex);
-                window.applyEffect('glow', s.glow);
-                window._isPMode = false;
+                // 2. Turn EVERYTHING OFF (Clean State)
+                window.applyEffect('glow', '');
+                window.applyEffect('tex', '');
+                window.applyEffect('glass', 'glass-none');
                 
-                if (window._fetihSetMessage) window._fetihSetMessage("🔄 Ayarlar Geri Yüklendi", true);
+                window._isPMode = false;
+                if (window._fetihSetMessage) window._fetihSetMessage("🌑 Tüm Efektler Kapatıldı", true);
             }
             return;
         }
