@@ -41,6 +41,9 @@
     const activeAlerts = {}; // { assetKey: { level, direction, pct, msg, ts } }
     let lastAlertMsg = '';   // Şu an ekranda gösterilen uyarı
     let startupCooldown = true; // İlk açılışta hatalı alarmı önle
+    let lastGlobalChangeTs = Date.now();
+    let lastPrices = {}; // asset -> price
+    let lastStaleMsg = '';
 
     /* ═══════════════════════════════════════
        IndexedDB (değişmedi)
@@ -292,6 +295,81 @@
     }
 
     /* ═══════════════════════════════════════
+       DURGUNLUK (STALE DATA) KONTROLÜ
+    ═══════════════════════════════════════ */
+    async function checkStaleData() {
+        if (startupCooldown) return false;
+        
+        const now = new Date();
+        const day = now.getDay(); 
+        if (day === 0 || day === 6) return false; 
+
+        // 1. İnternet Bağlantısı Kontrolü (Hemen kontrol et)
+        if (!navigator.onLine) {
+            const text = `🚨 Bağlantı Kesildi: İnternet bağlantınız yok! Veri akışı durdu.`;
+            if (text !== lastStaleMsg) {
+                lastStaleMsg = text;
+                if (window.fetihBotNotify) window.fetihBotNotify(text, 'wifi_off', '#f87171', true);
+            }
+            return true;
+        }
+
+        // 2. Sunucu/Veri Kaynağı Kontrolü (Tüm varlıklar boş mu?)
+        let allNull = true;
+        for (const asset of CFG.ASSETS) {
+            if (readCurrentPrice(asset) !== null) {
+                allNull = false;
+                break;
+            }
+        }
+        if (allNull) {
+            const text = `⚠️ Kaynak Hatası: Fiyat tablosu şu an boş. Veri alınamıyor!`;
+            if (text !== lastStaleMsg) {
+                lastStaleMsg = text;
+                if (window.fetihBotNotify) window.fetihBotNotify(text, 'dns', '#f87171', true);
+            }
+            return true;
+        }
+
+        // 3. Zaman Bazlı Durgunluk Kontrolü
+        const nowTs = now.getTime();
+        const diffMs = nowTs - lastGlobalChangeTs;
+        const minutes = Math.floor(diffMs / 60000);
+
+        if (minutes < 1) {
+            if (lastStaleMsg) {
+                lastStaleMsg = '';
+                const msg = document.getElementById('asst-msg');
+                if (msg && (msg.innerHTML.includes('Veriler') || msg.innerHTML.includes('Bağlantı') || msg.innerHTML.includes('Kaynak'))) {
+                    if (window.fetihBotNotify) window.fetihBotNotify('Veri akışı tekrar aktif.', 'wifi', '#4ade80', false);
+                }
+            }
+            return false;
+        }
+
+        let text = '';
+        let icon = 'sync_problem';
+        let color = '#f87171';
+
+        if (minutes >= 60) { 
+            text = `⚠️ Veri Akışı Durdu: ${Math.floor(minutes/60)} saattir güncelleme yok!`;
+        } else if (minutes >= 5) {
+            text = `⚠️ Dikkat: Veriler ${minutes} dakikadır güncellenmiyor. Donma olabilir.`;
+        } else if (minutes >= 1) {
+            text = `ℹ️ Bilgi: Veriler ${minutes} dakikadır değişmedi.`;
+            icon = 'info';
+            color = '#facc15';
+        }
+
+        if (text && text !== lastStaleMsg) {
+            lastStaleMsg = text;
+            if (window.fetihBotNotify) window.fetihBotNotify(text, icon, color, true);
+            return true;
+        }
+        return !!text;
+    }
+
+    /* ═══════════════════════════════════════
        BOT MESAJ ÜRETİMİ (Kıyaslama Odaklı)
     ═══════════════════════════════════════ */
     async function analyzeAsset(asset) {
@@ -379,17 +457,32 @@
        VERİ TOPLAMA & ANALİZ DÖNGÜSÜ
     ═══════════════════════════════════════ */
     async function collectSnapshot() {
+        let anyChange = false;
         for (const asset of CFG.ASSETS) {
             const price = readCurrentPrice(asset);
-            if (price !== null) saveRecord(asset, price);
+            if (price !== null) {
+                if (lastPrices[asset] !== undefined && lastPrices[asset] !== price) {
+                    anyChange = true;
+                }
+                lastPrices[asset] = price;
+                saveRecord(asset, price);
+            }
         }
+        
+        if (anyChange) {
+            lastGlobalChangeTs = Date.now();
+        }
+
         pruneOldData();
 
-        // ÖNCELİK: Ani hareket kontrolü
+        // ÖNCELİK 1: Durgunluk kontrolü
+        const isStale = await checkStaleData();
+
+        // ÖNCELİK 2: Ani hareket kontrolü
         const hasAlert = await checkSuddenMoves();
 
-        // Eğer aktif uyarı yoksa normal analizi çalıştır
-        if (!hasAlert) {
+        // Eğer aktif uyarı veya durgunluk yoksa normal analizi çalıştır
+        if (!hasAlert && !isStale) {
             await runAnalysis();
         }
     }
@@ -420,8 +513,8 @@
     let rotationStarted = false;
 
     function rotateComment() {
-        // Aktif uyarı varsa rotasyonu durdur (uyarı ekranda kalsın)
-        if (Object.keys(activeAlerts).length > 0) return;
+        // Aktif uyarı veya durgunluk varsa rotasyonu durdur (uyarı ekranda kalsın)
+        if (Object.keys(activeAlerts).length > 0 || lastStaleMsg) return;
 
         if (!cachedAnalysis.comments?.length) return;
         const msg = document.getElementById('asst-msg');
@@ -480,7 +573,7 @@
         if (trigger) {
             trigger.classList.add('is-open');
             if (botTimer) clearTimeout(botTimer);
-            const isAlert = text.includes('🚨') || text.includes('🚀') || text.includes('⚠️');
+            const isAlert = isUrgent || text.includes('🚨') || text.includes('🚀') || text.includes('⚠️') || text.includes('ℹ️');
             if (isAlert) {
                 // Uyarılar: ekranda kalsın, hareket bitene kadar kapanmasın
             } else {
@@ -551,7 +644,7 @@
     /* ═══════════════════════════════════════
        DIŞ ENTEGRASYON
     ═══════════════════════════════════════ */
-    window.fetihBotNotify = function(text, iconName = 'notifications_active', iconColor = '#f87171') {
+    window.fetihBotNotify = function(text, iconName = 'notifications_active', iconColor = '#f87171', persistent = false) {
         const msg = document.getElementById('asst-msg');
         if (!msg) return;
         setMessage(msg, text, true);
@@ -573,12 +666,14 @@
             }
             if (trigger) trigger.style.borderColor = iconColor;
 
-            setTimeout(() => {
-                iconEl.textContent = origIcon;
-                iconEl.style.color = origColor;
-                if (orbEl) orbEl.style.background = origBg;
-                if (trigger) trigger.style.borderColor = origBorder;
-            }, 12000);
+            if (!persistent) {
+                setTimeout(() => {
+                    iconEl.textContent = origIcon;
+                    iconEl.style.color = origColor;
+                    if (orbEl) orbEl.style.background = origBg;
+                    if (trigger) trigger.style.borderColor = origBorder;
+                }, 12000);
+            }
         }
     };
 
@@ -607,6 +702,10 @@
                 collectSnapshot();
             }, 5000);
         }, 8000);
+
+        // İnternet durumunu anlık yakala
+        window.addEventListener('offline', checkStaleData);
+        window.addEventListener('online', checkStaleData);
 
         startRotationCycle();
     }
