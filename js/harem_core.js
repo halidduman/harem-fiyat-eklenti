@@ -15,18 +15,25 @@
     /* ───────────── GLOBAL STATE & EFFECTS ───────────── */
     window._GLASS_CLASSES = window._GLASS_CLASSES || ['glass-frost','glass-liquid','glass-gold','glass-none'];
     window._TEX_CLASSES   = window._TEX_CLASSES || ['tex-snow', ...Array.from({length: 18}, (_, i) => `tex-p${i+1}`)];
-    window._GLOW_CLASSES  = window._GLOW_CLASSES || ['glow-soft','glow-neon','glow-pulse','glow-halo','glow-orbit','glow-drift','glow-aurora'];
+    window._GLOW_CLASSES  = window._GLOW_CLASSES || ['glow-soft','glow-neon','glow-pulse','glow-halo','glow-orbit','glow-drift','glow-aurora', 'glow-edges', 'glow-corners', 'glow-diagonal', 'glow-cinema', 'glow-matrix'];
     window._isPMode       = window._isPMode || false;
     window._savedEffects  = window._savedEffects || null;
  
     window.applyEffect = function(type, value) {
         const r = document.getElementById('fetih-root');
-        if (!r) return;
-        const pools = { glass: window._GLASS_CLASSES, tex: window._TEX_CLASSES, glow: window._GLOW_CLASSES };
-        const keys  = { glass: 'fetihGlass', tex: 'fetihTex', glow: 'fetihGlow' };
+        const pools = { glass: window._GLASS_CLASSES, tex: window._TEX_CLASSES, glow: window._GLOW_CLASSES, navGlass: ['nav-liquid'] };
+        const keys  = { glass: 'fetihGlass', tex: 'fetihTex', glow: 'fetihGlow', navGlass: 'fetihNavGlass' };
  
-        r.classList.remove(...(pools[type] || []));
-        if (value) r.classList.add(value);
+        if (type === 'navGlass') {
+            const nav = document.querySelector('nav');
+            if (nav) {
+                nav.classList.remove('nav-liquid');
+                if (value) nav.classList.add(value);
+            }
+        } else if (r) {
+            r.classList.remove(...(pools[type] || []));
+            if (value) r.classList.add(value);
+        }
         localStorage.setItem(keys[type], value || '');
         document.querySelectorAll(`.${type}-btn`).forEach(b => b.classList.toggle('active', b.dataset[type] === value));
     };
@@ -44,6 +51,10 @@
                 <filter id="fetih-glass-filter">
                     <feImage id="fetih-displacement-image" result="map" />
                     <feDisplacementMap in="SourceGraphic" in2="map" scale="35" xChannelSelector="R" yChannelSelector="G" />
+                </filter>
+                <filter id="nav-glass-blur" x="0" y="0" width="100%" height="100%" filterUnits="objectBoundingBox">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.003 0.007" numOctaves="1" result="turbulence" />
+                    <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="20" xChannelSelector="R" yChannelSelector="G" />
                 </filter>
             `;
             document.body.appendChild(svg);
@@ -106,6 +117,15 @@
                 box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); mix-blend-mode: overlay; z-index: 1;
             }
 
+            .fetih-card {
+                background: var(--card-bg);
+                border: 1px solid rgba(var(--primary-rgb), 0.3);
+                border-radius: 28px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                transition: all 0.3s ease;
+                position: relative;
+            }
+
             .font-headline { font-family: 'Manrope', sans-serif; }
 
             nav {
@@ -113,9 +133,23 @@
                 background: #000; position: sticky; top: 0; z-index: 1000;
                 border-bottom: 1px solid rgba(var(--primary-rgb), 0.1); box-sizing: border-box;
             }
+            nav.nav-liquid {
+                background: rgba(0, 0, 0, 0.4) !important;
+                border-bottom: none !important;
+                overflow: hidden;
+            }
+            nav.nav-liquid::before {
+                content: ''; position: absolute; inset: -10px; z-index: -1;
+                backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+                filter: url(#nav-glass-blur);
+                background: rgba(255, 255, 255, 0.05);
+            }
+            
+            #fetih-settings-btn span.material-symbols-outlined { transition: transform 0.5s ease; }
+            #fetih-settings-btn:hover span.material-symbols-outlined { transform: rotate(180deg); }
 
             .live-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; animation: pulse 2s infinite; }
-            @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+            @keyframes pulse { 0% { opacity: 1; transform: scale(1); background: var(--primary); box-shadow: 0 0 0 rgba(255,255,255,0); } 50% { opacity: 1; transform: scale(1.4); background: #ffffff; box-shadow: 0 0 8px #ffffff; } 100% { opacity: 1; transform: scale(1); background: var(--primary); box-shadow: 0 0 0 rgba(255,255,255,0); } }
             @keyframes spin { 100% { transform: rotate(360deg); } }
             .loading-icon { animation: spin 2s linear infinite; color: var(--outline); font-size: 24px; }
             .fetih-loader { animation: spin 1s linear infinite !important; color: var(--primary) !important; }
@@ -124,30 +158,50 @@
             .card-6 { grid-column: span 6; }
             .card-3 { grid-column: span 3; }
 
-            /* Table Styles - UNIFIED GLASS SLABS */
+            /* Table Styles - UNIFIED FLEX SLABS */
             #fetih-root .fetih-table-box { background: transparent; border: none; }
-            #fetih-root table { width: 100% !important; border-collapse: separate !important; border-spacing: 0 16px !important; table-layout: auto; }
-            #fetih-root td { padding: 22px 32px !important; border: none !important; transition: all 0.2s ease; font-size: 14px !important; background: transparent; border-radius: 0 !important; box-shadow: none !important; }
-            
-            #fetih-root tr.glass-card td { 
-                background: rgba(255,255,255,0.035); 
-                backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%);
-                border-top: 1px solid rgba(var(--primary-rgb), 0.3) !important;
-                border-bottom: 1px solid rgba(var(--primary-rgb), 0.3) !important;
+            #fetih-root table { display: block; width: 100% !important; border-collapse: collapse !important; border-spacing: 0 !important; }
+            #fetih-root thead { display: block; width: 100%; margin-bottom: 16px; }
+            #fetih-root tbody { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+            #fetih-root tr { 
+                display: flex; align-items: center; width: 100%; position: relative;
+            }
+            #fetih-root th, #fetih-root td { 
+                display: flex; align-items: center; border: none !important; padding: 22px 0 !important;
+                background: transparent !important; box-shadow: none !important; backdrop-filter: none !important;
+            }
+            #fetih-root th:nth-child(1), #fetih-root td:nth-child(1) { width: 35%; padding-left: 40px !important; }
+            #fetih-root th:nth-child(2), #fetih-root td:nth-child(2) { width: 20%; }
+            #fetih-root th:nth-child(3), #fetih-root td:nth-child(3) { width: 25%; }
+            #fetih-root th:nth-child(4), #fetih-root td:nth-child(4) { width: 20%; justify-content: flex-end; padding-right: 50px !important; }
+
+            .glass-classic {
+                background: rgba(255, 255, 255, 0.08);
+                backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+                border-radius: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.1),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                    inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+                    inset 0 0 44px 22px rgba(255, 255, 255, 0.1);
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .glass-classic::before {
+                content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+            }
+
+            .glass-classic::after {
+                content: ''; position: absolute; top: 0; left: 0; width: 1px; height: 100%;
+                background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), transparent, rgba(255, 255, 255, 0.2));
             }
             
-            #fetih-root th:first-child, #fetih-root td:first-child { 
-                padding-left: 40px !important; 
-                border-top-left-radius: 28px !important; border-bottom-left-radius: 28px !important; 
-                border-left: 1px solid rgba(var(--primary-rgb), 0.3) !important; 
-            }
-            #fetih-root th:last-child, #fetih-root td:last-child { 
-                padding-right: 50px !important; text-align: right !important; 
-                border-top-right-radius: 28px !important; border-bottom-right-radius: 28px !important; 
-                border-right: 1px solid rgba(var(--primary-rgb), 0.3) !important; 
-            }
-            #fetih-root tr.glass-card { filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2)); }
-            #fetih-root tr:hover td { background: rgba(var(--primary-rgb), 0.08) !important; }
+            #fetih-root tr.glass-classic:hover { background: rgba(255, 255, 255, 0.12); }
+            
             .t-val { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 0.9em; }
 
             @keyframes up { 0% { color: var(--success); text-shadow: 0 0 15px rgba(74, 222, 128, 0.4); } 100% { color: inherit; } }
@@ -534,6 +588,30 @@
             @keyframes bgAurora { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
             
             #fetih-root.glow-halo #fetih-bg-glow { box-shadow: inset 0 0 150px rgba(var(--primary-rgb),0.12), inset 0 0 400px rgba(var(--primary-rgb),0.06); }
+            #fetih-root.glow-edges #fetih-bg-glow { box-shadow: inset 0 0 120px rgba(var(--primary-rgb),0.3); }
+            #fetih-root.glow-corners #fetih-bg-glow { 
+                background: 
+                    radial-gradient(circle at top left, rgba(var(--primary-rgb), 0.3) 0%, transparent 40%),
+                    radial-gradient(circle at bottom right, rgba(var(--primary-rgb), 0.3) 0%, transparent 40%),
+                    radial-gradient(circle at top right, rgba(var(--primary-rgb), 0.2) 0%, transparent 35%),
+                    radial-gradient(circle at bottom left, rgba(var(--primary-rgb), 0.2) 0%, transparent 35%); 
+            }
+            #fetih-root.glow-diagonal #fetih-bg-glow { 
+                background: linear-gradient(45deg, transparent 30%, rgba(var(--primary-rgb), 0.2) 50%, transparent 70%);
+                background-size: 200% 200%;
+                animation: diagonalSweep 5s infinite linear;
+            }
+            @keyframes diagonalSweep { 0% { background-position: 100% 100%; } 100% { background-position: 0% 0%; } }
+            #fetih-root.glow-cinema #fetih-bg-glow { 
+                background: linear-gradient(to bottom, rgba(var(--primary-rgb),0.3) 0%, transparent 15%, transparent 85%, rgba(var(--primary-rgb),0.3) 100%); 
+            }
+            #fetih-root.glow-matrix #fetih-bg-glow { 
+                background: linear-gradient(to bottom, transparent, rgba(var(--primary-rgb), 0.4) 50%, transparent);
+                background-size: 100% 20%;
+                background-repeat: no-repeat;
+                animation: scanline 4s infinite linear;
+            }
+            @keyframes scanline { 0% { background-position: 0% -50%; } 100% { background-position: 0% 150%; } }
 
             /* Background Elements Base Styles */
             #fetih-bg-tex, #fetih-bg-glow { position: fixed; inset: -100px; z-index: -1; pointer-events: none; transition: all 0.5s ease; }
@@ -650,15 +728,15 @@
                 </div>
             </nav>
 
-            <main style="width:100%; max-width:1440px; padding:30px 40px; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; gap:25px;">
+            <main style="width:100%; max-width:1440px; padding:15px 40px 30px 40px; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; gap:25px;">
 
                 <!-- Featured Bento Grid -->
                 <div class="bento-grid section-width">
-                    <div class="glass-card card-6 has-card-active" style="padding:35px 45px; position:relative; overflow:hidden">
+                    <div class="fetih-card card-6 has-card-active" style="padding:35px 45px; position:relative; overflow:hidden">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:35px">
                             <div>
-                                <span style="font-size:10px; font-weight:900; text-transform:uppercase; opacity:0.6; letter-spacing:2px; display:block; margin-bottom:10px">Fetih Kuyumculuk</span>
-                                <h2 class="font-headline" style="font-size:38px; font-weight:900; margin:0">Has Altın (24K)</h2>
+                                <span style="font-size:10px; font-weight:900; color:var(--primary); text-transform:uppercase; opacity:0.8; letter-spacing:2px; display:block; margin-bottom:10px">Fetih Kuyumculuk</span>
+                                <h2 class="font-headline" style="font-size:38px; color:var(--primary); font-weight:900; margin:0">Has Altın (24K)</h2>
                             </div>
                             <div style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.1); padding:8px 14px; border-radius:100px; font-size:11px; font-weight:900; border: 1px solid rgba(0,0,0,0.25);">
                                 <div class="live-dot"></div>
@@ -667,17 +745,17 @@
                         </div>
                         <div style="display:grid; grid-template-columns:minmax(180px, 1fr) minmax(180px, 1fr); gap:50px">
                             <div>
-                                <span style="font-size:11px; font-weight:800; opacity:0.6; text-transform:uppercase; display:block; margin-bottom:10px">ALIŞ</span>
-                                <div id="val-has-buy" class="t-val" style="font-size:48px; font-weight:900; letter-spacing:-2px">--</div>
+                                <span style="font-size:11px; font-weight:800; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:10px">ALIŞ</span>
+                                <div id="val-has-buy" class="t-val" style="font-size:48px; font-weight:900; letter-spacing:-2px; color:var(--on-surface);">--</div>
                             </div>
                             <div>
-                                <span style="font-size:11px; font-weight:800; opacity:0.6; text-transform:uppercase; display:block; margin-bottom:10px">SATIŞ</span>
-                                <div id="val-has-sell" class="t-val" style="font-size:48px; font-weight:900; letter-spacing:-2px">--</div>
+                                <span style="font-size:11px; font-weight:800; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:10px">SATIŞ</span>
+                                <div id="val-has-sell" class="t-val" style="font-size:48px; font-weight:900; letter-spacing:-2px; color:var(--on-surface);">--</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="glass-card card-3" style="padding:28px">
+                    <div class="fetih-card card-3" style="padding:28px">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
                             <h3 class="font-headline" style="font-size:16px; font-weight:900; text-transform:uppercase; letter-spacing:1px; margin:0">Gram Altın</h3>
                             <span class="material-symbols-outlined" style="font-size:24px; color:var(--primary)">workspace_premium</span>
@@ -694,7 +772,7 @@
                         </div>
                     </div>
 
-                    <div class="glass-card card-3" style="padding:28px">
+                    <div class="fetih-card card-3" style="padding:28px">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
                             <h3 class="font-headline" style="font-size:16px; font-weight:900; text-transform:uppercase; letter-spacing:1px; margin:0">ONS Altın</h3>
                             <span class="material-symbols-outlined" style="font-size:18px; color:var(--primary)">show_chart</span>
@@ -899,30 +977,50 @@
                             </button>
                         </div>
 
-                        <!-- Theme Color Selection -->
-                        <div class="settings-card" style="flex-direction: column; align-items: flex-start; gap: 16px;">
-                            <div class="settings-info">
-                                <h3>Tema Rengi</h3>
-                                <p>Arayüzün ana renk tonunu özelleştir</p>
+                        <!-- Theme Color Selection (Collapsible) -->
+                        <div class="settings-card" style="flex-direction: column; align-items: stretch; margin-top: 10px;">
+                            <div id="fetih-color-toggle" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 4px 0;">
+                                <div class="settings-info">
+                                    <h3 style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">palette</span> 
+                                        Tema Rengi
+                                    </h3>
+                                    <p>Arayüzün ana renk tonunu özelleştir</p>
+                                </div>
+                                <span class="material-symbols-outlined" id="fetih-color-chevron" style="transition: transform 0.3s;">expand_more</span>
                             </div>
-                            <div class="theme-color-grid" id="fetih-color-picker">
-                                <!-- Colors will be injected here -->
+                            <div id="fetih-color-panel" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+                                <div class="theme-color-grid" id="fetih-color-picker">
+                                    <!-- Colors will be injected here -->
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Tema Efektleri -->
-                        <div style="margin-top:8px;">
-                            <div style="font-size:10px;font-weight:900;color:var(--outline);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">G&#214;R&#220;N&#220;M AYARLARI</div>
-                            <div style="display:grid;grid-template-columns:1fr;gap:10px;">
-                                <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:14px;">
-                                    <div style="font-size:10px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:14px;">blur_on</span>Cam (Glass) Preseti</div>
-                                    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
-                                        <button class="fx-btn glass-btn" data-glass="">Varsay&#305;lan</button>
-                                        <button class="fx-btn glass-btn" data-glass="glass-frost">Frost</button>
-                                        <button class="fx-btn glass-btn" data-glass="glass-liquid">S&#305;v&#305;</button>
-                                        <button class="fx-btn glass-btn" data-glass="glass-gold">Alt&#305;n</button>
-                                        <button class="fx-btn glass-btn" data-glass="glass-none">Kapal&#305;</button>
-                                    </div>
+                        <!-- Tema Efektleri (Cam Ayarları) (Collapsible) -->
+                        <div class="settings-card" style="flex-direction: column; align-items: stretch; margin-top: 10px;">
+                            <div id="fetih-glass-toggle" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 4px 0;">
+                                <div class="settings-info">
+                                    <h3 style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">blur_on</span> 
+                                        Cam (Glass) Ayarları
+                                    </h3>
+                                    <p>Pencere ve menü cam efektlerini düzenle</p>
+                                </div>
+                                <span class="material-symbols-outlined" id="fetih-glass-chevron" style="transition: transform 0.3s;">expand_more</span>
+                            </div>
+                            <div id="fetih-glass-panel" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+                                <div style="font-size:10px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:14px;">blur_on</span>Cam Preseti</div>
+                                <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+                                    <button class="fx-btn glass-btn" data-glass="">Varsay&#305;lan</button>
+                                    <button class="fx-btn glass-btn" data-glass="glass-frost">Frost</button>
+                                    <button class="fx-btn glass-btn" data-glass="glass-liquid">S&#305;v&#305;</button>
+                                    <button class="fx-btn glass-btn" data-glass="glass-gold">Alt&#305;n</button>
+                                    <button class="fx-btn glass-btn" data-glass="glass-none">Kapal&#305;</button>
+                                </div>
+                                <div style="font-size:10px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-top:16px;margin-bottom:12px;display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:14px;">water_drop</span>Navbar Efekti</div>
+                                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+                                    <button class="fx-btn navGlass-btn active" data-nav-glass="">Klasik</button>
+                                    <button class="fx-btn navGlass-btn" data-nav-glass="nav-liquid">S&#305;v&#305; Cam (Liquid)</button>
                                 </div>
                             </div>
                         </div>
@@ -950,6 +1048,11 @@
                                     <button class="fx-btn glow-btn" data-glow="glow-drift">&#127787;&#65039; Drift (S&#252;z&#252;len)</button>
                                     <button class="fx-btn glow-btn" data-glow="glow-aurora">&#127752; Aurora (Dalga)</button>
                                     <button class="fx-btn glow-btn" data-glow="glow-halo">Halo (Hale)</button>
+                                    <button class="fx-btn glow-btn" data-glow="glow-edges">&#128306; Kenarlar</button>
+                                    <button class="fx-btn glow-btn" data-glow="glow-corners">&#128308; K&#246;&#351;eler</button>
+                                    <button class="fx-btn glow-btn" data-glow="glow-diagonal">&#128260; &#199;apraz Ge&#231;i&#351;</button>
+                                    <button class="fx-btn glow-btn" data-glow="glow-cinema">&#127916; Sinematik</button>
+                                    <button class="fx-btn glow-btn" data-glow="glow-matrix">&#128187; Taray&#305;c&#305; (Matrix)</button>
                                 </div>
                             </div>
                         </div>
@@ -1074,6 +1177,30 @@
             });
         }
 
+        // Color Panel Toggle
+        const colorToggle = document.getElementById('fetih-color-toggle');
+        const colorPanel = document.getElementById('fetih-color-panel');
+        const colorChevron = document.getElementById('fetih-color-chevron');
+        if (colorToggle && colorPanel) {
+            colorToggle.addEventListener('click', () => {
+                const isOpen = colorPanel.style.display === 'block';
+                colorPanel.style.display = isOpen ? 'none' : 'block';
+                colorChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+        }
+
+        // Glass Panel Toggle
+        const glassToggle = document.getElementById('fetih-glass-toggle');
+        const glassPanel = document.getElementById('fetih-glass-panel');
+        const glassChevron = document.getElementById('fetih-glass-chevron');
+        if (glassToggle && glassPanel) {
+            glassToggle.addEventListener('click', () => {
+                const isOpen = glassPanel.style.display === 'block';
+                glassPanel.style.display = isOpen ? 'none' : 'block';
+                glassChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+        }
+
         // Theme Toggle
         let isLightMode = localStorage.getItem('fetihLightMode') === 'true';
         const themeIcon = document.getElementById('fetih-theme-icon');
@@ -1133,6 +1260,7 @@
 
         // Bind effect buttons
         document.querySelectorAll('.glass-btn').forEach(b => b.addEventListener('click', () => window.applyEffect('glass', b.dataset.glass)));
+        document.querySelectorAll('.navGlass-btn').forEach(b => b.addEventListener('click', () => window.applyEffect('navGlass', b.dataset.navGlass)));
         document.querySelectorAll('.tex-btn').forEach(b   => b.addEventListener('click', () => window.applyEffect('tex',   b.dataset.tex)));
         document.querySelectorAll('.glow-btn').forEach(b  => b.addEventListener('click', () => window.applyEffect('glow',  b.dataset.glow)));
 
@@ -1144,6 +1272,7 @@
         updateTexParams();
 
         window.applyEffect('glass', localStorage.getItem('fetihGlass') || '');
+        window.applyEffect('navGlass', localStorage.getItem('fetihNavGlass') || '');
         window.applyEffect('tex',   localStorage.getItem('fetihTex')   || '');
         window.applyEffect('glow',  localStorage.getItem('fetihGlow')  || '');
 
@@ -1180,6 +1309,26 @@
         function applyThemeColor(color) {
             root.style.setProperty('--primary', color);
             root.style.setProperty('--primary-rgb', hexToRgb(color));
+            
+            let ataR = 255, ataG = 152, ataB = 0; // #ff9800 default
+            if (color.toUpperCase() !== '#CDA860') {
+                let r = parseInt(color.slice(1,3), 16);
+                let g = parseInt(color.slice(3,5), 16);
+                let b = parseInt(color.slice(5,7), 16);
+                
+                ataR = 255 - r;
+                ataG = 255 - g;
+                ataB = 255 - b;
+                
+                if (ataR < 80 && ataG < 80 && ataB < 80) {
+                    ataR = Math.min(255, ataR + 100);
+                    ataG = Math.min(255, ataG + 100);
+                    ataB = Math.min(255, ataB + 100);
+                }
+            }
+            root.style.setProperty('--ata-accent', `rgb(${ataR}, ${ataG}, ${ataB})`);
+            root.style.setProperty('--ata-accent-rgb', `${ataR}, ${ataG}, ${ataB}`);
+            
             localStorage.setItem('fetihThemeColor', color);
             activeColor = color;
             updateColorDots();
@@ -1859,10 +2008,11 @@
         overview.innerHTML = requested.map(item => {
             const v = data[item.key] || { buy: '-', sell: '-', rate: '%0.00', dir: '' };
             const isAta = item.key === 'ESKİATA';
-            const accentColor = isAta ? '#ff9800' : 'var(--primary)'; // Slightly orange for Eski Ata
+            const accentColor = isAta ? 'var(--ata-accent)' : 'var(--primary)'; 
+            const accentRgb = isAta ? 'var(--ata-accent-rgb)' : 'var(--primary-rgb)';
 
-            const badge = item.mult ? `<span class="mult-badge" style="${isAta ? 'color:#ff9800; border-color:rgba(255,152,0,0.3); background:rgba(255,152,0,0.1);' : ''}">${item.mult}</span>` :
-                (item.star ? `<span class="star-badge" style="${isAta ? 'border-color:rgba(255,152,0,0.4); background:rgba(255,152,0,0.1);' : ''}"><span class="material-symbols-outlined" style="font-size:12px;color:${accentColor}">star</span></span>` : '');
+            const badge = item.mult ? `<span class="mult-badge" style="${isAta ? `color:${accentColor}; border-color:rgba(${accentRgb},0.3); background:rgba(${accentRgb},0.1);` : ''}">${item.mult}</span>` :
+                (item.star ? `<span class="star-badge" style="${isAta ? `border-color:rgba(${accentRgb},0.4); background:rgba(${accentRgb},0.1);` : ''}"><span class="material-symbols-outlined" style="font-size:12px;color:${accentColor}">star</span></span>` : '');
 
             const arrow = v.dir === 'up' ? `<span class="material-symbols-outlined" style="color:var(--success);font-size:16px;vertical-align:text-bottom">arrow_upward</span>` :
                 (v.dir === 'down' ? `<span class="material-symbols-outlined" style="color:var(--error);font-size:16px;vertical-align:text-bottom">arrow_downward</span>` : '');
@@ -1873,7 +2023,7 @@
             const sellId = item.key === 'ESKİÇEYREK' ? 'id="val-ceyrek-sell"' : (item.key === 'ESKİATA' ? 'id="val-ata-sell"' : '');
 
             return `
-                <div class="mini-card glass-card" style="${isAta ? 'border-color:rgba(255,152,0,0.4);' : ''}">
+                <div class="mini-card" style="${isAta ? `border: 1px solid var(--ata-accent); box-shadow: 0 0 10px rgba(${accentRgb}, 0.2);` : ''}">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                         <div style="font-size:11px; font-weight:900; color:${accentColor}; opacity:0.9; letter-spacing:1px">${item.label}</div>
                         ${badge}
@@ -1910,7 +2060,7 @@
             const changeColor = changeVal.includes('-') ? 'var(--error)' : 'var(--success)';
 
             return `
-            <tr class="glass-card">
+            <tr class="glass-classic">
                 <td style="font-weight:700 !important; color:var(--on-surface) !important; letter-spacing:1px !important; font-size:19px !important;">
                     <div style="display:flex; align-items:center;">
                         ${iconHTML}
