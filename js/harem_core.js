@@ -216,6 +216,14 @@
             #fetih-root.light-mode .settings-close-btn { color: #111; }
             #fetih-root.light-mode .settings-close-btn:hover { background: rgba(0,0,0,0.1); }
             #fetih-root.light-mode #fetih-dash-modal { background: rgba(255,255,255,0.6); }
+            #fetih-root.light-mode #fetih-bot-trigger { background: rgba(240,240,240,0.95) !important; border-color: rgba(var(--primary-rgb),0.3) !important; }
+            #fetih-root.light-mode .siri-orb { background: #f0f0f0 !important; }
+            #fetih-root.light-mode .bot-msg-text { color: #1a1a1a !important; }
+            #fetih-root.light-mode #analysis-modal-box { background: rgba(248,248,248,0.98) !important; border-color: rgba(0,0,0,0.1) !important; }
+            #fetih-root.light-mode .am-comp-card { background: rgba(0,0,0,0.03) !important; border-color: rgba(0,0,0,0.08) !important; }
+            #fetih-root.light-mode #am-current-price { color: var(--primary) !important; }
+            #fetih-root.light-mode #am-insight { color: #555 !important; }
+            #fetih-root.light-mode #analysis-modal-box div[style*="color:var(--outline)"] { color: #777 !important; }
 
             /* Light Mode Scrollbars */
             #fetih-root.light-mode::-webkit-scrollbar-track, #fetih-root.light-mode *::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
@@ -542,6 +550,72 @@
                 </div>
             </div>
 
+            <!-- Bot Analysis Modal -->
+            <div id="fetih-analysis-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:2147483647;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.4s ease;">
+                <div style="width:92%;max-width:560px;background:rgba(18,18,18,0.95);border:1px solid rgba(var(--primary-rgb),0.25);border-radius:32px;padding:36px;box-shadow:0 40px 80px rgba(0,0,0,0.9);transform:translateY(20px) scale(0.95);transition:transform 0.4s cubic-bezier(0.19,1,0.22,1);" id="analysis-modal-box">
+                    <!-- Header -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:40px;height:40px;border-radius:50%;background:rgba(var(--primary-rgb),0.15);border:1px solid rgba(var(--primary-rgb),0.3);display:flex;align-items:center;justify-content:center;">
+                                <span class="material-symbols-outlined" style="font-size:22px;color:var(--primary)">smart_toy</span>
+                            </div>
+                            <div>
+                                <div style="font-size:18px;font-weight:900;color:#fff;font-family:'Manrope',sans-serif;">Fetih Analiz</div>
+                                <div style="font-size:11px;color:var(--outline);font-weight:600;text-transform:uppercase;letter-spacing:1px;">Piyasa Raporu</div>
+                            </div>
+                        </div>
+                        <button id="analysis-modal-close" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:var(--outline);cursor:pointer;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">
+                            <span class="material-symbols-outlined" style="font-size:22px;">close</span>
+                        </button>
+                    </div>
+
+                    <!-- Asset Tabs -->
+                    <div style="display:flex;gap:8px;margin-bottom:24px;background:rgba(0,0,0,0.3);border-radius:16px;padding:6px;">
+                        <button class="analysis-tab active" data-asset="HAS" style="flex:1;padding:10px;border-radius:12px;border:none;cursor:pointer;font-weight:800;font-size:13px;transition:all 0.3s;">Has Altın</button>
+                        <button class="analysis-tab" data-asset="CEYREK" style="flex:1;padding:10px;border-radius:12px;border:none;cursor:pointer;font-weight:800;font-size:13px;transition:all 0.3s;">Çeyrek</button>
+                        <button class="analysis-tab" data-asset="ONS" style="flex:1;padding:10px;border-radius:12px;border:none;cursor:pointer;font-weight:800;font-size:13px;transition:all 0.3s;">ONS</button>
+                    </div>
+
+                    <!-- Current Price -->
+                    <div style="background:rgba(var(--primary-rgb),0.08);border:1px solid rgba(var(--primary-rgb),0.2);border-radius:20px;padding:24px;margin-bottom:16px;text-align:center;">
+                        <div style="font-size:12px;font-weight:700;color:var(--outline);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">GÜNCEL FİYAT</div>
+                        <div id="am-current-price" style="font-size:42px;font-weight:900;color:var(--primary);font-family:'Manrope',sans-serif;letter-spacing:-1px;">--</div>
+                        <div id="am-insight" style="font-size:13px;color:var(--outline);margin-top:10px;line-height:1.5;">Analiz yükleniyor...</div>
+                    </div>
+
+                    <!-- Comparison Cards -->
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+                        <div class="am-comp-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:16px;">
+                            <div style="font-size:10px;font-weight:800;color:var(--outline);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:13px;">today</span>Dün</div>
+                            <div id="am-comp-y" style="font-size:20px;font-weight:900;font-family:'Manrope',sans-serif;">--</div>
+                            <div id="am-comp-y-tl" style="font-size:11px;color:var(--outline);margin-top:4px;">--</div>
+                        </div>
+                        <div class="am-comp-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:16px;">
+                            <div style="font-size:10px;font-weight:800;color:var(--outline);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:13px;">date_range</span>Hafta</div>
+                            <div id="am-comp-w" style="font-size:20px;font-weight:900;font-family:'Manrope',sans-serif;">--</div>
+                            <div id="am-comp-w-tl" style="font-size:11px;color:var(--outline);margin-top:4px;">--</div>
+                        </div>
+                        <div class="am-comp-card" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:16px;">
+                            <div style="font-size:10px;font-weight:800;color:var(--outline);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:4px;"><span class="material-symbols-outlined" style="font-size:13px;">calendar_month</span>Ay</div>
+                            <div id="am-comp-m" style="font-size:20px;font-weight:900;font-family:'Manrope',sans-serif;">--</div>
+                            <div id="am-comp-m-tl" style="font-size:11px;color:var(--outline);margin-top:4px;">--</div>
+                        </div>
+                    </div>
+
+                    <!-- Range Bar -->
+                    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:16px;">
+                        <div style="font-size:10px;font-weight:800;color:var(--outline);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">30 GÜNLÜK RANGE</div>
+                        <div style="position:relative;height:6px;background:rgba(255,255,255,0.08);border-radius:99px;margin-bottom:10px;">
+                            <div id="am-range-bar" style="position:absolute;left:0;top:-3px;width:12px;height:12px;background:var(--primary);border-radius:50%;box-shadow:0 0 8px rgba(var(--primary-rgb),0.6);transform:translateX(-50%);transition:left 0.5s ease;"></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;">
+                            <span id="am-range-low" style="font-size:12px;font-weight:700;color:var(--outline);">-- TL</span>
+                            <span id="am-range-high" style="font-size:12px;font-weight:700;color:var(--outline);">-- TL</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Settings Modal -->
             <div id="fetih-dash-modal">
                 <div class="settings-container">
@@ -595,7 +669,7 @@
 
         // Event Listener'ları bağla (Isolated World hatasını önlemek için)
         const botTrigger = document.getElementById('fetih-bot-trigger');
-        if (botTrigger) botTrigger.addEventListener('click', () => window.openFetihDash());
+        if (botTrigger) botTrigger.addEventListener('click', () => window.openFetihAnalysis());
 
         const settingsBtn = document.getElementById('fetih-settings-btn');
         if (settingsBtn) {
@@ -604,6 +678,40 @@
                 window.openFetihDash();
             });
         }
+
+        // Analysis modal tab styles
+        const analysisStyleEl = document.createElement('style');
+        analysisStyleEl.textContent = `
+            .analysis-tab { background: transparent; color: var(--outline); }
+            .analysis-tab.active { background: rgba(var(--primary-rgb),0.15); color: var(--primary); border: 1px solid rgba(var(--primary-rgb),0.3) !important; }
+            .analysis-tab:hover { background: rgba(255,255,255,0.05); color: #fff; }
+            #analysis-modal-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
+            #fetih-analysis-modal.active { display: flex; opacity: 1; }
+            #fetih-analysis-modal.active #analysis-modal-box { transform: translateY(0) scale(1); }
+        `;
+        document.head.appendChild(analysisStyleEl);
+
+        // Analysis modal close
+        const analysisClose = document.getElementById('analysis-modal-close');
+        if (analysisClose) analysisClose.addEventListener('click', () => window.closeFetihAnalysis());
+
+        // Analysis modal backdrop close
+        const analysisModal = document.getElementById('fetih-analysis-modal');
+        if (analysisModal) {
+            analysisModal.addEventListener('click', (e) => {
+                if (e.target === analysisModal) window.closeFetihAnalysis();
+            });
+        }
+
+        // Analysis tabs
+        document.querySelectorAll('.analysis-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.analysis-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentAnalysisAsset = tab.dataset.asset;
+                updateAnalysisModal();
+            });
+        });
 
         const closeBtn = document.getElementById('fetih-dash-close');
         if (closeBtn) closeBtn.addEventListener('click', () => window.closeFetihDash());
@@ -988,14 +1096,91 @@
         trigger.classList.toggle('is-open');
     };
 
-    /* ─── DASHBOARD LOGIC ─── */
+    /* ─── ANALYSIS MODAL LOGIC ─── */
+    let currentAnalysisAsset = 'HAS';
+
+    window.openFetihAnalysis = function () {
+        unlockAudio();
+        const modal = document.getElementById('fetih-analysis-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            // Force reflow so transition plays
+            void modal.offsetWidth;
+            modal.style.opacity = '1';
+            const box = document.getElementById('analysis-modal-box');
+            if (box) box.style.transform = 'translateY(0) scale(1)';
+            updateAnalysisModal();
+        }
+    };
+
+    window.closeFetihAnalysis = function () {
+        const modal = document.getElementById('fetih-analysis-modal');
+        if (!modal) return;
+        modal.style.opacity = '0';
+        const box = document.getElementById('analysis-modal-box');
+        if (box) box.style.transform = 'translateY(20px) scale(0.95)';
+        setTimeout(() => { modal.style.display = 'none'; }, 400);
+    };
+
+    async function updateAnalysisModal() {
+        if (typeof window.getFetihAssetAnalysis !== 'function') return;
+
+        const setComp = (elId, tlId, compData, current) => {
+            const el = document.getElementById(elId);
+            const tlEl = document.getElementById(tlId);
+            if (!el) return;
+            if (!compData) {
+                el.textContent = '--';
+                el.style.color = 'var(--outline)';
+                if (tlEl) tlEl.textContent = 'Veri yok';
+                return;
+            }
+            const sign = compData.pct > 0 ? '+' : '';
+            const color = compData.pct > 0 ? 'var(--success)' : (compData.pct < 0 ? 'var(--error)' : 'var(--outline)');
+            el.textContent = `${sign}${compData.pct}%`;
+            el.style.color = color;
+            if (tlEl) {
+                const diffTL = (current - compData.price).toFixed(2);
+                tlEl.textContent = `${sign}${diffTL} TL`;
+                tlEl.style.color = color;
+            }
+        };
+
+        const data = await window.getFetihAssetAnalysis(currentAnalysisAsset);
+        const priceEl = document.getElementById('am-current-price');
+        const insightEl = document.getElementById('am-insight');
+
+        if (!data) {
+            if (priceEl) priceEl.textContent = '--';
+            if (insightEl) insightEl.textContent = 'Veri toplanıyor, lütfen bekleyin.';
+            return;
+        }
+
+        if (priceEl) priceEl.textContent = data.current ? data.current.toLocaleString('tr-TR') + ' TL' : '--';
+        if (insightEl) insightEl.innerHTML = data.insight || 'Analiz hazırlanıyor...';
+
+        setComp('am-comp-y', 'am-comp-y-tl', data.yesterday, data.current);
+        setComp('am-comp-w', 'am-comp-w-tl', data.weekly, data.current);
+        setComp('am-comp-m', 'am-comp-m-tl', data.monthly, data.current);
+
+        // Range bar
+        if (data.range && data.current) {
+            document.getElementById('am-range-low').textContent = data.range.low.toLocaleString('tr-TR') + ' TL';
+            document.getElementById('am-range-high').textContent = data.range.high.toLocaleString('tr-TR') + ' TL';
+            const total = data.range.high - data.range.low;
+            const pos = total > 0 ? Math.min(100, Math.max(0, ((data.current - data.range.low) / total) * 100)) : 50;
+            const bar = document.getElementById('am-range-bar');
+            if (bar) bar.style.left = pos + '%';
+        }
+    }
+
+    /* ─── DASHBOARD LOGIC (Settings) ─── */
     let currentDashAsset = 'HAS';
     window.openFetihDash = function () {
         unlockAudio();
         const modal = document.getElementById('fetih-dash-modal');
         if (modal) {
             modal.classList.add('active');
-            updateDashData();
         }
     };
     window.closeFetihDash = function () {
