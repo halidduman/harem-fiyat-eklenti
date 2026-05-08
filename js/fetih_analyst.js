@@ -316,7 +316,7 @@
             const pctColor = data.pct > 0 ? '#4ade80' : (data.pct < 0 ? '#f87171' : '#888');
             const iconName = periodIcons[periodLabel] || 'schedule';
 
-            let m = `${label}: <span style="color:#CDA860;font-weight:800">${current.toLocaleString('tr-TR')}</span>`;
+            let m = `${label}: <span style="color:var(--primary);font-weight:800">${current.toLocaleString('tr-TR')}</span>`;
             m += ` <span style="display:inline-block;width:1px;height:12px;background:rgba(255,255,255,0.15);margin:0 8px;vertical-align:middle"></span>`;
             m += `<span style="color:${pctColor};font-weight:700">${sign}${data.pct}%</span>`;
             m += ` <span style="color:#fff;font-weight:600;border-bottom:1px solid ${pctColor};padding-bottom:1px;margin-left:6px">${sign}${data.diffTL} TL</span>`;
@@ -453,7 +453,7 @@
     ═══════════════════════════════════════ */
     function highlightMsg(text) {
         if (!text) return '';
-        const GOLD = '#CDA860';
+        const GOLD = 'var(--primary)';
         let s = text;
         // Sadece Varlık isimlerini altın rengi yap (zaten tag varsa dokunma)
         ['Has Altın','Çeyrek Altın','Ons Altın','Ata Altın'].forEach(a => {

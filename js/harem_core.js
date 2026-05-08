@@ -18,6 +18,7 @@
 
             :root {
                 --primary: #CDA860;
+                --primary-rgb: 205, 168, 96;
                 --surface: #0f0f0f;
                 --surface-container: #1a1a1a;
                 --card-bg: rgba(35, 35, 35, 0.9);
@@ -42,7 +43,7 @@
             .glass-card {
                 background: var(--card-bg);
                 backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-                border: 1px solid rgba(233, 193, 118, 0.2);
+                border: 1px solid rgba(var(--primary-rgb), 0.2);
                 border-radius: 28px;
                 box-shadow: 0 10px 40px rgba(0,0,0,0.5);
                 transition: all 0.3s ease;
@@ -53,28 +54,28 @@
             nav {
                 width: 100%; padding: 8px 40px; display: flex; align-items: center; justify-content: space-between;
                 background: #000; position: sticky; top: 0; z-index: 1000;
-                border-bottom: 1px solid rgba(233, 193, 118, 0.1); box-sizing: border-box;
+                border-bottom: 1px solid rgba(var(--primary-rgb), 0.1); box-sizing: border-box;
             }
 
             .live-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; animation: pulse 2s infinite; }
             @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
             @keyframes spin { 100% { transform: rotate(360deg); } }
             .loading-icon { animation: spin 2s linear infinite; color: var(--outline); font-size: 24px; }
-            .fetih-loader { animation: spin 1s linear infinite !important; color: #CDA860 !important; }
+            .fetih-loader { animation: spin 1s linear infinite !important; color: var(--primary) !important; }
             
             .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; width: 100%; max-width: 1240px; margin: 0 auto; }
             .card-6 { grid-column: span 6; }
             .card-3 { grid-column: span 3; }
 
             /* Table Styles - SPACIOUS & READABLE */
-            #fetih-root .fetih-table-box { width: 100%; background: transparent; border: none; }
-            #fetih-root table { width: 100% !important; border-collapse: separate !important; border-spacing: 0 20px !important; }
-            #fetih-root th { padding: 15px 40px !important; text-align: left !important; font-size: 16px !important; font-weight: 900 !important; text-transform: uppercase !important; color: var(--outline) !important; letter-spacing: 2px !important; border: none !important; border-bottom: 2px solid rgba(233,193,118,0.2) !important; }
-            #fetih-root td { padding: 25px 40px !important; border: none !important; background: rgba(255,255,255,0.02) !important; transition: all 0.2s ease; }
+            #fetih-root .fetih-table-box { width: 95%; background: transparent; border: none; margin: 0 auto; }
+            #fetih-root table { width: 100% !important; border-collapse: separate !important; border-spacing: 0 16px !important; }
+            #fetih-root th { padding: 12px 32px !important; text-align: left !important; font-size: 13px !important; font-weight: 900 !important; text-transform: uppercase !important; color: var(--outline) !important; letter-spacing: 2px !important; border: none !important; border-bottom: 2px solid rgba(var(--primary-rgb),0.2) !important; }
+            #fetih-root td { padding: 20px 32px !important; border: none !important; background: rgba(255,255,255,0.02) !important; transition: all 0.2s ease; font-size: 14px !important; }
             #fetih-root th:first-child, #fetih-root td:first-child { padding-left: 50px !important; border-top-left-radius: 24px !important; border-bottom-left-radius: 24px !important; }
             #fetih-root th:last-child, #fetih-root td:last-child { padding-right: 50px !important; text-align: right !important; border-top-right-radius: 24px !important; border-bottom-right-radius: 24px !important; }
-            #fetih-root tr:hover td { background: rgba(233, 193, 118, 0.08) !important; }
-            .t-val { font-family: 'Manrope', sans-serif; font-weight: 800; }
+            #fetih-root tr:hover td { background: rgba(var(--primary-rgb), 0.08) !important; }
+            .t-val { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 0.9em; }
 
             @keyframes up { 0% { color: var(--success); text-shadow: 0 0 15px rgba(74, 222, 128, 0.4); } 100% { color: inherit; } }
             @keyframes down { 0% { color: var(--error); text-shadow: 0 0 15px rgba(248, 113, 113, 0.4); } 100% { color: inherit; } }
@@ -82,7 +83,7 @@
             .down { animation: down 1.2s ease; }
 
             .overview-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; width: 100%; max-width: 1240px; }
-            .mini-card { padding: 20px 24px; background: var(--card-bg); border: 1px solid rgba(233,193,118,0.2); border-radius: 24px; text-align: left; position: relative; }
+            .mini-card { padding: 20px 24px; background: var(--card-bg); border: 1px solid rgba(var(--primary-rgb), 0.2); border-radius: 24px; text-align: left; position: relative; }
             
             /* Gremse ile Ata arasına dik çizgi ve ekstra mesafe */
             .overview-grid > div:nth-child(5) {
@@ -95,7 +96,7 @@
                 top: 15px;
                 bottom: 15px;
                 width: 2px;
-                background: #CDA860;
+                background: var(--primary);
                 opacity: 0.8;
                 border-radius: 2px;
             }
@@ -106,7 +107,7 @@
                 height: 42px;
                 border-radius: 999px;
                 background: rgba(10, 10, 10, 0.9);
-                border: 1px solid rgba(233, 193, 118, 0.25);
+                border: 1px solid rgba(var(--primary-rgb), 0.25);
                 cursor: pointer;
                 overflow: hidden; /* Kesin clipping */
                 flex-shrink: 0;
@@ -114,7 +115,7 @@
                 will-change: width, border-color;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.4);
             }
-            #fetih-bot-trigger:hover { border-color: rgba(233, 193, 118, 0.5); }
+            #fetih-bot-trigger:hover { border-color: rgba(var(--primary-rgb), 0.5); }
 
             .siri-orb {
                 width: 40px; height: 40px; flex-shrink: 0;
@@ -150,21 +151,20 @@
             }
 
             .has-card-active {
-                background: linear-gradient(135deg, var(--primary) 0%, #c5a059 100%) !important;
+                background: linear-gradient(135deg, var(--primary) 0%, rgba(var(--primary-rgb), 0.7) 100%) !important;
                 border: none !important;
             }
             .has-card-active * { color: #2a2200 !important; }
             .has-card-active .t-val { color: #000 !important; }
 
-            /* Multiplier badges */
             .mult-badge {
-                font-size: 10px; font-weight: 900; letter-spacing: 0.05em; color: #e9c176;
-                background: rgba(233,193,118,0.10); border: 1px solid rgba(233,193,118,0.25);
+                font-size: 10px; font-weight: 900; letter-spacing: 0.05em; color: var(--primary);
+                background: rgba(var(--primary-rgb),0.10); border: 1px solid rgba(var(--primary-rgb),0.25);
                 border-radius: 999px; padding: 1px 7px; line-height: 1.6;
             }
             .star-badge {
                 display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px;
-                border-radius: 50%; background: rgba(233,193,118,0.10); border: 1px solid rgba(233,193,118,0.30);
+                border-radius: 50%; background: rgba(var(--primary-rgb),0.10); border: 1px solid rgba(var(--primary-rgb),0.30);
             }
             .has-card-active .mult-badge, .has-card-active .star-badge {
                 background: rgba(0,0,0,0.1); border-color: rgba(0,0,0,0.2); color: #000;
@@ -186,9 +186,9 @@
                 transition: background 0.4s ease, box-shadow 0.4s ease;
             }
             #fetih-root::-webkit-scrollbar-thumb:hover, #fetih-root *::-webkit-scrollbar-thumb:hover {
-                background: #CDA860;
+                background: var(--primary);
                 background-clip: content-box; /* Boyutun değişmemesi için sabit tutuyoruz */
-                box-shadow: 0 0 8px rgba(205, 168, 96, 0.4);
+                box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.4);
             }
 
             /* ── LIGHT THEME OVERRIDES ── */
@@ -231,7 +231,7 @@
                 padding: 8px 16px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s;
             }
             .custom-chart-btn:hover { background: rgba(255,255,255,0.05); color: var(--on-surface); }
-            .custom-chart-btn.active { background: rgba(233,193,118,0.15); border-color: rgba(233,193,118,0.5); color: var(--primary); }
+            .custom-chart-btn.active { background: rgba(var(--primary-rgb), 0.15); border-color: rgba(var(--primary-rgb), 0.5); color: var(--primary); }
 
             /* Hide original dropdowns */
             #chart-injection-zone .chart-container .d-flex { display: none !important; }
@@ -280,7 +280,7 @@
             .settings-container {
                 width: 90%; max-width: 480px; 
                 background: rgba(20, 20, 20, 0.85); 
-                border: 1px solid rgba(233,193,118,0.2);
+                border: 1px solid rgba(var(--primary-rgb),0.2);
                 border-radius: 32px; display: flex; flex-direction: column; overflow: hidden;
                 box-shadow: 0 40px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
                 padding: 40px;
@@ -317,13 +317,33 @@
                 padding: 24px; display: flex; justify-content: space-between; align-items: center;
                 margin-bottom: 20px; transition: all 0.3s ease;
             }
-            .settings-card:hover { border-color: rgba(233,193,118,0.3); background: rgba(233,193,118,0.05); }
+            .settings-card:hover { border-color: rgba(var(--primary-rgb),0.3); background: rgba(var(--primary-rgb),0.05); }
 
             .settings-info {
                 display: flex; flex-direction: column; gap: 6px;
             }
             .settings-info h3 { margin: 0; font-size: 16px; color: #e5e5e5; font-weight: 700; }
             .settings-info p { margin: 0; font-size: 13px; color: var(--outline); font-weight: 500; }
+
+            .themed-svg path {
+                fill: var(--primary) !important;
+                transition: fill 0.3s ease;
+            }
+
+            .theme-color-grid {
+                display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;
+            }
+            .color-dot {
+                width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+                border: 2px solid transparent; transition: all 0.2s;
+                position: relative;
+            }
+            .color-dot.active { border-color: #fff; transform: scale(1.1); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+            .color-dot.active::after {
+                content: 'check'; font-family: 'Material Symbols Outlined';
+                position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                color: #000; font-size: 18px; font-weight: 900;
+            }
         `;
 
         document.head.appendChild(style);
@@ -345,7 +365,25 @@
         root.id = 'fetih-root';
         root.innerHTML = `
             <nav>
-                <img src="${chrome.runtime.getURL('assets/fetih.svg')}" style="height:32px; width:auto; display:block;" alt="Fetih Logo">
+                <div id="fetih-main-logo" style="height:32px; width:auto; display:block; cursor:pointer;">
+                    <svg class="themed-svg" width="120" height="32" viewBox="0 0 187.5 75" preserveAspectRatio="xMidYMid meet">
+                        <g transform="translate(0.8, 57.3)">
+                            <path d="M 47.3 -35.7 L 44.1 -50.9 L 41.9 -50.3 C 41.7 -50.2 41.5 -50.2 41.3 -50.2 C 41.1 -50.1 40.9 -50.1 40.6 -50.1 L 1.3 -50.1 L 1.4 -48.0 L 3.8 -47.7 L 5.3 -46.6 L 5.6 -45.4 C 5.6 -45.4 5.6 -45.2 5.7 -44.9 L 5.8 -7.0 L 5.5 1.7 L 4.9 5.5 L 4.1 9.0 L 2.9 11.6 L 1.3 14.0 L 23.4 -0.2 L 21.6 -1.2 C 21.3 -1.4 20.8 -1.8 20.1 -2.4 L 19.3 -4.4 L 18.9 -6.9 L 19.0 -19.5 L 21.2 -21.8 L 23.4 -23.6 L 25.3 -24.4 L 27.2 -24.7 L 28.5 -24.2 L 29.8 -23.3 L 30.4 -21.6 L 30.7 -19.4 L 39.7 -28.3 L 37.9 -31.7 L 36.4 -33.0 L 34.7 -34.1 L 33.5 -34.5 L 30.8 -34.5 L 28.7 -33.4 L 26.5 -32 L 18.9 -22.5 L 19.0 -48.0 L 25.0 -47.5 L 30.2 -46.2 L 33.0 -45.2 L 35.2 -44.1 L 37.8 -42.7 L 40.0 -41.2 L 43.2 -38.2 L 44.5 -36.1 L 45.5 -34.2 Z"/>
+                        </g>
+                        <g transform="translate(49.2, 57.3)">
+                            <path d="M 39.2 -12.7 L 37.2 -13.8 L 33.9 -11.9 L 30.6 -10.2 L 27.7 -9.2 L 24.6 -8.5 L 19.8 -8.5 L 17.5 -9.0 L 15.8 -9.7 L 14.3 -10.9 L 13.2 -12.3 L 19.3 -14.7 L 25.0 -17.7 L 29.8 -20.7 L 32.0 -22.4 L 33.7 -23.8 L 35.2 -25.3 L 36.3 -26.7 L 34.4 -29.1 L 32.6 -30.9 L 30.3 -32.2 L 27.6 -33.5 L 24.6 -34.3 L 22.0 -34.7 L 20.9 -34.7 L 18.7 -34.6 L 16.3 -34.4 L 13.1 -33.5 L 10.1 -32.4 L 8.0 -31.1 L 5.7 -29.2 L 4.1 -27.2 L 2.6 -24.5 L 1.9 -22.0 L 1.2 -18.6 C 1.2 -17.1 1.3 -16.1 1.5 -15.5 L 2.4 -11.6 L 4.0 -8.5 L 5.6 -5.8 L 7.6 -3.8 L 9.9 -2.1 L 12.5 -1.1 C 12.8 -1.0 13.0 -0.9 13.3 -0.8 C 13.6 -0.7 13.8 -0.7 14.0 -0.6 C 15.0 -0.4 15.7 -0.3 15.9 -0.2 L 19.0 -0.2 L 20.9 -0.3 L 23.8 -0.9 L 26.5 -1.7 L 29.2 -2.9 L 31.7 -4.4 L 34.1 -6.2 L 36.1 -8.1 L 37.6 -10.1 Z M 25.1 -24.7 L 24.5 -23.4 L 23.6 -22.1 L 22.2 -20.8 L 20.7 -19.6 L 18.5 -18.3 L 16.4 -17.2 L 11.3 -15.7 L 10.3 -18.3 L 9.6 -20.9 L 9.6 -25.5 L 10.1 -27.3 L 10.7 -29.0 L 11.6 -30.0 L 12.6 -30.9 L 15.5 -31.3 L 16.5 -31.3 L 17.7 -31.3 L 20.1 -30.2 L 22.2 -29.2 L 24.4 -26.9 L 25.0 -26.1 C 25.1 -25.7 25.1 -25.3 25.1 -24.7 Z"/>
+                        </g>
+                        <g transform="translate(89.7, 57.3)">
+                            <path d="M 28.9 -12.0 C 28.2 -11.2 27.6 -10.6 27.2 -10.2 L 25.5 -9.1 L 23.7 -9.0 C 23.1 -9.2 22.6 -9.3 22.1 -9.3 C 21.6 -9.4 21.2 -9.5 21.0 -9.5 C 20.1 -10.3 19.6 -10.8 19.4 -11.1 L 18.7 -13.0 L 18.7 -33.1 L 24.6 -33.1 L 24.6 -37.6 L 18.7 -37.6 L 18.8 -52.2 L 13.9 -50.9 L 7.7 -48.8 L 5.3 -47.7 L 2.7 -46.5 L 5.0 -46.2 L 6.5 -45.0 L 6.9 -43.6 L 7.0 -41.8 L 7.0 -37.6 L 1.1 -37.6 L 1.1 -33.1 L 7.0 -33.1 L 7.1 -13.1 L 7.3 -9.5 L 8.4 -5.9 L 9.8 -3.6 L 11.4 -1.8 L 13.8 -0.5 L 16.1 -0.1 C 17.3 -0.1 18.3 -0.2 19.0 -0.4 L 21.2 -1.2 L 23.3 -2.8 L 25.4 -4.9 C 26.0 -5.8 26.4 -6.6 26.7 -7.2 C 27.1 -7.7 27.3 -8.1 27.4 -8.4 Z"/>
+                        </g>
+                        <g transform="translate(119.7, 57.3)">
+                            <path d="M 17.5 -44.9 L 17.0 -46.7 C 17 -46.9 16.8 -47.3 16.6 -47.7 C 16.4 -48.1 16.2 -48.5 16 -49.0 L 13.9 -50.3 C 13.7 -50.4 13.4 -50.5 13.0 -50.6 C 12.6 -50.7 12.1 -50.8 11.4 -51.0 L 8.8 -50.3 L 7.0 -49.0 L 5.9 -47.1 L 5.5 -44.9 L 6.0 -42.7 L 7.0 -40.8 L 8.9 -39.5 L 11.4 -38.9 L 13.9 -39.5 L 16 -40.8 L 17.0 -42.9 Z M 21.8 -2.4 L 19.3 -2.6 L 18.5 -3.0 L 17.9 -3.8 L 17.5 -5.0 L 17.4 -35.4 L 12.5 -34.6 L 6.5 -32.6 L 3.8 -31.3 L 1.2 -29.8 L 3.6 -29.5 L 5.1 -28.3 L 5.5 -27.0 L 5.6 -7.0 L 5.2 -4.5 L 4.5 -3.0 L 2.6 -2.3 L 1.2 -2.3 L 1.2 -0.1 L 21.7 -0.1 Z"/>
+                        </g>
+                        <g transform="translate(142.8, 57.3)">
+                            <path d="M 42.1 -17.0 L 41.9 -19.7 L 41.7 -22.2 L 40.8 -24.6 L 39.9 -26.8 L 38.5 -28.8 L 36.5 -30.9 L 34.1 -32.4 L 31.0 -33.9 L 17.3 -26.7 L 17.4 -51.9 L 12.5 -51.2 L 9.7 -50.3 L 6.5 -49.3 L 3.8 -48.1 L 1.2 -46.5 L 3.6 -46.2 L 5.1 -45.0 L 5.5 -43.6 L 5.6 -7.0 L 5.2 -4.5 L 4.5 -3.0 L 2.6 -2.3 L 1.2 -2.3 L 1.2 -0.1 L 21.7 -0.1 L 21.8 -2.4 L 19.3 -2.6 L 18.5 -3.0 L 17.9 -3.8 L 17.5 -5.0 L 17.3 -6.9 L 17.3 -23.6 L 25.5 -26.3 L 28.5 -23.9 C 29.1 -23.3 29.9 -22.5 30.9 -21.4 C 31.0 -21.1 31.2 -20.7 31.3 -20.2 C 31.5 -19.8 31.6 -19.4 31.8 -18.9 L 32.3 -16.4 L 32 -14.7 L 31.1 -11.3 L 28.5 -6.1 L 25.5 -1.0 C 25.2 -0.5 25 -0.1 24.8 0.2 C 24.6 0.5 24.5 0.9 24.4 1.2 L 23.5 3.8 L 23.3 6.4 L 23.5 9.0 L 24.8 11.4 L 26.9 14.0 L 26.6 12.4 C 26.5 11.6 26.4 11.1 26.5 10.9 L 26.7 8.4 L 27.4 6.8 C 28.0 5.9 28.5 5.1 29.1 4.4 L 36.7 -2.2 L 38.7 -5.2 L 40.8 -9.5 L 41.8 -12.8 Z"/>
+                        </g>
+                    </svg>
+                </div>
                 <div style="display:flex;align-items:center;gap:10px">
                     <div id="fetih-bot-trigger">
                         <div class="siri-orb">
@@ -353,7 +391,7 @@
                         </div>
                         <span id="asst-msg" class="bot-msg-text"></span>
                     </div>
-                    <button id="fetih-chart-btn" title="Geçmiş Veriler ve Grafik" style="background:rgba(255,255,255,0.06);border:1px solid rgba(233,193,118,0.25);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s; margin-left:8px;">
+                    <button id="fetih-chart-btn" title="Geçmiş Veriler ve Grafik" style="background:rgba(255,255,255,0.06);border:1px solid rgba(var(--primary-rgb),0.25);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s; margin-left:8px;">
                         <span class="material-symbols-outlined" style="font-size:22px;color:var(--primary)">show_chart</span>
                     </button>
                 </div>
@@ -389,7 +427,7 @@
                     <div class="glass-card card-3" style="padding:28px">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
                             <h3 class="font-headline" style="font-size:16px; font-weight:900; text-transform:uppercase; letter-spacing:1px; margin:0">Gram Altın</h3>
-                            <span class="material-symbols-outlined" style="font-size:24px; color:#c6a059">workspace_premium</span>
+                            <span class="material-symbols-outlined" style="font-size:24px; color:var(--primary)">workspace_premium</span>
                         </div>
                         <div style="display:flex; flex-direction:column; gap:24px">
                             <div>
@@ -406,7 +444,7 @@
                     <div class="glass-card card-3" style="padding:28px">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
                             <h3 class="font-headline" style="font-size:16px; font-weight:900; text-transform:uppercase; letter-spacing:1px; margin:0">ONS Altın</h3>
-                            <span class="material-symbols-outlined text-primary" style="font-size:18px">show_chart</span>
+                            <span class="material-symbols-outlined" style="font-size:18px; color:var(--primary)">show_chart</span>
                         </div>
                         <div style="display:flex; flex-direction:column; gap:24px">
                             <div>
@@ -430,7 +468,7 @@
                 <div style="margin-top:50px">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding:0 40px">
                         <h3 class="font-headline" style="font-size:24px; font-weight:700; text-transform:uppercase; color:var(--on-surface); letter-spacing:1px; margin:0">TÜM PİYASA FİYATLARI</h3>
-                        <a href="#" id="fetih-settings-btn" style="font-size:14px; font-weight:800; color:var(--primary); text-decoration:none; text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px; padding: 10px 20px; background: rgba(233, 193, 118, 0.1); border-radius: 999px; border: 1px solid rgba(233, 193, 118, 0.2); transition: all 0.3s;">
+                        <a href="#" id="fetih-settings-btn" style="font-size:14px; font-weight:800; color:var(--primary); text-decoration:none; text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px; padding: 10px 20px; background: rgba(var(--primary-rgb), 0.1); border-radius: 999px; border: 1px solid rgba(var(--primary-rgb), 0.2); transition: all 0.3s;">
                             <span class="material-symbols-outlined" style="font-size:18px">settings</span> AYARLAR
                         </a>
                     </div>
@@ -452,7 +490,7 @@
 
             <!-- Chart Modal -->
             <div id="fetih-chart-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); z-index:2147483648; display:none; flex-direction:column; align-items:center; justify-content:center; opacity:0; transition:opacity 0.4s ease;">
-                <div class="chart-modal-container" style="width:95%; max-width:1200px; background:var(--surface-container); border:1px solid rgba(233,193,118,0.2); border-radius:32px; padding:30px; display:flex; flex-direction:column; transform:translateY(20px) scale(0.95); transition:transform 0.4s; box-shadow:0 40px 80px rgba(0,0,0,0.8);">
+                <div class="chart-modal-container" style="width:95%; max-width:1200px; background:var(--surface-container); border:1px solid rgba(var(--primary-rgb),0.2); border-radius:32px; padding:30px; display:flex; flex-direction:column; transform:translateY(20px) scale(0.95); transition:transform 0.4s; box-shadow:0 40px 80px rgba(0,0,0,0.8);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                         <div style="display:flex; align-items:center; gap:12px;">
                             <span class="material-symbols-outlined" style="font-size:32px; color:var(--primary)">monitoring</span>
@@ -472,7 +510,7 @@
                             </div>
                             <div style="display:flex; gap:10px; align-items:center;">
                                 <span style="font-size:12px; font-weight:800; color:var(--outline); text-transform:uppercase;">Varlık:</span>
-                                <select id="custom-asset-select" style="background:rgba(255,255,255,0.05); border:1px solid rgba(233,193,118,0.3); color:var(--primary); font-size:14px; font-weight:700; padding:8px 16px; border-radius:12px; outline:none; cursor:pointer;">
+                                <select id="custom-asset-select" style="background:rgba(255,255,255,0.05); border:1px solid rgba(var(--primary-rgb),0.3); color:var(--primary); font-size:14px; font-weight:700; padding:8px 16px; border-radius:12px; outline:none; cursor:pointer;">
                                     <option value="Altın">Altın</option>
                                     <option value="ONS">ONS</option>
                                     <option value="USD / Kg">USD / Kg</option>
@@ -525,7 +563,7 @@
                             </div>
                             <button id="fetih-sound-btn"
                                 title="Sesi Aç/Kapat"
-                                style="background:rgba(255,255,255,0.06);border:1px solid rgba(233,193,118,0.25);border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s; flex-shrink:0;">
+                                style="background:rgba(255,255,255,0.06);border:1px solid rgba(var(--primary-rgb),0.25);border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s; flex-shrink:0;">
                                 <span class="material-symbols-outlined" style="font-size:24px;color:var(--outline)">volume_off</span>
                             </button>
                         </div>
@@ -534,9 +572,20 @@
                                 <h3>Görünüm Modu</h3>
                                 <p>Açık ve Koyu tema arasında geçiş yap</p>
                             </div>
-                            <button style="background:rgba(255,255,255,0.06);border:1px solid rgba(233,193,118,0.25);border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s; flex-shrink:0; pointer-events:none;">
+                            <button style="background:rgba(255,255,255,0.06);border:1px solid rgba(var(--primary-rgb),0.25);border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s; flex-shrink:0; pointer-events:none;">
                                 <span class="material-symbols-outlined" id="fetih-theme-icon" style="font-size:24px;color:var(--outline)">light_mode</span>
                             </button>
+                        </div>
+
+                        <!-- Theme Color Selection -->
+                        <div class="settings-card" style="flex-direction: column; align-items: flex-start; gap: 16px;">
+                            <div class="settings-info">
+                                <h3>Tema Rengi</h3>
+                                <p>Arayüzün ana renk tonunu özelleştir</p>
+                            </div>
+                            <div class="theme-color-grid" id="fetih-color-picker">
+                                <!-- Colors will be injected here -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -593,6 +642,82 @@
                     if(themeIcon) themeIcon.textContent = 'light_mode';
                 }
             });
+        }
+
+        // --- THEME COLOR PICKER ---
+        const themeColors = [
+            '#CDA860', // Orijinal Altın
+            '#E2B247', // Parlak Altın
+            '#5D9CEC', // Soft Mavi
+            '#48CFAD', // Nane Yeşili
+            '#AC92EC', // Lavanta
+            '#ED5565', // Gül Kurusu
+            '#F6BB42', // Gün Çiçeği
+            '#AAB2BD', // Gümüş / Platin
+            '#3BAFDA', // Gökyüzü Mavisi
+            '#8CC152', // Yaprak Yeşili
+            '#D35400', // Gün Batımı Turuncusu
+            '#967ADC', // Açık Mor
+            '#4A89DC', // İndigo
+            '#D770AD', // Allık Pembesi
+            '#37BC9B', // Akuamarin
+            '#656D78'  // Koyu Kurşun
+        ];
+        
+        const colorPicker = document.getElementById('fetih-color-picker');
+        let activeColor = localStorage.getItem('fetihThemeColor') || '#CDA860';
+
+        function hexToRgb(hex) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return `${r}, ${g}, ${b}`;
+        }
+
+        function applyThemeColor(color) {
+            root.style.setProperty('--primary', color);
+            root.style.setProperty('--primary-rgb', hexToRgb(color));
+            localStorage.setItem('fetihThemeColor', color);
+            activeColor = color;
+            updateColorDots();
+            updateFavicon(color);
+            
+            // Diğer dinamik yerleri güncelle (varsa)
+            document.querySelectorAll('[style*="#CDA860"]').forEach(el => {
+                el.style.color = el.style.color.replace(/#CDA860/gi, color);
+                el.style.borderColor = el.style.borderColor.replace(/#CDA860/gi, color);
+                el.style.background = el.style.background.replace(/#CDA860/gi, color);
+            });
+        }
+
+        function updateColorDots() {
+            if (!colorPicker) return;
+            colorPicker.innerHTML = themeColors.map(c => `
+                <div class="color-dot ${c.toLowerCase() === activeColor.toLowerCase() ? 'active' : ''}" 
+                     style="background: ${c}" 
+                     data-color="${c}"></div>
+            `).join('');
+
+            colorPicker.querySelectorAll('.color-dot').forEach(dot => {
+                dot.addEventListener('click', () => applyThemeColor(dot.dataset.color));
+            });
+        }
+
+        // İlk yükleme
+        applyThemeColor(activeColor);
+        updateColorDots();
+
+        function updateFavicon(color) {
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 1500 1500"><g transform="matrix(1, 0, 0, 1, 398, 123)"><g fill="${color}"><g transform="translate(0.7, 992)"><path d="M 686.5 -518.8 L 639.9 -739.1 L 609.1 -730.1 C 606.5 -729.5 603.6 -729.0 600.7 -728.7 C 597.7 -728.3 594.2 -728.2 590.3 -728.2 L 19.8 -728.2 L 20.8 -697.4 L 55.5 -693.4 L 77.3 -676.6 L 81.3 -658.7 C 81.3 -659.4 82.0 -657.1 83.3 -651.8 L 84.3 -102.1 L 80.3 24.7 L 71.4 80.3 L 60.5 130.9 L 42.6 168.6 L 19.8 204.3 L 340.2 -2.9 L 314.5 -17.8 C 309.2 -20.5 301.9 -26.4 292.6 -35.7 L 280.7 -64.4 L 274.8 -101.1 L 276.7 -283.7 L 308.5 -316.4 L 340.2 -343.2 L 368.0 -354.1 L 394.8 -359.1 L 414.7 -351.2 L 432.5 -338.3 L 441.4 -313.5 L 446.4 -282.7 L 576.4 -410.7 L 550.6 -461.3 L 528.7 -480.1 L 504.9 -495.0 L 486.1 -501.0 L 447.4 -501.0 L 416.6 -485.1 L 385.9 -464.3 L 274.8 -327.3 L 276.7 -697.4 L 363.1 -689.5 L 439.5 -671.6 L 480.1 -655.7 L 511.9 -640.9 L 548.6 -621.0 L 581.3 -599.2 L 628 -554.5 L 645.8 -524.8 L 660.7 -497.0 Z"/></g></g></g></g></svg>`;
+            const blob = new Blob([svg], {type: 'image/svg+xml'});
+            const url = URL.createObjectURL(blob);
+            let link = document.querySelector("link[rel*='icon']");
+            if (!link) {
+                link = document.createElement('link');
+                link.rel = 'shortcut icon';
+                document.getElementsByTagName('head')[0].appendChild(link);
+            }
+            link.href = url;
         }
 
         // Chart Modal Logic
@@ -1163,15 +1288,15 @@
 
             return `
             <tr>
-                <td style="font-weight:700 !important; color:var(--on-surface) !important; letter-spacing:1px !important; font-size:24px !important;">
+                <td style="font-weight:700 !important; color:var(--on-surface) !important; letter-spacing:1px !important; font-size:19px !important;">
                     <div style="display:flex; align-items:center;">
                         ${iconHTML}
                         ${safeName}
                     </div>
                 </td>
-                <td class="t-val" style="font-size:32px !important; color:var(--on-surface) !important;">${tBuy}</td>
-                <td class="t-val" style="color:var(--primary) !important; font-size:32px !important; font-weight:900 !important;">${tSell}</td>
-                <td class="t-val" style="font-size:30px !important; color:${changeColor} !important; text-align:right !important;">${changeVal}</td>
+                <td class="t-val" style="font-size:25px !important; color:var(--on-surface) !important;">${tBuy}</td>
+                <td class="t-val" style="color:var(--primary) !important; font-size:25px !important; font-weight:900 !important;">${tSell}</td>
+                <td class="t-val" style="font-size:24px !important; color:${changeColor} !important; text-align:right !important;">${changeVal}</td>
             </tr>
         `}).join('');
     }
