@@ -48,25 +48,27 @@
             svg.id = "fetih-glass-svg";
             svg.style.display = "none";
             svg.innerHTML = `
-                <filter id="fetih-glass-filter">
-                    <feImage id="fetih-displacement-image" result="map" />
-                    <feDisplacementMap in="SourceGraphic" in2="map" scale="35" xChannelSelector="R" yChannelSelector="G" />
+                <filter id="fetih-glass-filter" x="-20%" y="-20%" width="140%" height="140%">
+                    <feTurbulence id="glass-noise" type="fractalNoise" baseFrequency="0.04" numOctaves="2" result="noise" />
+                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" id="glass-refraction-map" xChannelSelector="R" yChannelSelector="G" result="refracted" />
+                    
+                    <!-- Chromatic Aberration -->
+                    <feOffset dx="0" dy="0" in="refracted" result="red-shift" id="glitch-red" />
+                    <feOffset dx="0" dy="0" in="refracted" result="blue-shift" id="glitch-blue" />
+                    
+                    <feColorMatrix in="red-shift" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>
+                    <feColorMatrix in="refracted" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/>
+                    <feColorMatrix in="blue-shift" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/>
+                    
+                    <feComposite in="r" in2="g" operator="lighter" result="rg"/>
+                    <feComposite in="rg" in2="b" operator="lighter"/>
                 </filter>
-                <filter id="nav-glass-blur" x="0" y="0" width="100%" height="100%" filterUnits="objectBoundingBox">
+                <filter id="nav-glass-blur" x="-20%" y="-20%" width="140%" height="140%" filterUnits="objectBoundingBox">
                     <feTurbulence type="fractalNoise" baseFrequency="0.003 0.007" numOctaves="1" result="turbulence" />
-                    <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="20" xChannelSelector="R" yChannelSelector="G" />
+                    <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="15" xChannelSelector="R" yChannelSelector="G" />
                 </filter>
             `;
             document.body.appendChild(svg);
-
-            // Fetch and apply displacement map
-            fetch("https://essykings.github.io/JavaScript/map.png")
-                .then(r => r.blob())
-                .then(blob => {
-                    const url = URL.createObjectURL(blob);
-                    const feImg = document.getElementById('fetih-displacement-image');
-                    if (feImg) feImg.setAttribute("href", url);
-                });
         }
 
         const style = document.createElement('style');
@@ -103,28 +105,21 @@
             #fetih-root * { box-sizing: border-box !important; }
             .section-width { width: 100% !important; max-width: 1240px !important; margin: 0 auto !important; }
 
-            .glass-card {
-                background: var(--card-bg);
-                backdrop-filter: blur(24px) saturate(180%) contrast(1.05); -webkit-backdrop-filter: blur(24px) saturate(180%) contrast(1.05);
-                border: 1px solid rgba(var(--primary-rgb), 0.3);
-                border-radius: 28px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1), inset 0 -1px 1px rgba(0,0,0,0.2);
+            .glass-card, .fetih-card, .glass-classic {
+                background: rgba(var(--primary-rgb), var(--fetih-glass-bg, 0));
+                border-radius: 16px;
+                box-shadow: 
+                    0 8px 24px rgba(0, 0, 0, 0.12), 
+                    inset var(--fetih-glass-light-x, 1px) var(--fetih-glass-light-y, 2px) 2px rgba(var(--primary-rgb), calc(var(--fetih-glass-border, 1) * 0.5)),
+                    inset calc(var(--fetih-glass-light-x, 1px) * -1) calc(var(--fetih-glass-light-y, 2px) * -1) 2px rgba(0, 0, 0, 0.15);
+                backdrop-filter: blur(var(--fetih-glass-blur, 10.8px)) url(#fetih-glass-filter);
+                -webkit-backdrop-filter: blur(var(--fetih-glass-blur, 10.8px)) url(#fetih-glass-filter);
+                border: 1px solid rgba(var(--primary-rgb), calc(var(--fetih-glass-border, 1) * 0.5));
                 transition: all 0.3s ease;
                 position: relative;
+                overflow: hidden;
             }
-            .glass-card::before {
-                content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
-                box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); mix-blend-mode: overlay; z-index: 1;
-            }
-
-            .fetih-card {
-                background: var(--card-bg);
-                border: 1px solid rgba(var(--primary-rgb), 0.3);
-                border-radius: 28px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-                transition: all 0.3s ease;
-                position: relative;
-            }
+            #fetih-root tr.glass-classic:hover { background: rgba(var(--primary-rgb), calc(var(--fetih-glass-bg, 0) + 0.1)); }
 
             .font-headline { font-family: 'Manrope', sans-serif; }
 
@@ -134,15 +129,15 @@
                 border-bottom: 1px solid rgba(var(--primary-rgb), 0.1); box-sizing: border-box;
             }
             nav.nav-liquid {
-                background: rgba(0, 0, 0, 0.4) !important;
+                background: transparent !important;
                 border-bottom: none !important;
-                overflow: hidden;
             }
             nav.nav-liquid::before {
-                content: ''; position: absolute; inset: -10px; z-index: -1;
-                backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+                content: ''; position: absolute; inset: 0; z-index: -1;
+                backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
                 filter: url(#nav-glass-blur);
-                background: rgba(255, 255, 255, 0.05);
+                background: rgba(0, 0, 0, 0.35);
+                border-bottom: 1px solid rgba(var(--primary-rgb), 0.2);
             }
             
             #fetih-settings-btn span.material-symbols-outlined { transition: transform 0.5s ease; }
@@ -175,32 +170,7 @@
             #fetih-root th:nth-child(3), #fetih-root td:nth-child(3) { width: 25%; }
             #fetih-root th:nth-child(4), #fetih-root td:nth-child(4) { width: 20%; justify-content: flex-end; padding-right: 50px !important; }
 
-            .glass-classic {
-                background: rgba(255, 255, 255, 0.08);
-                backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-                border-radius: 20px;
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                box-shadow: 
-                    0 8px 32px rgba(0, 0, 0, 0.1),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-                    inset 0 -1px 0 rgba(255, 255, 255, 0.1),
-                    inset 0 0 44px 22px rgba(255, 255, 255, 0.1);
-                position: relative;
-                overflow: hidden;
-                transition: all 0.3s ease;
-            }
 
-            .glass-classic::before {
-                content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
-            }
-
-            .glass-classic::after {
-                content: ''; position: absolute; top: 0; left: 0; width: 1px; height: 100%;
-                background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), transparent, rgba(255, 255, 255, 0.2));
-            }
-            
-            #fetih-root tr.glass-classic:hover { background: rgba(255, 255, 255, 0.12); }
             
             .t-val { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 0.9em; }
 
@@ -210,7 +180,45 @@
             .down { animation: down 1.2s ease; }
 
             .overview-grid { display: grid !important; grid-template-columns: repeat(5, 1fr) !important; gap: 12px !important; position: relative; }
-            .mini-card { padding: 16px 14px; background: var(--card-bg); border: 1px solid rgba(var(--primary-rgb), 0.3); border-radius: 24px; text-align: left; position: relative; min-width: 0; overflow: hidden; }
+            .mini-card { 
+                padding: 16px 14px; 
+                background: rgba(var(--primary-rgb), var(--fetih-glass-bg, 0));
+                border-radius: 16px;
+                box-shadow: 
+                    0 4px 12px rgba(0, 0, 0, 0.1), 
+                    inset var(--fetih-glass-light-x, 1px) var(--fetih-glass-light-y, 2px) 2px rgba(var(--primary-rgb), calc(var(--fetih-glass-border, 1) * 0.5)),
+                    inset calc(var(--fetih-glass-light-x, 1px) * -1) calc(var(--fetih-glass-light-y, 2px) * -1) 2px rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(var(--fetih-glass-blur, 10.8px)) url(#fetih-glass-filter);
+                -webkit-backdrop-filter: blur(var(--fetih-glass-blur, 10.8px)) url(#fetih-glass-filter);
+                border: 1px solid rgba(var(--primary-rgb), calc(var(--fetih-glass-border, 1) * 0.5));
+                text-align: left; position: relative; min-width: 0; overflow: hidden; 
+            }
+            
+            /* --- GLASS OFF OVERRIDES --- */
+            #fetih-root.glass-off .glass-card,
+            #fetih-root.glass-off .fetih-card:not(.has-card-active),
+            #fetih-root.glass-off .glass-classic,
+            #fetih-root.glass-off .mini-card {
+                background: #111 !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                border: 1px solid rgba(255,255,255,0.08) !important;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.6) !important;
+            }
+            
+            #fetih-root.light-mode.glass-off .glass-card,
+            #fetih-root.light-mode.glass-off .fetih-card:not(.has-card-active),
+            #fetih-root.light-mode.glass-off .glass-classic,
+            #fetih-root.light-mode.glass-off .mini-card {
+                background: #fff !important;
+                border: 1px solid rgba(0,0,0,0.1) !important;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
+            }
+
+            #fetih-root.glass-off tr.glass-classic:hover { background: #1a1a1a !important; }
+            #fetih-root.light-mode.glass-off tr.glass-classic:hover { background: #f0f0f0 !important; }
+            #fetih-root.glass-off nav.nav-liquid::before { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; filter: none !important; background: #000 !important; }
+            #fetih-root.light-mode.glass-off nav.nav-liquid::before { background: #fff !important; border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
             
             /* Gremse-Ata Separator */
             .overview-grid > div:nth-child(5)::before {
@@ -270,11 +278,12 @@
 
             .has-card-active {
                 background: linear-gradient(135deg, var(--primary) 0%, rgba(var(--primary-rgb), 0.7) 100%) !important;
-                border: none !important;
+                border: 1px solid rgba(255,255,255,0.2) !important;
             }
-            .has-card-active * { color: #2a2200 !important; }
-            .has-card-active .t-val { color: #000 !important; }
-
+            #fetih-root .has-card-active * { color: var(--primary-contrast) !important; }
+            #fetih-root .has-card-active .t-val { color: var(--primary-contrast) !important; text-shadow: none !important; }
+            #fetih-root .has-card-active .live-dot { background: var(--primary-contrast) !important; box-shadow: 0 0 10px var(--primary-contrast) !important; }
+            
             .mult-badge {
                 font-size: 10px; font-weight: 900; letter-spacing: 0.05em; color: var(--primary);
                 background: rgba(var(--primary-rgb),0.10); border: 1px solid rgba(var(--primary-rgb),0.25);
@@ -284,10 +293,6 @@
                 display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px;
                 border-radius: 50%; background: rgba(var(--primary-rgb),0.10); border: 1px solid rgba(var(--primary-rgb),0.30);
             }
-            .has-card-active .mult-badge, .has-card-active .star-badge {
-                background: rgba(0,0,0,0.1); border-color: rgba(0,0,0,0.2); color: #000;
-            }
-            .has-card-active .star-badge span { color: #000 !important; }
 
             /* Custom Scrollbar for Fetih UI */
             #fetih-root::-webkit-scrollbar, #fetih-root *::-webkit-scrollbar {
@@ -399,7 +404,7 @@
                 position: fixed; top: 0; left: 0; width: 100%; height: 100%;
                 background: rgba(0,0,0,0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
                 z-index: 2147483647; display: none; align-items: center; justify-content: center;
-                opacity: 0; transition: opacity 0.4s ease;
+                opacity: 0; transition: opacity 0.4s ease, backdrop-filter 0.4s ease, -webkit-backdrop-filter 0.4s ease;
             }
             #fetih-dash-modal.active { display: flex; opacity: 1; }
 
@@ -412,9 +417,10 @@
                 box-shadow: 0 40px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
                 padding: 40px;
                 transform: translateY(20px) scale(0.95);
-                transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+                transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), background 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
                 box-sizing: border-box;
             }
+            .settings-card { transition: opacity 0.4s ease; }
             #fetih-dash-modal.active .settings-container {
                 transform: translateY(0) scale(1);
             }
@@ -473,39 +479,7 @@
                 color: #000; font-size: 18px; font-weight: 900;
             }
 
-            /* ── EFFECTS: GLASS PRESETS ── */
-            .glass-frost .glass-card, .glass-frost tr.glass-card td { background: rgba(255,255,255,0.06) !important; backdrop-filter: blur(40px) saturate(160%) brightness(1.1) !important; -webkit-backdrop-filter: blur(40px) saturate(160%) brightness(1.1) !important; border: 1px solid rgba(255,255,255,0.15) !important; }
-            .glass-frost .glass-card { box-shadow: 0 8px 32px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.4) !important; }
-            
-            .glass-liquid .glass-card, .glass-liquid tr.glass-card td { 
-                background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 50%, rgba(255, 255, 255, 0.01) 100%) !important;
-                backdrop-filter: url(#fetih-glass-filter) blur(8px) !important;
-                -webkit-backdrop-filter: url(#fetih-glass-filter) blur(8px) !important;
-                border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 2.2) !important;
-            }
-            .glass-liquid .glass-card { box-shadow: 0 10px 30px rgba(0,0,0,0.12) !important; }
 
-            .glass-gold .glass-card, .glass-gold tr.glass-card td { background: rgba(255,255,255,0.02) !important; backdrop-filter: blur(28px) saturate(220%) !important; -webkit-backdrop-filter: blur(28px) saturate(220%) !important; border: 1px solid rgba(var(--primary-rgb),0.3) !important; }
-            .glass-gold .glass-card { box-shadow: 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 1px rgba(var(--primary-rgb),0.15) !important; }
-
-            #fetih-root.glass-none .glass-card:not(.has-card-active), 
-            #fetih-root.glass-none tr.glass-card td,
-            #fetih-root.glass-none .mini-card { 
-                backdrop-filter: none !important; -webkit-backdrop-filter: none !important; 
-                background: #1a1a1a !important; 
-                opacity: 1 !important;
-                border: 1px solid rgba(var(--primary-rgb), 0.3) !important; 
-                box-shadow: 0 4px 24px rgba(0,0,0,0.5) !important;
-            }
-            #fetih-root.light-mode.glass-none .glass-card:not(.has-card-active), 
-            #fetih-root.light-mode.glass-none tr.glass-card td,
-            #fetih-root.light-mode.glass-none .mini-card { 
-                background: #f5f5f5 !important; 
-                color: #1a1a1a !important;
-                border: 1px solid rgba(var(--primary-rgb), 0.2) !important; 
-            }
-            #fetih-root.glass-none .has-card-active { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; opacity: 1 !important; }
 
             /* ── EFFECTS: TEXTURE (arka planda camın altında kalır) ── */
             /* ── EFFECTS: TEXTURE ── */
@@ -738,53 +712,53 @@
                                 <span style="font-size:10px; font-weight:900; color:var(--primary); text-transform:uppercase; opacity:0.8; letter-spacing:2px; display:block; margin-bottom:10px">Fetih Kuyumculuk</span>
                                 <h2 class="font-headline" style="font-size:38px; color:var(--primary); font-weight:900; margin:0">Has Altın (24K)</h2>
                             </div>
-                            <div style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.1); padding:8px 14px; border-radius:100px; font-size:11px; font-weight:900; border: 1px solid rgba(0,0,0,0.25);">
+                            <div style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.1); padding:8px 14px; border-radius:100px; font-size:11px; font-weight:900; border: 1px solid rgba(0,0,0,0.25); color:var(--primary);">
                                 <div class="live-dot"></div>
-                                CANLI
+                                <span id="live-text-span">CANLI</span>
                             </div>
                         </div>
                         <div style="display:grid; grid-template-columns:minmax(180px, 1fr) minmax(180px, 1fr); gap:50px">
                             <div>
                                 <span style="font-size:11px; font-weight:800; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:10px">ALIŞ</span>
-                                <div id="val-has-buy" class="t-val" style="font-size:48px; font-weight:900; letter-spacing:-2px; color:var(--on-surface);">--</div>
+                                <div id="val-has-buy" class="t-val" style="font-size:48px; font-weight:900; letter-spacing:-2px; color:var(--primary);">--</div>
                             </div>
                             <div>
                                 <span style="font-size:11px; font-weight:800; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:10px">SATIŞ</span>
-                                <div id="val-has-sell" class="t-val" style="font-size:48px; font-weight:900; letter-spacing:-2px; color:var(--on-surface);">--</div>
+                                <div id="val-has-sell" class="t-val" style="font-size:48px; font-weight:900; letter-spacing:-2px; color:var(--primary);">--</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="fetih-card card-3" style="padding:28px">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
-                            <h3 class="font-headline" style="font-size:16px; font-weight:900; text-transform:uppercase; letter-spacing:1px; margin:0">Gram Altın</h3>
+                            <h3 class="font-headline" style="font-size:16px; font-weight:900; color:var(--primary); text-transform:uppercase; letter-spacing:1px; margin:0">Gram Altın</h3>
                             <span class="material-symbols-outlined" style="font-size:24px; color:var(--primary)">workspace_premium</span>
                         </div>
                         <div style="display:flex; flex-direction:column; gap:24px">
                             <div>
-                                <span style="font-size:11px; font-weight:900; color:var(--outline); text-transform:uppercase; display:block; margin-bottom:8px">ALIŞ</span>
-                                <div id="val-gram-buy" class="t-val" style="font-size:32px; font-weight:900">--</div>
+                                <span style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:8px">ALIŞ</span>
+                                <div id="val-gram-buy" class="t-val" style="font-size:32px; font-weight:900; color:var(--on-surface);">--</div>
                             </div>
                             <div style="padding-top:20px; border-top:1px solid rgba(255,255,255,0.1)">
-                                <span style="font-size:11px; font-weight:900; color:var(--outline); text-transform:uppercase; display:block; margin-bottom:8px">SATIŞ</span>
-                                <div id="val-gram-sell" class="t-val" style="font-size:32px; font-weight:900; color:var(--primary)">--</div>
+                                <span style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:8px">SATIŞ</span>
+                                <div id="val-gram-sell" class="t-val" style="font-size:32px; font-weight:900; color:var(--on-surface);">--</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="fetih-card card-3" style="padding:28px">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
-                            <h3 class="font-headline" style="font-size:16px; font-weight:900; text-transform:uppercase; letter-spacing:1px; margin:0">ONS Altın</h3>
+                            <h3 class="font-headline" style="font-size:16px; font-weight:900; color:var(--primary); text-transform:uppercase; letter-spacing:1px; margin:0">ONS Altın</h3>
                             <span class="material-symbols-outlined" style="font-size:18px; color:var(--primary)">show_chart</span>
                         </div>
                         <div style="display:flex; flex-direction:column; gap:24px">
                             <div>
-                                <span style="font-size:11px; font-weight:900; color:var(--outline); text-transform:uppercase; display:block; margin-bottom:8px">USD / ONS</span>
-                                <div id="val-ons-buy" class="t-val" style="font-size:32px; font-weight:900">--</div>
+                                <span style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:8px">USD / ONS</span>
+                                <div id="val-ons-buy" class="t-val" style="font-size:32px; font-weight:900; color:var(--on-surface);">--</div>
                             </div>
                             <div style="padding-top:20px; border-top:1px solid rgba(255,255,255,0.1)">
-                                <span style="font-size:11px; font-weight:900; color:var(--outline); text-transform:uppercase; display:block; margin-bottom:8px">SATIŞ</span>
-                                <div id="val-ons-sell" class="t-val" style="font-size:32px; font-weight:900; color:var(--primary)">--</div>
+                                <span style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:8px">SATIŞ</span>
+                                <div id="val-ons-sell" class="t-val" style="font-size:32px; font-weight:900; color:var(--on-surface);">--</div>
                             </div>
                         </div>
                     </div>
@@ -797,7 +771,7 @@
                 <div class="section-width" style="margin-top: 80px;">
                     <div style="margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:flex-end; width:100%;">
                         <div style="display:flex; flex-direction:column; gap:8px;">
-                            <h3 class="font-headline" style="font-size:24px; font-weight:700; text-transform:uppercase; color:var(--on-surface); letter-spacing:1px; margin:0">TÜM PİYASA FİYATLARI</h3>
+                            <h3 class="font-headline" style="font-size:24px; font-weight:700; text-transform:uppercase; color:var(--primary); letter-spacing:1px; margin:0">TÜM PİYASA FİYATLARI</h3>
                             <div style="width:80px; height:3px; background:var(--primary); border-radius:2px;"></div>
                         </div>
                         <a href="#" id="fetih-settings-btn" style="font-size:13px; font-weight:800; color:var(--primary); text-decoration:none; text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px; padding: 10px 22px; background: rgba(var(--primary-rgb), 0.1); border-radius: 999px; border: 1px solid rgba(var(--primary-rgb), 0.2); transition: all 0.3s; margin-bottom: 4px;">
@@ -977,6 +951,8 @@
                             </button>
                         </div>
 
+
+
                         <!-- Theme Color Selection (Collapsible) -->
                         <div class="settings-card" style="flex-direction: column; align-items: stretch; margin-top: 10px;">
                             <div id="fetih-color-toggle" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 4px 0;">
@@ -1009,18 +985,71 @@
                                 <span class="material-symbols-outlined" id="fetih-glass-chevron" style="transition: transform 0.3s;">expand_more</span>
                             </div>
                             <div id="fetih-glass-panel" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
-                                <div style="font-size:10px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:14px;">blur_on</span>Cam Preseti</div>
-                                <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
-                                    <button class="fx-btn glass-btn" data-glass="">Varsay&#305;lan</button>
-                                    <button class="fx-btn glass-btn" data-glass="glass-frost">Frost</button>
-                                    <button class="fx-btn glass-btn" data-glass="glass-liquid">S&#305;v&#305;</button>
-                                    <button class="fx-btn glass-btn" data-glass="glass-gold">Alt&#305;n</button>
-                                    <button class="fx-btn glass-btn" data-glass="glass-none">Kapal&#305;</button>
+                                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                                    <button id="btn-glass-random" class="fx-btn" style="flex:1; display:flex; align-items:center; justify-content:center; gap:5px; background:rgba(var(--primary-rgb),0.1); border-color:var(--primary); color:var(--primary);">
+                                        <span class="material-symbols-outlined" style="font-size:16px;">shuffle</span> Rastgele
+                                    </button>
+                                    <button id="btn-glass-off" class="fx-btn" style="flex:1; display:flex; align-items:center; justify-content:center; gap:5px; background:rgba(248,113,113,0.1); border-color:#f87171; color:#f87171;">
+                                        <span class="material-symbols-outlined" style="font-size:16px;">visibility_off</span> Kapat
+                                    </button>
                                 </div>
-                                <div style="font-size:10px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-top:16px;margin-bottom:12px;display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:14px;">water_drop</span>Navbar Efekti</div>
-                                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-                                    <button class="fx-btn navGlass-btn active" data-nav-glass="">Klasik</button>
-                                    <button class="fx-btn navGlass-btn" data-nav-glass="nav-liquid">S&#305;v&#305; Cam (Liquid)</button>
+                                <div style="display:flex; flex-direction:column; gap:16px; transition: opacity 0.3s;" id="glass-sliders-container">
+                                    <div>
+                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">Bulanıklık (Blur)</span>
+                                            <span id="glass-blur-val" style="font-size:11px; font-weight:900; color:var(--primary);">10.8px</span>
+                                        </div>
+                                        <input type="range" id="glass-blur-input" min="0" max="40" step="0.1" value="10.8" style="width:100%">
+                                    </div>
+                                    <div>
+                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">Arka Plan Şeffaflığı</span>
+                                            <span id="glass-bg-val" style="font-size:11px; font-weight:900; color:var(--primary);">0%</span>
+                                        </div>
+                                        <input type="range" id="glass-bg-input" min="0" max="100" value="0" style="width:100%">
+                                    </div>
+                                    <div>
+                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">Çerçeve (Outline)</span>
+                                            <span id="glass-border-val" style="font-size:11px; font-weight:900; color:var(--primary);">100%</span>
+                                        </div>
+                                        <input type="range" id="glass-border-input" min="0" max="100" value="100" style="width:100%">
+                                    </div>
+                                    <div>
+                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">Cam Kırılması (Refraction)</span>
+                                            <span id="glass-refraction-val" style="font-size:11px; font-weight:900; color:var(--primary);">0</span>
+                                        </div>
+                                        <input type="range" id="glass-refraction-input" min="0" max="100" value="0" style="width:100%">
+                                    </div>
+                                    <div>
+                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">Kırılma Yönü (Rota)</span>
+                                            <span id="glass-refraction-angle-val" style="font-size:11px; font-weight:900; color:var(--primary);">0°</span>
+                                        </div>
+                                        <input type="range" id="glass-refraction-angle-input" min="0" max="90" value="0" style="width:100%">
+                                    </div>
+                                    <div>
+                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">Renk Sapması (Glitch)</span>
+                                            <span id="glass-glitch-val" style="font-size:11px; font-weight:900; color:var(--primary);">0</span>
+                                        </div>
+                                        <input type="range" id="glass-glitch-input" min="0" max="20" step="0.5" value="0" style="width:100%">
+                                    </div>
+                                    <div>
+                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">Işık Yönü (Çerçeve Glow)</span>
+                                            <span id="glass-light-angle-val" style="font-size:11px; font-weight:900; color:var(--primary);">135°</span>
+                                        </div>
+                                        <input type="range" id="glass-light-angle-input" min="0" max="360" value="135" style="width:100%">
+                                    </div>
+                                </div>
+                                <div id="glass-navbar-fx-container" style="transition: opacity 0.3s;">
+                                    <div style="font-size:10px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-top:24px;margin-bottom:12px;display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:14px;">water_drop</span>Navbar Efekti</div>
+                                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+                                        <button class="fx-btn navGlass-btn active" data-nav-glass="">Klasik</button>
+                                        <button class="fx-btn navGlass-btn" data-nav-glass="nav-liquid">Sıvı Cam (Liquid)</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1071,6 +1100,11 @@
                             </div>
                             
                             <div id="fetih-tex-panel" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+                                <!-- Live Preview Box -->
+                                <div style="margin-bottom: 24px; border-radius: 16px; overflow: hidden; position: relative; height: 80px; border: 1px solid rgba(var(--primary-rgb), 0.3);">
+                                    <div id="tex-live-preview" style="position: absolute; inset: 0; background-color: #1a1a1a; opacity: var(--tex-opacity, 0.4); background-size: var(--tex-size, 40px) var(--tex-size, 40px); background-repeat: repeat;"></div>
+                                    <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #fff; mix-blend-mode: overlay; letter-spacing: 2px;">CANLI ÖNİZLEME</div>
+                                </div>
                                 <!-- Sliders -->
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
                                     <div>
@@ -1152,6 +1186,24 @@
 
         const closeBtn = document.getElementById('fetih-dash-close');
         if (closeBtn) closeBtn.addEventListener('click', () => window.closeFetihDash());
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            const modal = document.getElementById('fetih-dash-modal');
+            if (!modal || modal.style.display === 'none' || modal.classList.contains('active') === false) return;
+            
+            const key = e.key.toLowerCase();
+            if (key === 'r') {
+                const toggle = document.getElementById('fetih-color-toggle');
+                if (toggle) toggle.click();
+            } else if (key === 'c') {
+                const toggle = document.getElementById('fetih-glass-toggle');
+                if (toggle) toggle.click();
+            } else if (key === 'd') {
+                const toggle = document.getElementById('fetih-tex-toggle');
+                if (toggle) toggle.click();
+            }
+        });
 
         const soundBtn = document.getElementById('fetih-sound-btn');
         if (soundBtn) {
@@ -1258,11 +1310,202 @@
         if (texSizeInput) texSizeInput.addEventListener('input', updateTexParams);
         if (texOpInput) texOpInput.addEventListener('input', updateTexParams);
 
+
+
+        // --- GLASS CONTROLS ---
+        const glassBlurInput = document.getElementById('glass-blur-input');
+        const glassBgInput = document.getElementById('glass-bg-input');
+        const glassBorderInput = document.getElementById('glass-border-input');
+        const glassRefractionInput = document.getElementById('glass-refraction-input');
+
+        const glassRefractionAngleInput = document.getElementById('glass-refraction-angle-input');
+        const glassGlitchInput = document.getElementById('glass-glitch-input');
+        const glassLightAngleInput = document.getElementById('glass-light-angle-input');
+
+        function updateGlassParams() {
+            const blur = glassBlurInput?.value || 10.8;
+            const bgOp = (glassBgInput?.value || 0) / 100;
+            const borderOp = (glassBorderInput?.value || 100) / 100;
+            const refraction = glassRefractionInput?.value || 0;
+            const refAngle = glassRefractionAngleInput?.value || 0;
+            const glitch = glassGlitchInput?.value || 0;
+            const lightAngle = glassLightAngleInput?.value || 135;
+            
+            root.style.setProperty('--fetih-glass-blur', `${blur}px`);
+            root.style.setProperty('--fetih-glass-bg', bgOp);
+            root.style.setProperty('--fetih-glass-border', borderOp);
+            
+            const rad = lightAngle * Math.PI / 180;
+            const lx = Math.cos(rad) * 3;
+            const ly = Math.sin(rad) * 3;
+            root.style.setProperty('--fetih-glass-light-x', `${lx}px`);
+            root.style.setProperty('--fetih-glass-light-y', `${ly}px`);
+            
+            const blurValEl = document.getElementById('glass-blur-val');
+            const bgValEl = document.getElementById('glass-bg-val');
+            const borderValEl = document.getElementById('glass-border-val');
+            const refAngleValEl = document.getElementById('glass-refraction-angle-val');
+            const glitchValEl = document.getElementById('glass-glitch-val');
+            const lightAngleValEl = document.getElementById('glass-light-angle-val');
+            
+            if (blurValEl) blurValEl.textContent = `${blur}px`;
+            if (bgValEl) bgValEl.textContent = `${Math.round(bgOp * 100)}%`;
+            if (borderValEl) borderValEl.textContent = `${Math.round(borderOp * 100)}%`;
+            if (refAngleValEl) refAngleValEl.textContent = `${refAngle}°`;
+            if (glitchValEl) glitchValEl.textContent = glitch;
+            if (lightAngleValEl) lightAngleValEl.textContent = `${lightAngle}°`;
+            
+            const refrMap = document.getElementById('glass-refraction-map');
+            if (refrMap) refrMap.setAttribute('scale', refraction);
+            
+            const glassNoise = document.getElementById('glass-noise');
+            if (glassNoise) {
+                // Interpolate base frequency based on angle (0 to 90)
+                const ratio = refAngle / 90;
+                const fx = 0.005 + (0.1 - 0.005) * ratio;
+                const fy = 0.1 - (0.1 - 0.005) * ratio;
+                glassNoise.setAttribute('baseFrequency', `${fx} ${fy}`);
+            }
+            
+            const glitchRed = document.getElementById('glitch-red');
+            const glitchBlue = document.getElementById('glitch-blue');
+            if (glitchRed) glitchRed.setAttribute('dx', glitch);
+            if (glitchBlue) glitchBlue.setAttribute('dx', -glitch);
+            
+            const refrValEl = document.getElementById('glass-refraction-val');
+            if (refrValEl) refrValEl.textContent = refraction;
+
+            localStorage.setItem('fetihGlassBlur', blur);
+            localStorage.setItem('fetihGlassBg', bgOp);
+            localStorage.setItem('fetihGlassBorder', borderOp);
+            localStorage.setItem('fetihGlassRefraction', refraction);
+            localStorage.setItem('fetihGlassRefAngle', refAngle);
+            localStorage.setItem('fetihGlassGlitch', glitch);
+            localStorage.setItem('fetihGlassLightAngle', lightAngle);
+        }
+
+        if (glassBlurInput) glassBlurInput.addEventListener('input', updateGlassParams);
+        if (glassBgInput) glassBgInput.addEventListener('input', updateGlassParams);
+        if (glassBorderInput) glassBorderInput.addEventListener('input', updateGlassParams);
+        if (glassRefractionInput) glassRefractionInput.addEventListener('input', updateGlassParams);
+        if (glassRefractionAngleInput) glassRefractionAngleInput.addEventListener('input', updateGlassParams);
+        if (glassGlitchInput) glassGlitchInput.addEventListener('input', updateGlassParams);
+        if (glassLightAngleInput) glassLightAngleInput.addEventListener('input', updateGlassParams);
+
+        // --- GLASS ON/OFF & RANDOM LOGIC ---
+        const btnGlassRandom = document.getElementById('btn-glass-random');
+        const btnGlassOff = document.getElementById('btn-glass-off');
+        const slidersContainer = document.getElementById('glass-sliders-container');
+        const navbarFxContainer = document.getElementById('glass-navbar-fx-container');
+        
+        function toggleGlassOff(force) {
+            const rootEl = document.getElementById('fetih-root');
+            if (!rootEl) return;
+            const isOff = typeof force !== 'undefined' ? force : !rootEl.classList.contains('glass-off');
+            if (isOff) {
+                rootEl.classList.add('glass-off');
+                if (slidersContainer) { slidersContainer.style.opacity = '0.3'; slidersContainer.style.pointerEvents = 'none'; }
+                if (navbarFxContainer) { navbarFxContainer.style.opacity = '0.3'; navbarFxContainer.style.pointerEvents = 'none'; }
+                if (btnGlassOff) {
+                    btnGlassOff.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">visibility</span> Aç';
+                    btnGlassOff.style.background = 'rgba(74,222,128,0.1)';
+                    btnGlassOff.style.borderColor = '#4ade80';
+                    btnGlassOff.style.color = '#4ade80';
+                }
+            } else {
+                rootEl.classList.remove('glass-off');
+                if (slidersContainer) { slidersContainer.style.opacity = '1'; slidersContainer.style.pointerEvents = 'auto'; }
+                if (navbarFxContainer) { navbarFxContainer.style.opacity = '1'; navbarFxContainer.style.pointerEvents = 'auto'; }
+                if (btnGlassOff) {
+                    btnGlassOff.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">visibility_off</span> Kapat';
+                    btnGlassOff.style.background = 'rgba(248,113,113,0.1)';
+                    btnGlassOff.style.borderColor = '#f87171';
+                    btnGlassOff.style.color = '#f87171';
+                }
+            }
+            localStorage.setItem('fetihGlassIsOff', isOff ? '1' : '0');
+        }
+
+        if (btnGlassOff) btnGlassOff.addEventListener('click', () => toggleGlassOff());
+
+        if (btnGlassRandom) {
+            btnGlassRandom.addEventListener('click', () => {
+                if (document.getElementById('fetih-root').classList.contains('glass-off')) {
+                    toggleGlassOff(false);
+                }
+                if (glassBlurInput) glassBlurInput.value = (Math.random() * 40).toFixed(1);
+                if (glassBgInput) glassBgInput.value = Math.floor(Math.random() * 100);
+                if (glassBorderInput) glassBorderInput.value = Math.floor(Math.random() * 100);
+                if (glassRefractionInput) glassRefractionInput.value = Math.floor(Math.random() * 100);
+                if (glassRefractionAngleInput) glassRefractionAngleInput.value = Math.floor(Math.random() * 90);
+                if (glassGlitchInput) glassGlitchInput.value = (Math.random() * 20).toFixed(1);
+                if (glassLightAngleInput) glassLightAngleInput.value = Math.floor(Math.random() * 360);
+                updateGlassParams();
+            });
+        }
+
         // Bind effect buttons
-        document.querySelectorAll('.glass-btn').forEach(b => b.addEventListener('click', () => window.applyEffect('glass', b.dataset.glass)));
         document.querySelectorAll('.navGlass-btn').forEach(b => b.addEventListener('click', () => window.applyEffect('navGlass', b.dataset.navGlass)));
-        document.querySelectorAll('.tex-btn').forEach(b   => b.addEventListener('click', () => window.applyEffect('tex',   b.dataset.tex)));
+        
+        function updateTexLivePreview(texClass) {
+            const livePreview = document.getElementById('tex-live-preview');
+            if (!livePreview) return;
+            // Get background image from the preview button
+            const btn = document.querySelector(`.tex-btn[data-tex="${texClass}"]`) || document.querySelector('.tex-btn[data-tex=""]');
+            if (btn) livePreview.style.backgroundImage = getComputedStyle(btn).backgroundImage;
+        }
+
+        document.querySelectorAll('.tex-btn').forEach(b   => b.addEventListener('click', () => {
+            window.applyEffect('tex', b.dataset.tex);
+            updateTexLivePreview(b.dataset.tex);
+        }));
+        
         document.querySelectorAll('.glow-btn').forEach(b  => b.addEventListener('click', () => window.applyEffect('glow',  b.dataset.glow)));
+
+        // --- FADE SETTINGS CONTAINER ON SLIDER DRAG ---
+        const allSliders = document.querySelectorAll('#fetih-dash-modal input[type="range"]');
+        const dashModal = document.getElementById('fetih-dash-modal');
+        const settingsContainer = document.querySelector('.settings-container');
+        
+        allSliders.forEach(slider => {
+            const startPreview = () => {
+                if(dashModal) {
+                    dashModal.style.backdropFilter = 'blur(0px)';
+                    dashModal.style.webkitBackdropFilter = 'blur(0px)';
+                }
+                if(settingsContainer) {
+                    settingsContainer.style.background = 'rgba(20, 20, 20, 0.2)';
+                    settingsContainer.style.boxShadow = 'none';
+                    settingsContainer.style.borderColor = 'transparent';
+                    Array.from(settingsContainer.children).forEach(child => {
+                        if (child.classList.contains('settings-card') && !child.contains(slider)) {
+                            child.style.opacity = '0.1';
+                            child.style.pointerEvents = 'none';
+                        }
+                    });
+                }
+            };
+            const stopPreview = () => {
+                if(dashModal) {
+                    dashModal.style.backdropFilter = '';
+                    dashModal.style.webkitBackdropFilter = '';
+                }
+                if(settingsContainer) {
+                    settingsContainer.style.background = '';
+                    settingsContainer.style.boxShadow = '';
+                    settingsContainer.style.borderColor = '';
+                    Array.from(settingsContainer.children).forEach(child => {
+                        child.style.opacity = '';
+                        child.style.pointerEvents = '';
+                    });
+                }
+            };
+            slider.addEventListener('mousedown', startPreview);
+            slider.addEventListener('touchstart', startPreview, {passive: true});
+            slider.addEventListener('mouseup', stopPreview);
+            slider.addEventListener('touchend', stopPreview);
+            slider.addEventListener('blur', stopPreview);
+        });
 
         // Restore params & effects
         const savedSize = localStorage.getItem('fetihTexSize') || '40';
@@ -1271,9 +1514,31 @@
         if (texOpInput) texOpInput.value = savedOp * 100;
         updateTexParams();
 
-        window.applyEffect('glass', localStorage.getItem('fetihGlass') || '');
+        const savedGlassBlur = localStorage.getItem('fetihGlassBlur') || '10.8';
+        const savedGlassBg = localStorage.getItem('fetihGlassBg') || '0';
+        const savedGlassBorder = localStorage.getItem('fetihGlassBorder') || '1';
+        const savedGlassRefraction = localStorage.getItem('fetihGlassRefraction') || '0';
+        const savedGlassRefAngle = localStorage.getItem('fetihGlassRefAngle') || '0';
+        const savedGlassGlitch = localStorage.getItem('fetihGlassGlitch') || '0';
+        const savedGlassLightAngle = localStorage.getItem('fetihGlassLightAngle') || '135';
+        
+        if (localStorage.getItem('fetihGlassIsOff') === '1') {
+            toggleGlassOff(true);
+        }
+        
+        if (glassBlurInput) glassBlurInput.value = savedGlassBlur;
+        if (glassBgInput) glassBgInput.value = savedGlassBg * 100;
+        if (glassBorderInput) glassBorderInput.value = savedGlassBorder * 100;
+        if (glassRefractionInput) glassRefractionInput.value = savedGlassRefraction;
+        if (glassRefractionAngleInput) glassRefractionAngleInput.value = savedGlassRefAngle;
+        if (glassGlitchInput) glassGlitchInput.value = savedGlassGlitch;
+        if (glassLightAngleInput) glassLightAngleInput.value = savedGlassLightAngle;
+        updateGlassParams();
+        
         window.applyEffect('navGlass', localStorage.getItem('fetihNavGlass') || '');
-        window.applyEffect('tex',   localStorage.getItem('fetihTex')   || '');
+        const currentTex = localStorage.getItem('fetihTex') || '';
+        window.applyEffect('tex', currentTex);
+        updateTexLivePreview(currentTex);
         window.applyEffect('glow',  localStorage.getItem('fetihGlow')  || '');
 
         // --- THEME COLOR PICKER ---
@@ -1309,6 +1574,14 @@
         function applyThemeColor(color) {
             root.style.setProperty('--primary', color);
             root.style.setProperty('--primary-rgb', hexToRgb(color));
+            
+            // Calculate Contrast Color
+            let r = parseInt(color.slice(1,3), 16);
+            let g = parseInt(color.slice(3,5), 16);
+            let b = parseInt(color.slice(5,7), 16);
+            let brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            let contrast = brightness > 140 ? '#000000' : '#ffffff';
+            root.style.setProperty('--primary-contrast', contrast);
             
             let ataR = 255, ataG = 152, ataB = 0; // #ff9800 default
             if (color.toUpperCase() !== '#CDA860') {
@@ -1884,6 +2157,7 @@
 
     /* ───────────── OPTIMIZED SYNC & OBSERVER ───────────── */
     let lastDataString = "";
+    let lastUpdateTimestamp = Date.now();
 
     function sync() {
         const data = {};
@@ -1970,6 +2244,20 @@
         const currentDataString = JSON.stringify(data);
         if (currentDataString === lastDataString) return;
         lastDataString = currentDataString;
+        lastUpdateTimestamp = Date.now();
+        
+        // Restore CANLI if it was DURDU
+        const liveText = document.getElementById('live-text-span');
+        if (liveText && liveText.textContent === 'DURDU') {
+            liveText.textContent = 'CANLI';
+            liveText.style.color = 'var(--primary)';
+            const dot = document.querySelector('.live-dot');
+            if (dot) {
+                dot.style.animationPlayState = 'running';
+                dot.style.background = 'var(--primary)';
+                dot.style.boxShadow = '';
+            }
+        }
 
         // Big Boxes
         const mapping = {
@@ -2110,6 +2398,29 @@
 
             // Backup Timer: Sadece her şeyin yolunda olduğundan emin olmak için 5 saniyede bir
             setInterval(sync, 5000);
+            
+            // Connection Monitor (1 dk = 60000 ms)
+            setInterval(() => {
+                const liveText = document.getElementById('live-text-span');
+                if (!liveText) return;
+                
+                // Original site might show a warning modal
+                const siteModal = document.querySelector('.sweet-alert.showSweetAlert, .swal-modal, .swal2-container');
+                const isStale = Date.now() - lastUpdateTimestamp > 60000;
+                
+                if (isStale || siteModal) {
+                    if (liveText.textContent !== 'DURDU') {
+                        liveText.textContent = 'DURDU';
+                        liveText.style.color = 'var(--error)';
+                        const dot = document.querySelector('.live-dot');
+                        if (dot) {
+                            dot.style.animationPlayState = 'paused';
+                            dot.style.background = 'var(--error)';
+                            dot.style.boxShadow = 'none';
+                        }
+                    }
+                }
+            }, 2000);
         }
     }
 
