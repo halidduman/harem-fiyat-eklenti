@@ -21,7 +21,7 @@
                 --primary-rgb: 205, 168, 96;
                 --surface: #0f0f0f;
                 --surface-container: #1a1a1a;
-                --card-bg: rgba(35, 35, 35, 0.9);
+                --card-bg: rgba(255, 255, 255, 0.04);
                 --on-surface: #e5e2e1;
                 --outline: #6a6254;
                 --error: #f87171;
@@ -42,11 +42,16 @@
 
             .glass-card {
                 background: var(--card-bg);
-                backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+                backdrop-filter: blur(24px) saturate(180%) contrast(1.05); -webkit-backdrop-filter: blur(24px) saturate(180%) contrast(1.05);
                 border: 1px solid rgba(var(--primary-rgb), 0.2);
                 border-radius: 28px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+                box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1), inset 0 -1px 1px rgba(0,0,0,0.2);
                 transition: all 0.3s ease;
+                position: relative;
+            }
+            .glass-card::before {
+                content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+                box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); mix-blend-mode: overlay; z-index: 1;
             }
 
             .font-headline { font-family: 'Manrope', sans-serif; }
@@ -71,9 +76,9 @@
             #fetih-root .fetih-table-box { width: 95%; background: transparent; border: none; margin: 0 auto; }
             #fetih-root table { width: 100% !important; border-collapse: separate !important; border-spacing: 0 16px !important; }
             #fetih-root th { padding: 12px 32px !important; text-align: left !important; font-size: 13px !important; font-weight: 900 !important; text-transform: uppercase !important; color: var(--outline) !important; letter-spacing: 2px !important; border: none !important; border-bottom: 2px solid rgba(var(--primary-rgb),0.2) !important; }
-            #fetih-root td { padding: 20px 32px !important; border: none !important; background: rgba(255,255,255,0.02) !important; transition: all 0.2s ease; font-size: 14px !important; }
-            #fetih-root th:first-child, #fetih-root td:first-child { padding-left: 50px !important; border-top-left-radius: 24px !important; border-bottom-left-radius: 24px !important; }
-            #fetih-root th:last-child, #fetih-root td:last-child { padding-right: 50px !important; text-align: right !important; border-top-right-radius: 24px !important; border-bottom-right-radius: 24px !important; }
+            #fetih-root td { padding: 20px 32px !important; border: none !important; background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(24px) saturate(180%) contrast(1.05) !important; -webkit-backdrop-filter: blur(24px) saturate(180%) contrast(1.05) !important; box-shadow: inset 0 1px 1px rgba(255,255,255,0.05), inset 0 -1px 1px rgba(0,0,0,0.2) !important; transition: all 0.2s ease; font-size: 14px !important; }
+            #fetih-root th:first-child, #fetih-root td:first-child { padding-left: 50px !important; border-top-left-radius: 24px !important; border-bottom-left-radius: 24px !important; border-left: 1px solid rgba(255,255,255,0.05) !important; }
+            #fetih-root th:last-child, #fetih-root td:last-child { padding-right: 50px !important; text-align: right !important; border-top-right-radius: 24px !important; border-bottom-right-radius: 24px !important; border-right: 1px solid rgba(0,0,0,0.2) !important; }
             #fetih-root tr:hover td { background: rgba(var(--primary-rgb), 0.08) !important; }
             .t-val { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 0.9em; }
 
@@ -195,15 +200,15 @@
             #fetih-root.light-mode {
                 --surface: #f4f4f4;
                 --surface-container: #ffffff;
-                --card-bg: rgba(255, 255, 255, 0.95);
+                --card-bg: rgba(255, 255, 255, 0.35);
                 --on-surface: #1a1a1a;
                 --outline: #666666;
             }
             #fetih-root.light-mode nav { background: #ffffff !important; border-bottom: 1px solid rgba(0,0,0,0.1); }
-            #fetih-root.light-mode .glass-card { border: 1px solid rgba(0,0,0,0.1) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.05) !important; }
+            #fetih-root.light-mode .glass-card { border: 1px solid rgba(255,255,255,0.5) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -1px 1px rgba(0,0,0,0.05) !important; }
             #fetih-root.light-mode .glass-card .t-val[style*="color:var(--primary)"] { color: #a57c2a !important; }
             #fetih-root.light-mode th { color: #555 !important; border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
-            #fetih-root.light-mode td { background: #ffffff !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; color: #111 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.02) !important; }
+            #fetih-root.light-mode td { background: rgba(255,255,255,0.4) !important; backdrop-filter: blur(24px) saturate(180%) contrast(1.05) !important; -webkit-backdrop-filter: blur(24px) saturate(180%) contrast(1.05) !important; border-bottom: none !important; color: #111 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.02), inset 0 1px 1px rgba(255,255,255,0.8) !important; }
             #fetih-root.light-mode td .t-val { color: #111 !important; }
             #fetih-root.light-mode td .t-val[style*="color:var(--primary)"] { color: #a57c2a !important; }
             #fetih-root.light-mode h3.font-headline { color: #111 !important; }
@@ -227,8 +232,8 @@
 
             /* Light Mode Scrollbars */
             #fetih-root.light-mode::-webkit-scrollbar-track, #fetih-root.light-mode *::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
-            #fetih-root.light-mode::-webkit-scrollbar-thumb, #fetih-root.light-mode *::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border: 3px solid transparent; background-clip: content-box; }
-            #fetih-root.light-mode::-webkit-scrollbar-thumb:hover, #fetih-root.light-mode *::-webkit-scrollbar-thumb:hover { background: #a57c2a; background-clip: content-box; }
+            #fetih-root.light-mode::-webkit-scrollbar-thumb, #fetih-root.light-mode *::-webkit-scrollbar-thumb { background: rgba(var(--primary-rgb),0.4); border: 3px solid transparent; background-clip: content-box; }
+            #fetih-root.light-mode::-webkit-scrollbar-thumb:hover, #fetih-root.light-mode *::-webkit-scrollbar-thumb:hover { background: rgba(var(--primary-rgb),0.8); background-clip: content-box; }
 
             /* ── CHART OVERRIDES ── */
             #fetih-chart-modal.active { display: flex !important; opacity: 1 !important; }
@@ -289,11 +294,13 @@
                 width: 90%; max-width: 480px; 
                 background: rgba(20, 20, 20, 0.85); 
                 border: 1px solid rgba(var(--primary-rgb),0.2);
-                border-radius: 32px; display: flex; flex-direction: column; overflow: hidden;
+                border-radius: 32px; display: flex; flex-direction: column; 
+                overflow-y: auto; overflow-x: hidden;
                 box-shadow: 0 40px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
                 padding: 40px;
                 transform: translateY(20px) scale(0.95);
                 transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+                box-sizing: border-box;
             }
             #fetih-dash-modal.active .settings-container {
                 transform: translateY(0) scale(1);
@@ -354,17 +361,58 @@
             }
 
             /* ── EFFECTS: GLASS PRESETS ── */
-            .glass-frost .glass-card { background: rgba(255,255,255,0.12) !important; backdrop-filter: blur(40px) saturate(180%) brightness(1.08) !important; -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.08) !important; border: 1px solid rgba(255,255,255,0.25) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3) !important; }
-            .glass-gold .glass-card { background: linear-gradient(135deg, rgba(var(--primary-rgb),0.15), rgba(var(--primary-rgb),0.05)) !important; backdrop-filter: blur(30px) saturate(200%) !important; -webkit-backdrop-filter: blur(30px) saturate(200%) !important; border: 1px solid rgba(var(--primary-rgb),0.35) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(var(--primary-rgb),0.2) !important; }
-            .glass-dark .glass-card { background: rgba(0,0,0,0.65) !important; backdrop-filter: blur(24px) !important; -webkit-backdrop-filter: blur(24px) !important; border: 1px solid rgba(255,255,255,0.06) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important; }
-            .glass-crystal .glass-card { background: rgba(255,255,255,0.04) !important; backdrop-filter: blur(60px) saturate(250%) !important; -webkit-backdrop-filter: blur(60px) saturate(250%) !important; border: 1px solid rgba(255,255,255,0.18) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.1) !important; }
-            .glass-ocean .glass-card { background: linear-gradient(135deg, rgba(14,165,233,0.12), rgba(6,182,212,0.05)) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border: 1px solid rgba(14,165,233,0.25) !important; }
+            .glass-frost .glass-card { background: rgba(255,255,255,0.06) !important; backdrop-filter: blur(40px) saturate(160%) brightness(1.1) !important; -webkit-backdrop-filter: blur(40px) saturate(160%) brightness(1.1) !important; border: 1px solid rgba(255,255,255,0.15) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.4) !important; }
+            .glass-liquid .glass-card { background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(25px) saturate(220%) contrast(1.1) !important; -webkit-backdrop-filter: blur(25px) saturate(220%) contrast(1.1) !important; border: 1px solid rgba(255,255,255,0.25) !important; box-shadow: 0 15px 45px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.4) !important; }
+            .glass-gold .glass-card { background: rgba(255,255,255,0.03) !important; backdrop-filter: blur(28px) saturate(220%) !important; -webkit-backdrop-filter: blur(28px) saturate(220%) !important; border: 1px solid rgba(var(--primary-rgb),0.35) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 1px rgba(var(--primary-rgb),0.2) !important; }
 
             /* ── EFFECTS: TEXTURE (arka planda camın altında kalır) ── */
-            #fetih-root.tex-noise #fetih-bg-tex { background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E"); background-size:256px 256px; opacity:0.06; mix-blend-mode:overlay; }
-            #fetih-root.tex-mesh #fetih-bg-tex { background-image:linear-gradient(rgba(var(--primary-rgb),0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(var(--primary-rgb),0.06) 1px, transparent 1px); background-size:48px 48px; }
-            #fetih-root.tex-carbon #fetih-bg-tex { background-image:repeating-linear-gradient(45deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 4px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 4px); background-size:8px 8px; }
-            #fetih-root.tex-silk #fetih-bg-tex { background:repeating-linear-gradient(135deg, transparent, transparent 5px, rgba(255,255,255,0.018) 5px, rgba(255,255,255,0.018) 6px); }
+            /* ── EFFECTS: TEXTURE ── */
+            #fetih-bg-tex { 
+                background-size: var(--tex-size, 40px) var(--tex-size, 40px);
+                opacity: var(--tex-opacity, 0.4) !important;
+                transition: opacity 0.3s ease;
+            }
+            .tex-preview, #fetih-bg-tex { background-repeat: repeat; }
+            
+            /* Pattern Definitions */
+            .p-snow, #fetih-root.tex-snow #fetih-bg-tex { background-image: radial-gradient(circle at 10px 10px, var(--primary) 1px, transparent 1px), radial-gradient(circle at 35px 35px, var(--primary) 1.5px, transparent 1.5px); background-size: 50px 50px; }
+            .p-1, #fetih-root.tex-p1 #fetih-bg-tex { background-image: radial-gradient(circle farthest-corner at center, var(--primary), transparent 50%); }
+            .p-2, #fetih-root.tex-p2 #fetih-bg-tex { background-image: radial-gradient(circle at center center, var(--primary), transparent), repeating-radial-gradient(circle at center center, var(--primary), var(--primary), 20px, transparent 40px, transparent 20px); background-blend-mode: multiply; }
+            .p-3, #fetih-root.tex-p3 #fetih-bg-tex { background: repeating-linear-gradient(45deg, var(--primary), var(--primary) 10px, transparent 10px, transparent 50px); }
+            .p-4, #fetih-root.tex-p4 #fetih-bg-tex { background: repeating-linear-gradient(-45deg, var(--primary), var(--primary) 10px, transparent 10px, transparent 50px); }
+            .p-5, #fetih-root.tex-p5 #fetih-bg-tex { background-image: linear-gradient(var(--primary) 2px, transparent 2px), linear-gradient(90deg, var(--primary) 2px, transparent 2px); }
+            .p-6, #fetih-root.tex-p6 #fetih-bg-tex { background-image: linear-gradient(30deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)), linear-gradient(150deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)), linear-gradient(30deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)), linear-gradient(150deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)), linear-gradient(60deg, rgba(var(--primary-rgb),0.5) 25%, transparent 25.5%, transparent 75%, rgba(var(--primary-rgb),0.5) 75%, rgba(var(--primary-rgb),0.5)); background-size: calc(var(--tex-size)*1.5) var(--tex-size); }
+            .p-6.tex-preview { background-size: 18px 12px !important; }
+            .p-7, #fetih-root.tex-p7 #fetih-bg-tex { background-image: radial-gradient(var(--primary) 1px, transparent 1px); }
+            .p-8, #fetih-root.tex-p8 #fetih-bg-tex { background-image: radial-gradient(var(--primary) 1px, transparent 1px), radial-gradient(var(--primary) 1px, transparent 1px); background-position: 0 0, calc(var(--tex-size)/2) calc(var(--tex-size)/2); }
+            .p-8.tex-preview { background-position: 0 0, 6px 6px !important; }
+            .p-9, #fetih-root.tex-p9 #fetih-bg-tex { background-image: linear-gradient(0deg, transparent 50%, var(--primary) 50%); }
+            .p-10, #fetih-root.tex-p10 #fetih-bg-tex { background-image: linear-gradient(to right, var(--primary), var(--primary) 2px, transparent 2px, transparent); }
+            .p-11, #fetih-root.tex-p11 #fetih-bg-tex { background-image: repeating-linear-gradient(45deg, var(--primary) 0, var(--primary) 2px, transparent 0, transparent 50%); }
+            .p-12, #fetih-root.tex-p12 #fetih-bg-tex { background-image: linear-gradient(var(--primary) 2px, transparent 2px), linear-gradient(to right, var(--primary) 2px, transparent 2px); }
+            .p-13, #fetih-root.tex-p13 #fetih-bg-tex { background-image: repeating-linear-gradient(0deg, var(--primary), var(--primary) 2px, transparent 2px, transparent); }
+            .p-14, #fetih-root.tex-p14 #fetih-bg-tex { background-image: repeating-linear-gradient(to right, var(--primary), var(--primary) 2px, transparent 2px, transparent); }
+            .p-15, #fetih-root.tex-p15 #fetih-bg-tex { background-image: linear-gradient(45deg, var(--primary) 50%, transparent 50%); }
+            .p-16, #fetih-root.tex-p16 #fetih-bg-tex { background-image: linear-gradient(-45deg, transparent, transparent 50%, var(--primary) 50%, var(--primary)); }
+            .p-17, #fetih-root.tex-p17 #fetih-bg-tex { background-image: repeating-linear-gradient(45deg, var(--primary) 25%, transparent 25%, transparent 75%, var(--primary) 75%, var(--primary)), repeating-linear-gradient(45deg, var(--primary) 25%, transparent 25%, transparent 75%, var(--primary) 75%, var(--primary)); background-position: 0 0, calc(var(--tex-size)/2) calc(var(--tex-size)/2); }
+            .p-17.tex-preview { background-position: 0 0, 6px 6px !important; }
+            .p-18, #fetih-root.tex-p18 #fetih-bg-tex { background: radial-gradient(circle, transparent 20%, transparent 20%, transparent 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, transparent 20%, transparent 80%, transparent 80%, transparent) 50px 50px, linear-gradient(var(--primary) 4px, transparent 4px) 0 -2px, linear-gradient(90deg, var(--primary) 4px, transparent 4px) -2px 0; }
+            .p-18.tex-preview { background-size: 20px 20px, 20px 20px, 10px 10px, 10px 10px !important; }
+
+            .tex-preview {
+                width: 100%; aspect-ratio: 1/1; border-radius: 12px;
+                background-color: rgba(255,255,255,0.03);
+                border: 2px solid rgba(255,255,255,0.06);
+                cursor: pointer; transition: all 0.2s;
+                background-size: 16px 16px;
+                padding: 0; margin: 0;
+                box-sizing: border-box;
+                min-width: 0;
+                display: flex; align-items: center; justify-content: center;
+            }
+            .tex-preview:hover { border-color: rgba(var(--primary-rgb), 0.4); background-color: rgba(var(--primary-rgb), 0.05); }
+            .tex-preview.active { border-color: var(--primary); box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.3); background-color: rgba(var(--primary-rgb), 0.1); }
+            .tex-preview.no-tex { background: linear-gradient(45deg, transparent 45%, var(--error) 45%, var(--error) 55%, transparent 55%); opacity: 0.5; }
 
             /* ── EFFECTS: GLOW (arka planda ışık) ── */
             #fetih-root.glow-soft #fetih-bg-glow { background-image: radial-gradient(ellipse at 50% 30%, rgba(var(--primary-rgb),0.12) 0%, transparent 60%); }
@@ -711,20 +759,8 @@
                                     <div style="display:flex;flex-direction:column;gap:6px;">
                                         <button class="fx-btn glass-btn" data-glass="">Varsay&#305;lan</button>
                                         <button class="fx-btn glass-btn" data-glass="glass-frost">&#10052;&#65039; Frost</button>
+                                        <button class="fx-btn glass-btn" data-glass="glass-liquid">&#128167; S&#305;v&#305;</button>
                                         <button class="fx-btn glass-btn" data-glass="glass-gold">&#10024; Alt&#305;n</button>
-                                        <button class="fx-btn glass-btn" data-glass="glass-dark">&#127761; Karanl&#305;k</button>
-                                        <button class="fx-btn glass-btn" data-glass="glass-crystal">&#128142; Kristal</button>
-                                        <button class="fx-btn glass-btn" data-glass="glass-ocean">&#127754; Okyanus</button>
-                                    </div>
-                                </div>
-                                <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:14px;">
-                                    <div style="font-size:10px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:14px;">texture</span>Doku</div>
-                                    <div style="display:flex;flex-direction:column;gap:6px;">
-                                        <button class="fx-btn tex-btn" data-tex="">Yok</button>
-                                        <button class="fx-btn tex-btn" data-tex="tex-noise">&#128250; Noise</button>
-                                        <button class="fx-btn tex-btn" data-tex="tex-mesh">&#128306; Mesh</button>
-                                        <button class="fx-btn tex-btn" data-tex="tex-carbon">&#11035; Karbon</button>
-                                        <button class="fx-btn tex-btn" data-tex="tex-silk">&#129527; &#304;pek</button>
                                     </div>
                                 </div>
                                 <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:14px;">
@@ -736,6 +772,48 @@
                                         <button class="fx-btn glow-btn" data-glow="glow-pulse">&#128171; Puls</button>
                                         <button class="fx-btn glow-btn" data-glow="glow-halo">&#128309; Halo</button>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dedicated Texture Section (Collapsible) -->
+                        <div class="settings-card" style="flex-direction: column; align-items: stretch; margin-top: 10px;">
+                            <div id="fetih-tex-toggle" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 4px 0;">
+                                <div class="settings-info">
+                                    <h3 style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">texture</span> 
+                                        Doku Ayarlar&#305;
+                                    </h3>
+                                    <p>Arka plan desenini ve g&#246;r&#252;n&#252;m&#252;n&#252; &#246;zelle&#351;tir</p>
+                                </div>
+                                <span class="material-symbols-outlined" id="fetih-tex-chevron" style="transition: transform 0.3s;">expand_more</span>
+                            </div>
+                            
+                            <div id="fetih-tex-panel" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+                                <!-- Sliders -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+                                    <div>
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                            <span style="font-size: 11px; font-weight: 800; color: var(--outline);">BOYUT</span>
+                                            <span id="tex-size-val" style="font-size: 11px; font-weight: 800; color: var(--primary);">40px</span>
+                                        </div>
+                                        <input type="range" id="fetih-tex-size" min="5" max="150" value="40" style="width: 100%; accent-color: var(--primary);">
+                                    </div>
+                                    <div>
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                            <span style="font-size: 11px; font-weight: 800; color: var(--outline);">OPAKLIK</span>
+                                            <span id="tex-op-val" style="font-size: 11px; font-weight: 800; color: var(--primary);">40%</span>
+                                        </div>
+                                        <input type="range" id="fetih-tex-opacity" min="0" max="100" value="40" style="width: 100%; accent-color: var(--primary);">
+                                    </div>
+                                </div>
+
+                                <!-- Pattern Selection Grid -->
+                                <div style="font-size: 10px; font-weight: 900; color: var(--outline); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">DESEN SE&#199;&#304;M&#304;</div>
+                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; box-sizing: border-box;" id="fetih-tex-grid">
+                                    <button class="tex-preview tex-btn no-tex" data-tex="" title="Yok"></button>
+                                    <button class="tex-preview tex-btn p-snow" data-tex="tex-snow" title="Kar"></button>
+                                    ${Array.from({length: 18}, (_, i) => `<button class="tex-preview tex-btn p-${i+1}" data-tex="tex-p${i+1}" title="P${i+1}"></button>`).join('')}
                                 </div>
                             </div>
                         </div>
@@ -831,8 +909,8 @@
         }
 
         // --- THEME EFFECTS (Glass / Texture / Glow) ---
-        const GLASS_CLASSES = ['glass-frost','glass-gold','glass-dark','glass-crystal','glass-ocean'];
-        const TEX_CLASSES   = ['tex-noise','tex-mesh','tex-carbon','tex-silk'];
+        const GLASS_CLASSES = ['glass-frost','glass-liquid','glass-gold'];
+        const TEX_CLASSES   = ['tex-snow', ...Array.from({length: 18}, (_, i) => `tex-p${i+1}`)];
         const GLOW_CLASSES  = ['glow-soft','glow-neon','glow-pulse','glow-halo'];
 
         function applyEffect(type, value) {
@@ -847,12 +925,49 @@
             document.querySelectorAll(`.${type}-btn`).forEach(b => b.classList.toggle('active', b.dataset[type] === value));
         }
 
+        // --- TEXTURE CONTROLS ---
+        const texToggle = document.getElementById('fetih-tex-toggle');
+        const texPanel = document.getElementById('fetih-tex-panel');
+        const texChevron = document.getElementById('fetih-tex-chevron');
+        const texSizeInput = document.getElementById('fetih-tex-size');
+        const texOpInput = document.getElementById('fetih-tex-opacity');
+
+        if (texToggle) {
+            texToggle.addEventListener('click', () => {
+                const isOpen = texPanel.style.display === 'block';
+                texPanel.style.display = isOpen ? 'none' : 'block';
+                texChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+        }
+
+        function updateTexParams() {
+            const size = texSizeInput?.value || 40;
+            const opacity = (texOpInput?.value || 40) / 100;
+            root.style.setProperty('--tex-size', `${size}px`);
+            root.style.setProperty('--tex-opacity', opacity);
+            const sizeValEl = document.getElementById('tex-size-val');
+            const opValEl = document.getElementById('tex-op-val');
+            if (sizeValEl) sizeValEl.textContent = `${size}px`;
+            if (opValEl) opValEl.textContent = `${Math.round(opacity * 100)}%`;
+            localStorage.setItem('fetihTexSize', size);
+            localStorage.setItem('fetihTexOpacity', opacity);
+        }
+
+        if (texSizeInput) texSizeInput.addEventListener('input', updateTexParams);
+        if (texOpInput) texOpInput.addEventListener('input', updateTexParams);
+
         // Bind effect buttons
         document.querySelectorAll('.glass-btn').forEach(b => b.addEventListener('click', () => applyEffect('glass', b.dataset.glass)));
         document.querySelectorAll('.tex-btn').forEach(b   => b.addEventListener('click', () => applyEffect('tex',   b.dataset.tex)));
         document.querySelectorAll('.glow-btn').forEach(b  => b.addEventListener('click', () => applyEffect('glow',  b.dataset.glow)));
 
-        // Restore saved effects
+        // Restore params & effects
+        const savedSize = localStorage.getItem('fetihTexSize') || '40';
+        const savedOp = localStorage.getItem('fetihTexOpacity') || '0.4';
+        if (texSizeInput) texSizeInput.value = savedSize;
+        if (texOpInput) texOpInput.value = savedOp * 100;
+        updateTexParams();
+
         applyEffect('glass', localStorage.getItem('fetihGlass') || '');
         applyEffect('tex',   localStorage.getItem('fetihTex')   || '');
         applyEffect('glow',  localStorage.getItem('fetihGlow')  || '');
