@@ -97,8 +97,8 @@
             .card-3 { grid-column: span 3; }
 
             /* Table Styles - UNIFIED GLASS SLABS */
-            #fetih-root .fetih-table-box { width: 100%; max-width: 1360px; background: transparent; border: none; margin: 0 auto; padding: 0 20px; box-sizing: border-box; }
-            #fetih-root table { width: 100% !important; border-collapse: separate !important; border-spacing: 0 12px !important; table-layout: fixed; }
+            #fetih-root .fetih-table-box { width: 95%; max-width: 1240px; background: transparent; border: none; margin: 0 auto; box-sizing: border-box; }
+            #fetih-root table { width: 100% !important; border-collapse: separate !important; border-spacing: 0 16px !important; }
             #fetih-root td { padding: 22px 32px !important; border: none !important; transition: all 0.2s ease; font-size: 14px !important; background: transparent; }
             
             #fetih-root tr.glass-card td { 
@@ -109,7 +109,6 @@
             }
             
             #fetih-root th:first-child, #fetih-root td:first-child { 
-                width: 35%;
                 padding-left: 50px !important; 
                 border-top-left-radius: 24px !important; border-bottom-left-radius: 24px !important; 
                 border-left: 1px solid rgba(255,255,255,0.08) !important; 
@@ -130,22 +129,6 @@
 
             .overview-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; width: 100%; max-width: 1240px; }
             .mini-card { padding: 20px 24px; background: var(--card-bg); border: 1px solid rgba(var(--primary-rgb), 0.2); border-radius: 24px; text-align: left; position: relative; }
-            
-            /* Gremse ile Ata arasına dik çizgi ve ekstra mesafe */
-            .overview-grid > div:nth-child(5) {
-                margin-left: 14px; /* Ekstra boşluk */
-            }
-            .overview-grid > div:nth-child(5)::before {
-                content: "";
-                position: absolute;
-                left: -16px; /* (16px gap + 14px margin) / 2 = 15px, +1px offset */
-                top: 15px;
-                bottom: 15px;
-                width: 2px;
-                background: var(--primary);
-                opacity: 0.8;
-                border-radius: 2px;
-            }
             
             /* ── NAVBAR BOT ── */
             #fetih-bot-trigger {
@@ -417,12 +400,15 @@
             .glass-gold .glass-card, .glass-gold tr.glass-card td { background: rgba(255,255,255,0.02) !important; backdrop-filter: blur(28px) saturate(220%) !important; -webkit-backdrop-filter: blur(28px) saturate(220%) !important; border: 1px solid rgba(var(--primary-rgb),0.3) !important; }
             .glass-gold .glass-card { box-shadow: 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 1px rgba(var(--primary-rgb),0.15) !important; }
 
-            .glass-none .glass-card, .glass-none tr.glass-card td { 
+            .glass-none .glass-card:not(.has-card-active), 
+            .glass-none tr.glass-card td,
+            .glass-none .mini-card { 
                 backdrop-filter: none !important; -webkit-backdrop-filter: none !important; 
-                background: rgba(15, 15, 15, 0.95) !important; 
-                border: 1px solid rgba(255, 255, 255, 0.1) !important; 
-                box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+                background: rgba(18, 18, 18, 0.95) !important; 
+                border: 1px solid rgba(255, 255, 255, 0.12) !important; 
+                box-shadow: 0 4px 24px rgba(0,0,0,0.5) !important;
             }
+            .glass-none .has-card-active { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
 
             /* ── EFFECTS: TEXTURE (arka planda camın altında kalır) ── */
             /* ── EFFECTS: TEXTURE ── */
@@ -1025,9 +1011,9 @@
         }
 
         // --- THEME EFFECTS (Glass / Texture / Glow) ---
-        const GLASS_CLASSES = ['glass-frost','glass-liquid','glass-gold'];
+        const GLASS_CLASSES = ['glass-frost','glass-liquid','glass-gold','glass-none'];
         const TEX_CLASSES   = ['tex-snow', ...Array.from({length: 18}, (_, i) => `tex-p${i+1}`)];
-        const GLOW_CLASSES  = ['glow-soft','glow-neon','glow-pulse','glow-halo'];
+        const GLOW_CLASSES  = ['glow-soft','glow-neon','glow-pulse','glow-halo','glow-orbit','glow-drift','glow-aurora'];
 
         function applyEffect(type, value) {
             const r = document.getElementById('fetih-root');
