@@ -352,6 +352,41 @@
                 position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
                 color: #000; font-size: 18px; font-weight: 900;
             }
+
+            /* ── EFFECTS: GLASS PRESETS ── */
+            .glass-frost .glass-card { background: rgba(255,255,255,0.12) !important; backdrop-filter: blur(40px) saturate(180%) brightness(1.08) !important; -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.08) !important; border: 1px solid rgba(255,255,255,0.25) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3) !important; }
+            .glass-gold .glass-card { background: linear-gradient(135deg, rgba(var(--primary-rgb),0.15), rgba(var(--primary-rgb),0.05)) !important; backdrop-filter: blur(30px) saturate(200%) !important; -webkit-backdrop-filter: blur(30px) saturate(200%) !important; border: 1px solid rgba(var(--primary-rgb),0.35) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(var(--primary-rgb),0.2) !important; }
+            .glass-dark .glass-card { background: rgba(0,0,0,0.65) !important; backdrop-filter: blur(24px) !important; -webkit-backdrop-filter: blur(24px) !important; border: 1px solid rgba(255,255,255,0.06) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important; }
+            .glass-crystal .glass-card { background: rgba(255,255,255,0.04) !important; backdrop-filter: blur(60px) saturate(250%) !important; -webkit-backdrop-filter: blur(60px) saturate(250%) !important; border: 1px solid rgba(255,255,255,0.18) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.1) !important; }
+            .glass-ocean .glass-card { background: linear-gradient(135deg, rgba(14,165,233,0.12), rgba(6,182,212,0.05)) !important; backdrop-filter: blur(28px) saturate(180%) !important; -webkit-backdrop-filter: blur(28px) saturate(180%) !important; border: 1px solid rgba(14,165,233,0.25) !important; }
+
+            /* ── EFFECTS: TEXTURE (body üzerine — cam altında kalır) ── */
+            body.tex-noise::after { content:''; position:fixed; inset:0; z-index:0; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E"); background-size:256px 256px; opacity:0.06; mix-blend-mode:overlay; }
+            body.tex-mesh::after { content:''; position:fixed; inset:0; z-index:0; pointer-events:none; background-image:linear-gradient(rgba(205,168,96,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(205,168,96,0.06) 1px, transparent 1px); background-size:48px 48px; }
+            body.tex-carbon::after { content:''; position:fixed; inset:0; z-index:0; pointer-events:none; background-image:repeating-linear-gradient(45deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 4px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 4px); background-size:8px 8px; }
+            body.tex-silk::after { content:''; position:fixed; inset:0; z-index:0; pointer-events:none; background:repeating-linear-gradient(135deg, transparent, transparent 5px, rgba(255,255,255,0.018) 5px, rgba(255,255,255,0.018) 6px); }
+
+            /* ── EFFECTS: GLOW (body arka plan — kartların arkasında) ── */
+            body.glow-soft { background-image: radial-gradient(ellipse at 50% 30%, rgba(205,168,96,0.08) 0%, transparent 60%) !important; }
+            body.glow-neon { background-image: radial-gradient(ellipse at 50% 20%, rgba(205,168,96,0.18) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(205,168,96,0.06) 0%, transparent 40%) !important; }
+            body.glow-pulse::before { content:''; position:fixed; inset:0; z-index:0; pointer-events:none; background: radial-gradient(ellipse at 50% 30%, rgba(205,168,96,0.14) 0%, transparent 55%); animation: bgPulse 3s ease-in-out infinite; }
+            @keyframes bgPulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+            body.glow-halo { box-shadow: inset 0 0 120px rgba(205,168,96,0.06), inset 0 0 300px rgba(205,168,96,0.03) !important; }
+
+            /* ── EFFECTS: FX BUTTONS ── */
+            .fx-btn { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); color: var(--outline); border-radius: 10px; padding: 9px 11px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: left; transition: all 0.2s; width: 100%; display: block; }
+            .fx-btn:hover { background: rgba(255,255,255,0.09); color: var(--on-surface); }
+            .fx-btn.active { background: rgba(var(--primary-rgb),0.14); border-color: rgba(var(--primary-rgb),0.38); color: var(--primary); }
+
+            /* ── SETTINGS SCROLLBAR ── */
+            .settings-container { max-height: 88vh; overflow-y: auto; }
+            .settings-container::-webkit-scrollbar { width: 5px; }
+            .settings-container::-webkit-scrollbar-track { background: transparent; }
+            .settings-container::-webkit-scrollbar-thumb { background: rgba(var(--primary-rgb),0.25); border-radius: 6px; }
+            .settings-container::-webkit-scrollbar-thumb:hover { background: rgba(var(--primary-rgb),0.55); }
+
+            /* ── LIGHT MODE: BOT TEXT FIX ── */
+            #fetih-root.light-mode .bot-msg-text { color: #1a1a1a !important; }
         `;
 
         document.head.appendChild(style);
@@ -661,6 +696,44 @@
                                 <!-- Colors will be injected here -->
                             </div>
                         </div>
+
+                        <!-- Tema Efektleri -->
+                        <div style="margin-top:8px;">
+                            <div style="font-size:10px;font-weight:900;color:var(--outline);text-transform:uppercase;letter-spacing:2px;margin-bottom:14px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">TEMA EFEKTLER&#304;</div>
+                            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+                                <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:14px;">
+                                    <div style="font-size:10px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:14px;">blur_on</span>Cam</div>
+                                    <div style="display:flex;flex-direction:column;gap:6px;">
+                                        <button class="fx-btn glass-btn" data-glass="">Varsay&#305;lan</button>
+                                        <button class="fx-btn glass-btn" data-glass="glass-frost">&#10052;&#65039; Frost</button>
+                                        <button class="fx-btn glass-btn" data-glass="glass-gold">&#10024; Alt&#305;n</button>
+                                        <button class="fx-btn glass-btn" data-glass="glass-dark">&#127761; Karanl&#305;k</button>
+                                        <button class="fx-btn glass-btn" data-glass="glass-crystal">&#128142; Kristal</button>
+                                        <button class="fx-btn glass-btn" data-glass="glass-ocean">&#127754; Okyanus</button>
+                                    </div>
+                                </div>
+                                <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:14px;">
+                                    <div style="font-size:10px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:14px;">texture</span>Doku</div>
+                                    <div style="display:flex;flex-direction:column;gap:6px;">
+                                        <button class="fx-btn tex-btn" data-tex="">Yok</button>
+                                        <button class="fx-btn tex-btn" data-tex="tex-noise">&#128250; Noise</button>
+                                        <button class="fx-btn tex-btn" data-tex="tex-mesh">&#128306; Mesh</button>
+                                        <button class="fx-btn tex-btn" data-tex="tex-carbon">&#11035; Karbon</button>
+                                        <button class="fx-btn tex-btn" data-tex="tex-silk">&#129527; &#304;pek</button>
+                                    </div>
+                                </div>
+                                <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:14px;">
+                                    <div style="font-size:10px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:14px;">flare</span>Glow</div>
+                                    <div style="display:flex;flex-direction:column;gap:6px;">
+                                        <button class="fx-btn glow-btn" data-glow="">Yok</button>
+                                        <button class="fx-btn glow-btn" data-glow="glow-soft">&#127775; Soft</button>
+                                        <button class="fx-btn glow-btn" data-glow="glow-neon">&#128161; Neon</button>
+                                        <button class="fx-btn glow-btn" data-glow="glow-pulse">&#128171; Puls</button>
+                                        <button class="fx-btn glow-btn" data-glow="glow-halo">&#128309; Halo</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -751,6 +824,35 @@
                 }
             });
         }
+
+        // --- THEME EFFECTS (Glass / Texture / Glow) ---
+        const GLASS_CLASSES = ['glass-frost','glass-gold','glass-dark','glass-crystal','glass-ocean'];
+        const TEX_CLASSES   = ['tex-noise','tex-mesh','tex-carbon','tex-silk'];
+        const GLOW_CLASSES  = ['glow-soft','glow-neon','glow-pulse','glow-halo'];
+
+        function applyEffect(type, value) {
+            const r = document.getElementById('fetih-root');
+            if (!r) return;
+            const pools = { glass: GLASS_CLASSES, tex: TEX_CLASSES, glow: GLOW_CLASSES };
+            const keys  = { glass: 'fetihGlass', tex: 'fetihTex', glow: 'fetihGlow' };
+
+            // Glass → #fetih-root, Texture/Glow → body
+            const target = (type === 'glass') ? r : document.body;
+            target.classList.remove(...(pools[type] || []));
+            if (value) target.classList.add(value);
+            localStorage.setItem(keys[type], value || '');
+            document.querySelectorAll(`.${type}-btn`).forEach(b => b.classList.toggle('active', b.dataset[type] === value));
+        }
+
+        // Bind effect buttons
+        document.querySelectorAll('.glass-btn').forEach(b => b.addEventListener('click', () => applyEffect('glass', b.dataset.glass)));
+        document.querySelectorAll('.tex-btn').forEach(b   => b.addEventListener('click', () => applyEffect('tex',   b.dataset.tex)));
+        document.querySelectorAll('.glow-btn').forEach(b  => b.addEventListener('click', () => applyEffect('glow',  b.dataset.glow)));
+
+        // Restore saved effects
+        applyEffect('glass', localStorage.getItem('fetihGlass') || '');
+        applyEffect('tex',   localStorage.getItem('fetihTex')   || '');
+        applyEffect('glow',  localStorage.getItem('fetihGlow')  || '');
 
         // --- THEME COLOR PICKER ---
         const themeColors = [
@@ -1074,16 +1176,33 @@
         }
     };
 
-    // "s" tuşu ile gizli ses testi (Bota müdahale etmez)
+    // Klavye kısayolları: S=ses testi, A=ayarlar, ESC=kapat
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-        if (e.key.toLowerCase() === 's') {
-            const isUp = Math.random() > 0.5;
-            if (isUp) {
-                playUpSequence();
+        const key = e.key.toLowerCase();
+
+        if (key === 'escape') {
+            // Tüm açık modalları kapat
+            window.closeFetihDash();
+            window.closeFetihAnalysis();
+            const chartModal = document.getElementById('fetih-chart-modal');
+            if (chartModal) chartModal.classList.remove('active');
+            return;
+        }
+        if (key === 'a') {
+            // Ayarlar modalını aç/kapat
+            const modal = document.getElementById('fetih-dash-modal');
+            if (modal && modal.classList.contains('active')) {
+                window.closeFetihDash();
             } else {
-                playDownSequence();
+                window.openFetihDash();
             }
+            return;
+        }
+        if (key === 's') {
+            const isUp = Math.random() > 0.5;
+            if (isUp) playUpSequence();
+            else playDownSequence();
         }
     });
 

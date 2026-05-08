@@ -392,13 +392,13 @@
 
             const sign = data.pct > 0 ? '+' : '';
             const pctColor = data.pct > 0 ? '#22c55e' : (data.pct < 0 ? '#ef4444' : '#888');
-            const tlColor  = data.pct > 0 ? '#16a34a' : (data.pct < 0 ? '#dc2626' : '#888');
+            const tlColor  = data.pct > 0 ? 'color:var(--on-surface);text-decoration:underline;text-decoration-color:#22c55e;text-underline-offset:3px' : (data.pct < 0 ? 'color:var(--on-surface);text-decoration:underline;text-decoration-color:#ef4444;text-underline-offset:3px' : 'color:var(--on-surface)');
             const iconName = periodIcons[periodLabel] || 'schedule';
 
             let m = `${label}: <span style="color:var(--primary);font-weight:800">${current.toLocaleString('tr-TR')}</span>`;
             m += ` <span style="display:inline-block;width:1px;height:12px;background:rgba(255,255,255,0.15);margin:0 8px;vertical-align:middle"></span>`;
             m += `<span style="color:${pctColor};font-weight:700">${sign}${data.pct}%</span>`;
-            m += ` <span style="color:${tlColor};font-weight:700;border-bottom:1px solid ${pctColor};padding-bottom:1px;margin-left:6px">${sign}${data.diffTL} TL</span>`;
+            m += `<span style="${tlColor};font-weight:700;margin-left:6px">${sign}${data.diffTL} TL</span>`;
             m += ` <span style="color:var(--outline);font-size:0.85em;margin-left:8px;display:inline-flex;align-items:center;gap:3px;vertical-align:middle">`;
             m += `<span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle">${iconName}</span>${periodLabel}</span>`;
 
