@@ -114,7 +114,7 @@
                     inset calc(var(--fetih-glass-light-x, 1px) * -1) calc(var(--fetih-glass-light-y, 2px) * -1) 2px rgba(0, 0, 0, 0.15);
                 backdrop-filter: blur(var(--fetih-glass-blur, 10.8px)) url(#fetih-glass-filter);
                 -webkit-backdrop-filter: blur(var(--fetih-glass-blur, 10.8px)) url(#fetih-glass-filter);
-                border: 1px solid rgba(var(--primary-rgb), calc(var(--fetih-glass-border, 1) * 0.5));
+                border: 1px solid rgba(var(--primary-rgb), var(--fetih-glass-border, 1));
                 transition: all 0.3s ease;
                 position: relative;
                 overflow: hidden;
@@ -122,6 +122,12 @@
             #fetih-root tr.glass-classic:hover { background: rgba(var(--primary-rgb), calc(var(--fetih-glass-bg, 0) + 0.1)); }
 
             .font-headline { font-family: 'Manrope', sans-serif; }
+            
+            #fetih-root.is-fullscreen #fetih-hero-section {
+                min-height: calc(100vh - 90px);
+                justify-content: center;
+                margin-bottom: 15vh;
+            }
 
             nav {
                 width: 100%; padding: 8px 40px; display: flex; align-items: center; justify-content: space-between;
@@ -190,8 +196,8 @@
                     inset calc(var(--fetih-glass-light-x, 1px) * -1) calc(var(--fetih-glass-light-y, 2px) * -1) 2px rgba(0, 0, 0, 0.1);
                 backdrop-filter: blur(var(--fetih-glass-blur, 10.8px)) url(#fetih-glass-filter);
                 -webkit-backdrop-filter: blur(var(--fetih-glass-blur, 10.8px)) url(#fetih-glass-filter);
-                border: 1px solid rgba(var(--primary-rgb), calc(var(--fetih-glass-border, 1) * 0.5));
-                text-align: left; position: relative; min-width: 0; overflow: hidden; 
+                border: 1px solid rgba(var(--primary-rgb), var(--fetih-glass-border, 1));
+                text-align: left; position: relative; min-width: 0; 
             }
             
             /* --- GLASS OFF OVERRIDES --- */
@@ -223,7 +229,7 @@
             /* Gremse-Ata Separator */
             .overview-grid > div:nth-child(5)::before {
                 content: ''; position: absolute; left: -7.5px; top: 15%; height: 70%; width: 3px; 
-                background: var(--primary); opacity: 0.4; border-radius: 2px;
+                background: var(--primary); opacity: 0.6; border-radius: 2px;
             }
             @media (max-width: 900px) { .overview-grid > div:nth-child(5)::before { display: none; } }
             
@@ -704,6 +710,9 @@
 
             <main style="width:100%; max-width:1440px; padding:15px 40px 30px 40px; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; gap:25px;">
 
+                <!-- F11 Fullscreen Wrapper -->
+                <div id="fetih-hero-section" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:25px; transition: min-height 0.4s ease;">
+
                 <!-- Featured Bento Grid -->
                 <div class="bento-grid section-width">
                     <div class="fetih-card card-6 has-card-active" style="padding:35px 45px; position:relative; overflow:hidden">
@@ -741,7 +750,7 @@
                             </div>
                             <div style="padding-top:20px; border-top:1px solid rgba(255,255,255,0.1)">
                                 <span style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:8px">SATIŞ</span>
-                                <div id="val-gram-sell" class="t-val" style="font-size:32px; font-weight:900; color:var(--on-surface);">--</div>
+                                <div id="val-gram-sell" class="t-val" style="font-size:32px; font-weight:900; color:var(--primary);">--</div>
                             </div>
                         </div>
                     </div>
@@ -758,7 +767,7 @@
                             </div>
                             <div style="padding-top:20px; border-top:1px solid rgba(255,255,255,0.1)">
                                 <span style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:8px">SATIŞ</span>
-                                <div id="val-ons-sell" class="t-val" style="font-size:32px; font-weight:900; color:var(--on-surface);">--</div>
+                                <div id="val-ons-sell" class="t-val" style="font-size:32px; font-weight:900; color:var(--primary);">--</div>
                             </div>
                         </div>
                     </div>
@@ -766,6 +775,8 @@
 
                 <!-- Sarrafiye Overview Grid -->
                 <div id="overview-grid" class="overview-grid section-width"></div>
+
+                </div> <!-- End of F11 Hero Wrapper -->
 
                 <!-- Market Table Section -->
                 <div class="section-width" style="margin-top: 80px;">
@@ -1644,6 +1655,34 @@
             }
             link.href = url;
         }
+
+        // --- FULLSCREEN F11 LOGIC ---
+        let manualFullscreen = false;
+        function checkFullscreen() {
+            const rootEl = document.getElementById('fetih-root');
+            if (!rootEl) return;
+            
+            // Check if window is very close to screen height (F11 mode) or manual toggle
+            const heightRatio = window.innerHeight / window.screen.height;
+            const isFull = manualFullscreen || heightRatio > 0.98 || document.fullscreenElement;
+            
+            if (isFull) {
+                rootEl.classList.add('is-fullscreen');
+            } else {
+                rootEl.classList.remove('is-fullscreen');
+            }
+        }
+        
+        window.addEventListener('resize', checkFullscreen);
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'F11') {
+                manualFullscreen = !manualFullscreen;
+                checkFullscreen();
+                // Check again after browser applies F11 resizing
+                setTimeout(checkFullscreen, 300);
+            }
+        });
+        checkFullscreen();
 
         // Chart Modal Logic
         const chartBtn = document.getElementById('fetih-chart-btn');
