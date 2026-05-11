@@ -81,13 +81,17 @@
             :root {
                 --primary: #CDA860;
                 --primary-rgb: 205, 168, 96;
-                --surface: #0f0f0f;
-                --surface-container: #1a1a1a;
+                --primary-dark: #9a7840;
+                --surface: #000000;
+                --surface-container: #121212;
                 --card-bg: rgba(255, 255, 255, 0.04);
                 --on-surface: #e5e2e1;
                 --outline: #6a6254;
                 --error: #f87171;
                 --success: #4ade80;
+                --card-border: rgba(205, 168, 96, 0.35);
+                --card-surface: #252525;
+                --glow-intensity: 1;
             }
 
             body {
@@ -105,21 +109,30 @@
             #fetih-root * { box-sizing: border-box !important; }
             .section-width { width: 100% !important; max-width: 1240px !important; margin: 0 auto !important; }
 
-            .glass-card, .fetih-card, .glass-classic {
-                background: rgba(var(--primary-rgb), var(--fetih-glass-bg, 0));
+            .glass-card, .fetih-card {
+                background: var(--card-surface);
                 border-radius: 16px;
-                box-shadow: 
-                    0 8px 24px rgba(0, 0, 0, 0.12), 
-                    inset var(--fetih-glass-light-x, 1px) var(--fetih-glass-light-y, 2px) 2px rgba(var(--primary-rgb), calc(var(--fetih-glass-border, 1) * 0.5)),
-                    inset calc(var(--fetih-glass-light-x, 1px) * -1) calc(var(--fetih-glass-light-y, 2px) * -1) 2px rgba(0, 0, 0, 0.15);
-                backdrop-filter: blur(var(--fetih-glass-blur, 10.8px)) url(#fetih-glass-filter);
-                -webkit-backdrop-filter: blur(var(--fetih-glass-blur, 10.8px)) url(#fetih-glass-filter);
-                border: 1px solid rgba(var(--primary-rgb), var(--fetih-glass-border, 1));
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+                border: 1px solid var(--card-border);
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+
+            .glass-classic {
+                background: var(--card-surface);
+                border-radius: 16px;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                border: 1px solid var(--card-border);
                 transition: all 0.3s ease;
                 position: relative;
                 overflow: hidden;
             }
-            #fetih-root tr.glass-classic:hover { background: rgba(var(--primary-rgb), calc(var(--fetih-glass-bg, 0) + 0.1)); }
+            #fetih-root tr.glass-classic:hover { background: rgba(255,255,255,0.04); }
 
             .font-headline { font-family: 'Manrope', sans-serif; }
             
@@ -149,8 +162,8 @@
             #fetih-settings-btn span.material-symbols-outlined { transition: transform 0.5s ease; }
             #fetih-settings-btn:hover span.material-symbols-outlined { transform: rotate(180deg); }
 
-            .live-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; animation: pulse 2s infinite; }
-            @keyframes pulse { 0% { opacity: 1; transform: scale(1); background: var(--primary); box-shadow: 0 0 0 rgba(255,255,255,0); } 50% { opacity: 1; transform: scale(1.4); background: #ffffff; box-shadow: 0 0 8px #ffffff; } 100% { opacity: 1; transform: scale(1); background: var(--primary); box-shadow: 0 0 0 rgba(255,255,255,0); } }
+            .live-dot { width: 8px; height: 8px; background: var(--primary-dark); border-radius: 50%; animation: pulse 2s infinite; }
+            @keyframes pulse { 0% { opacity: 1; transform: scale(1); background: var(--primary-dark); box-shadow: 0 0 0 rgba(255,255,255,0); } 50% { opacity: 1; transform: scale(1.4); background: #ffffff; box-shadow: 0 0 10px rgba(255,255,255,0.8); } 100% { opacity: 1; transform: scale(1); background: var(--primary-dark); box-shadow: 0 0 0 rgba(255,255,255,0); } }
             @keyframes spin { 100% { transform: rotate(360deg); } }
             .loading-icon { animation: spin 2s linear infinite; color: var(--outline); font-size: 24px; }
             .fetih-loader { animation: spin 1s linear infinite !important; color: var(--primary) !important; }
@@ -188,16 +201,13 @@
             .overview-grid { display: grid !important; grid-template-columns: repeat(5, 1fr) !important; gap: 12px !important; position: relative; }
             .mini-card { 
                 padding: 16px 14px; 
-                background: rgba(var(--primary-rgb), var(--fetih-glass-bg, 0));
+                background: var(--card-surface);
                 border-radius: 16px;
-                box-shadow: 
-                    0 4px 12px rgba(0, 0, 0, 0.1), 
-                    inset var(--fetih-glass-light-x, 1px) var(--fetih-glass-light-y, 2px) 2px rgba(var(--primary-rgb), calc(var(--fetih-glass-border, 1) * 0.5)),
-                    inset calc(var(--fetih-glass-light-x, 1px) * -1) calc(var(--fetih-glass-light-y, 2px) * -1) 2px rgba(0, 0, 0, 0.1);
-                backdrop-filter: blur(var(--fetih-glass-blur, 10.8px)) url(#fetih-glass-filter);
-                -webkit-backdrop-filter: blur(var(--fetih-glass-blur, 10.8px)) url(#fetih-glass-filter);
-                border: 1px solid rgba(var(--primary-rgb), var(--fetih-glass-border, 1));
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+                border: 1px solid var(--card-border);
                 text-align: left; position: relative; min-width: 0; 
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
             }
             
             /* --- GLASS OFF OVERRIDES --- */
@@ -205,10 +215,10 @@
             #fetih-root.glass-off .fetih-card:not(.has-card-active),
             #fetih-root.glass-off .glass-classic,
             #fetih-root.glass-off .mini-card {
-                background: #111 !important;
+                background: var(--card-surface) !important;
                 backdrop-filter: none !important;
                 -webkit-backdrop-filter: none !important;
-                border: 1px solid rgba(255,255,255,0.08) !important;
+                border: 1px solid var(--card-border) !important;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.6) !important;
             }
             
@@ -216,8 +226,8 @@
             #fetih-root.light-mode.glass-off .fetih-card:not(.has-card-active),
             #fetih-root.light-mode.glass-off .glass-classic,
             #fetih-root.light-mode.glass-off .mini-card {
-                background: #fff !important;
-                border: 1px solid rgba(0,0,0,0.1) !important;
+                background: var(--card-surface) !important;
+                border: 1px solid var(--card-border) !important;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
             }
 
@@ -327,6 +337,8 @@
                 --card-bg: rgba(255, 255, 255, 0.35);
                 --on-surface: #1a1a1a;
                 --outline: #666666;
+                --card-border: rgba(0, 0, 0, 0.15);
+                --card-surface: #ececec;
             }
             #fetih-root.light-mode nav { background: #ffffff !important; border-bottom: 1px solid rgba(0,0,0,0.1); }
             #fetih-root.light-mode .glass-card { border: 1px solid rgba(255,255,255,0.5) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -1px 1px rgba(0,0,0,0.05) !important; }
@@ -540,9 +552,9 @@
             #fetih-glass-svg { position: absolute; width: 0; height: 0; pointer-events: none; }
 
             /* ── EFFECTS: GLOW (Arka Plan I&#351;&#305;k Sistemi) ── */
-            #fetih-root.glow-soft #fetih-bg-glow { background-image: radial-gradient(ellipse at 50% 30%, rgba(var(--primary-rgb),0.15) 0%, transparent 60%); }
-            #fetih-root.glow-neon #fetih-bg-glow { background-image: radial-gradient(ellipse at 50% 20%, rgba(var(--primary-rgb),0.25) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(var(--primary-rgb),0.12) 0%, transparent 40%); }
-            #fetih-root.glow-pulse #fetih-bg-glow { background: radial-gradient(ellipse at 50% 30%, rgba(var(--primary-rgb),0.2) 0%, transparent 55%); animation: bgPulse 4s ease-in-out infinite; }
+            #fetih-root.glow-soft #fetih-bg-glow { background-image: radial-gradient(ellipse at 50% 30%, rgba(var(--primary-rgb),calc(0.15 * var(--glow-intensity))) 0%, transparent 60%); }
+            #fetih-root.glow-neon #fetih-bg-glow { background-image: radial-gradient(ellipse at 50% 20%, rgba(var(--primary-rgb),calc(0.25 * var(--glow-intensity))) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(var(--primary-rgb),calc(0.12 * var(--glow-intensity))) 0%, transparent 40%); }
+            #fetih-root.glow-pulse #fetih-bg-glow { background: radial-gradient(ellipse at 50% 30%, rgba(var(--primary-rgb),calc(0.2 * var(--glow-intensity))) 0%, transparent 55%); animation: bgPulse 4s ease-in-out infinite; }
             @keyframes bgPulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
             #fetih-root.glow-orbit #fetih-bg-glow { 
                 background: radial-gradient(circle at center, transparent 0%, transparent 100%),
@@ -567,8 +579,8 @@
             }
             @keyframes bgAurora { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
             
-            #fetih-root.glow-halo #fetih-bg-glow { box-shadow: inset 0 0 150px rgba(var(--primary-rgb),0.12), inset 0 0 400px rgba(var(--primary-rgb),0.06); }
-            #fetih-root.glow-edges #fetih-bg-glow { box-shadow: inset 0 0 120px rgba(var(--primary-rgb),0.3); }
+            #fetih-root.glow-halo #fetih-bg-glow { box-shadow: inset 0 0 150px rgba(var(--primary-rgb),calc(0.12 * var(--glow-intensity))), inset 0 0 400px rgba(var(--primary-rgb),calc(0.06 * var(--glow-intensity))); }
+            #fetih-root.glow-edges #fetih-bg-glow { box-shadow: inset 0 0 120px rgba(var(--primary-rgb),calc(0.3 * var(--glow-intensity))); }
             #fetih-root.glow-corners #fetih-bg-glow { 
                 background: 
                     radial-gradient(circle at top left, rgba(var(--primary-rgb), 0.3) 0%, transparent 40%),
@@ -718,8 +730,8 @@
                     <div class="fetih-card card-6 has-card-active" style="padding:35px 45px; position:relative; overflow:hidden">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:35px">
                             <div>
-                                <span style="font-size:10px; font-weight:900; color:var(--primary); text-transform:uppercase; opacity:0.8; letter-spacing:2px; display:block; margin-bottom:10px">Fetih Kuyumculuk</span>
-                                <h2 class="font-headline" style="font-size:38px; color:var(--primary); font-weight:900; margin:0">Has Altın (24K)</h2>
+                                <span style="font-size:10px; font-weight:900; color:var(--primary-dark); text-transform:uppercase; opacity:0.9; letter-spacing:2px; display:block; margin-bottom:10px">Fetih Kuyumculuk</span>
+                                <h2 class="font-headline" style="font-size:38px; color:var(--primary-dark); font-weight:900; margin:0">Has Altın (24K)</h2>
                             </div>
                             <div style="display:flex; align-items:center; gap:8px; background:rgba(0,0,0,0.1); padding:8px 14px; border-radius:100px; font-size:11px; font-weight:900; border: 1px solid rgba(0,0,0,0.25); color:var(--primary);">
                                 <div class="live-dot"></div>
@@ -728,12 +740,12 @@
                         </div>
                         <div style="display:grid; grid-template-columns:minmax(180px, 1fr) minmax(180px, 1fr); gap:50px">
                             <div>
-                                <span style="font-size:11px; font-weight:800; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:10px">ALIŞ</span>
-                                <div id="val-has-buy" class="t-val" style="font-size:48px; font-weight:900; letter-spacing:-2px; color:var(--primary);">--</div>
+                                <span style="font-size:11px; font-weight:800; color:var(--primary-dark); opacity:0.9; text-transform:uppercase; display:block; margin-bottom:10px">ALIŞ</span>
+                                <div id="val-has-buy" class="t-val" style="font-size:48px; font-weight:900; letter-spacing:-2px; color:var(--primary-dark);">--</div>
                             </div>
                             <div>
-                                <span style="font-size:11px; font-weight:800; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:10px">SATIŞ</span>
-                                <div id="val-has-sell" class="t-val" style="font-size:48px; font-weight:900; letter-spacing:-2px; color:var(--primary);">--</div>
+                                <span style="font-size:11px; font-weight:800; color:var(--primary-dark); opacity:0.9; text-transform:uppercase; display:block; margin-bottom:10px">SATIŞ</span>
+                                <div id="val-has-sell" class="t-val" style="font-size:48px; font-weight:900; letter-spacing:-2px; color:var(--primary-dark);">--</div>
                             </div>
                         </div>
                     </div>
@@ -990,6 +1002,7 @@
                                     <h3 style="display: flex; align-items: center; gap: 8px;">
                                         <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">blur_on</span> 
                                         Cam (Glass) Ayarları
+                                        <span style="font-size:9px; font-weight:900; letter-spacing:0.08em; color:#fff; background:linear-gradient(135deg,rgba(var(--primary-rgb),0.8),rgba(var(--primary-rgb),0.4)); border:1px solid rgba(var(--primary-rgb),0.5); border-radius:999px; padding:2px 9px; text-transform:uppercase; opacity:0.85;">Yakında</span>
                                     </h3>
                                     <p>Pencere ve menü cam efektlerini düzenle</p>
                                 </div>
@@ -1079,6 +1092,13 @@
                             </div>
                             
                             <div id="fetih-glow-panel" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+                                <div style="margin-bottom: 20px;">
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                        <span style="font-size:11px; font-weight:800; color:var(--outline);">&#9889; ŞİDDET</span>
+                                        <span id="glow-intensity-val" style="font-size:11px; font-weight:900; color:var(--primary);">100%</span>
+                                    </div>
+                                    <input type="range" id="glow-intensity-input" min="0" max="300" value="100" style="width:100%; accent-color:var(--primary);">
+                                </div>
                                 <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
                                     <button class="fx-btn glow-btn" data-glow="">Yok</button>
                                     <button class="fx-btn glow-btn" data-glow="glow-soft">Sabit Soft</button>
@@ -1473,6 +1493,21 @@
         
         document.querySelectorAll('.glow-btn').forEach(b  => b.addEventListener('click', () => window.applyEffect('glow',  b.dataset.glow)));
 
+        // --- GLOW INTENSITY SLIDER ---
+        const glowIntensityInput = document.getElementById('glow-intensity-input');
+        const glowIntensityVal = document.getElementById('glow-intensity-val');
+        function updateGlowIntensity() {
+            const val = glowIntensityInput?.value || 100;
+            const intensity = val / 100;
+            root.style.setProperty('--glow-intensity', intensity);
+            if (glowIntensityVal) glowIntensityVal.textContent = `${val}%`;
+            localStorage.setItem('fetihGlowIntensity', val);
+        }
+        if (glowIntensityInput) glowIntensityInput.addEventListener('input', updateGlowIntensity);
+        const savedGlowIntensity = localStorage.getItem('fetihGlowIntensity') || '100';
+        if (glowIntensityInput) glowIntensityInput.value = savedGlowIntensity;
+        updateGlowIntensity();
+
         // --- FADE SETTINGS CONTAINER ON SLIDER DRAG ---
         const allSliders = document.querySelectorAll('#fetih-dash-modal input[type="range"]');
         const dashModal = document.getElementById('fetih-dash-modal');
@@ -1533,7 +1568,8 @@
         const savedGlassGlitch = localStorage.getItem('fetihGlassGlitch') || '0';
         const savedGlassLightAngle = localStorage.getItem('fetihGlassLightAngle') || '135';
         
-        if (localStorage.getItem('fetihGlassIsOff') === '1') {
+        // Cam efektleri varsayılan olarak kapalı
+        if (localStorage.getItem('fetihGlassIsOff') !== '0') {
             toggleGlassOff(true);
         }
         
@@ -1582,9 +1618,17 @@
             return `${r}, ${g}, ${b}`;
         }
 
+        function darkenHex(hex, amount) {
+            let r = Math.max(0, parseInt(hex.slice(1,3), 16) - amount);
+            let g = Math.max(0, parseInt(hex.slice(3,5), 16) - amount);
+            let b = Math.max(0, parseInt(hex.slice(5,7), 16) - amount);
+            return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
+        }
+
         function applyThemeColor(color) {
             root.style.setProperty('--primary', color);
             root.style.setProperty('--primary-rgb', hexToRgb(color));
+            root.style.setProperty('--primary-dark', darkenHex(color, 55));
             
             // Calculate Contrast Color
             let r = parseInt(color.slice(1,3), 16);
