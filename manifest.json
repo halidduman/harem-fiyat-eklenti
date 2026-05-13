@@ -38,7 +38,8 @@
     {
       "resources": [
         "assets/fetih.svg",
-        "assets/f-logo.svg"
+        "assets/f-logo.svg",
+        "image/*"
       ],
       "matches": [
         "*://canlipiyasalar.haremaltin.com/*"

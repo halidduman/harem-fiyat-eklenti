@@ -16,18 +16,25 @@
     window._GLASS_CLASSES = window._GLASS_CLASSES || ['glass-frost','glass-liquid','glass-gold','glass-none'];
     window._TEX_CLASSES   = window._TEX_CLASSES || ['tex-p1', 'tex-p2', 'tex-p3', 'tex-p4', 'tex-p5', 'tex-p6', 'tex-p7', 'tex-p8', 'tex-p9', 'tex-p10', 'tex-p11', 'tex-p12', 'tex-p13', 'tex-p14', 'tex-p15'];
     window._GLOW_CLASSES  = window._GLOW_CLASSES || ['glow-soft','glow-neon','glow-pulse','glow-halo','glow-orbit','glow-drift','glow-aurora', 'glow-edges', 'glow-corners', 'glow-diagonal', 'glow-cinema', 'glow-matrix'];
+    window._NAV_CLASSES   = window._NAV_CLASSES || ['nav-normal', 'nav-shadow', 'nav-theme', 'nav-invisible'];
     window._isPMode       = window._isPMode || false;
     window._savedEffects  = window._savedEffects || null;
  
     window.applyEffect = function(type, value) {
         const r = document.getElementById('fetih-root');
-        const pools = { glass: window._GLASS_CLASSES, tex: window._TEX_CLASSES, glow: window._GLOW_CLASSES, navGlass: ['nav-liquid'] };
-        const keys  = { glass: 'fetihGlass', tex: 'fetihTex', glow: 'fetihGlow', navGlass: 'fetihNavGlass' };
+        const pools = { glass: window._GLASS_CLASSES, tex: window._TEX_CLASSES, glow: window._GLOW_CLASSES, nav: window._NAV_CLASSES, navGlass: ['nav-liquid'] };
+        const keys  = { glass: 'fetihGlass', tex: 'fetihTex', glow: 'fetihGlow', nav: 'fetihNav', navGlass: 'fetihNavGlass' };
  
         if (type === 'navGlass') {
-            const nav = document.querySelector('nav');
+            const nav = document.querySelector('#fetih-root nav');
             if (nav) {
                 nav.classList.remove('nav-liquid');
+                if (value) nav.classList.add(value);
+            }
+        } else if (type === 'nav') {
+            const nav = document.querySelector('#fetih-root nav');
+            if (nav) {
+                nav.classList.remove(...window._NAV_CLASSES, 'nav-liquid');
                 if (value) nav.classList.add(value);
             }
         } else if (r) {
@@ -127,19 +134,60 @@
                 background: #000;
                 border-bottom: 1px solid rgba(var(--primary-rgb), 0.2);
             }
+            /* Hide the ::before element for custom nav modes to allow true transparency */
+            nav.nav-shadow::before, nav.nav-theme::before, nav.nav-invisible::before { display: none !important; }
             
             #fetih-settings-btn span.material-symbols-outlined { transition: transform 0.5s ease; }
             #fetih-settings-btn:hover span.material-symbols-outlined { transform: rotate(180deg); }
 
-            .live-dot { width: 8px; height: 8px; background: var(--primary-dark); border-radius: 50%; animation: pulse 2s infinite; }
-            @keyframes pulse { 0% { opacity: 1; transform: scale(1); background: var(--primary-dark); box-shadow: 0 0 0 rgba(255,255,255,0); } 50% { opacity: 1; transform: scale(1.4); background: #ffffff; box-shadow: 0 0 10px rgba(255,255,255,0.8); } 100% { opacity: 1; transform: scale(1); background: var(--primary-dark); box-shadow: 0 0 0 rgba(255,255,255,0); } }
+            .live-dot { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; animation: live-pulse 2.5s infinite ease-in-out; display: inline-block; vertical-align: middle; }
+            @keyframes live-pulse { 
+                0% { background: var(--primary); transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.7); } 
+                50% { background: #ffffff; transform: scale(1.4); box-shadow: 0 0 12px 6px rgba(255, 255, 255, 0.4); } 
+                100% { background: var(--primary); transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0); } 
+            }
             @keyframes spin { 100% { transform: rotate(360deg); } }
             .loading-icon { animation: spin 2s linear infinite; color: var(--outline); font-size: 24px; }
+            .loading-icon.stop-spin { animation: none !important; color: var(--error) !important; }
             .fetih-loader { animation: spin 1s linear infinite !important; color: var(--primary) !important; }
+            
+            /* Navbar View Modes */
+            nav.nav-normal { background: #000 !important; border-bottom: 1px solid rgba(var(--primary-rgb), 0.1) !important; }
+            #fetih-root.light-mode nav.nav-normal { background: #fff !important; border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
+            
+            nav.nav-shadow { 
+                background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 20%, rgba(0,0,0,0) 100%) !important; 
+                border-bottom: none !important; 
+                box-shadow: none !important;
+            }
+            #fetih-root.light-mode nav.nav-shadow {
+                background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 20%, rgba(255,255,255,0) 100%) !important;
+            }
+
+            nav.nav-theme { background: var(--primary) !important; border-bottom: 1px solid rgba(255,255,255,0.2) !important; }
+            nav.nav-theme * { color: var(--primary-contrast) !important; }
+            
+            nav.nav-invisible { background: transparent !important; border-bottom: none !important; box-shadow: none !important; }
             
             .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
             .card-6 { grid-column: span 6; }
             .card-3 { grid-column: span 3; }
+
+            .card-visual {
+                position: absolute;
+                bottom: -20px;
+                left: -20px;
+                width: 140px;
+                height: 140px;
+                opacity: 0.5;
+                pointer-events: none;
+                z-index: 0;
+                transform: rotate(-12deg);
+                display: none;
+                filter: brightness(1.1) contrast(1.1);
+                object-fit: contain;
+            }
+            #fetih-root.light-mode.show-visuals .card-visual { display: block !important; }
 
             /* Table Styles - UNIFIED FLEX SLABS */
             #fetih-root .fetih-table-box { background: transparent; border: none; }
@@ -305,7 +353,7 @@
                 --card-border: rgba(0, 0, 0, 0.15);
                 --card-surface: #ffffff;
             }
-            #fetih-root.light-mode nav { background: #ffffff !important; border-bottom: 1px solid rgba(0,0,0,0.1); }
+            #fetih-root.light-mode nav:not(.nav-shadow):not(.nav-theme):not(.nav-invisible) { background: #ffffff; border-bottom: 1px solid rgba(0,0,0,0.1); }
             #fetih-root.light-mode .glass-card { border: 1px solid rgba(255,255,255,0.5) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -1px 1px rgba(0,0,0,0.05) !important; }
             #fetih-root.light-mode .glass-card .t-val[style*="color:var(--primary)"] { color: #a57c2a !important; }
             #fetih-root.light-mode th { color: #555 !important; border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
@@ -809,7 +857,7 @@
                                 <span id="live-text-span">CANLI</span>
                             </div>
                         </div>
-                        <div style="display:grid; grid-template-columns:minmax(180px, 1fr) minmax(180px, 1fr); gap:50px">
+                        <div style="display:grid; grid-template-columns:minmax(180px, 1fr) minmax(180px, 1fr); gap:50px; position:relative; z-index:1;">
                             <div>
                                 <span style="font-size:11px; font-weight:800; color:var(--primary-dark); opacity:0.9; text-transform:uppercase; display:block; margin-bottom:10px">ALIŞ</span>
                                 <div id="val-has-buy" class="t-val" style="font-size:48px; font-weight:900; letter-spacing:-2px; color:var(--primary-dark);">--</div>
@@ -821,19 +869,22 @@
                         </div>
                     </div>
 
-                    <div class="fetih-card card-3" style="padding:28px">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
-                            <h3 class="font-headline" style="font-size:16px; font-weight:900; color:var(--primary); text-transform:uppercase; letter-spacing:1px; margin:0">Gram Altın</h3>
-                            <span class="material-symbols-outlined" style="font-size:24px; color:var(--primary)">workspace_premium</span>
-                        </div>
-                        <div style="display:flex; flex-direction:column; gap:24px">
-                            <div>
-                                <span style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:8px">ALIŞ</span>
-                                <div id="val-gram-buy" class="t-val" style="font-size:32px; font-weight:900; color:var(--on-surface);">--</div>
+                    <div class="fetih-card card-3" style="padding:28px; position:relative; overflow:hidden;">
+                        <img class="card-visual" src="${chrome.runtime.getURL('image/gram-24.jpg')}" alt="Gold Bar" style="width: 200px; height: 200px; bottom: -50px; right: -50px; left:auto; transform: rotate(15deg);">
+                        <div style="position:relative; z-index:1;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
+                                <h3 class="font-headline" style="font-size:16px; font-weight:900; color:var(--primary); text-transform:uppercase; letter-spacing:1px; margin:0">Gram Altın</h3>
+                                <span class="material-symbols-outlined" style="font-size:24px; color:var(--primary)">workspace_premium</span>
                             </div>
-                            <div style="padding-top:20px; border-top:1px solid rgba(255,255,255,0.1)">
-                                <span style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:8px">SATIŞ</span>
-                                <div id="val-gram-sell" class="t-val" style="font-size:32px; font-weight:900; color:var(--primary);">--</div>
+                            <div style="display:flex; flex-direction:column; gap:24px">
+                                <div>
+                                    <span style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:8px">ALIŞ</span>
+                                    <div id="val-gram-buy" class="t-val" style="font-size:32px; font-weight:900; color:var(--on-surface);">--</div>
+                                </div>
+                                <div style="padding-top:20px; border-top:1px solid rgba(255,255,255,0.1)">
+                                    <span style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:8px">SATIŞ</span>
+                                    <div id="val-gram-sell" class="t-val" style="font-size:32px; font-weight:900; color:var(--primary);">--</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1045,6 +1096,41 @@
                             </button>
                         </div>
 
+                        <!-- Navbar Appearance Section (NEW) -->
+                        <div class="settings-card" style="flex-direction: column; align-items: stretch; margin-top: 10px;">
+                            <div id="fetih-nav-toggle" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 4px 0;">
+                                <div class="settings-info">
+                                    <h3 style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">menu</span> 
+                                        Navbar Görünümü
+                                    </h3>
+                                    <p>Üst menü çubuğunun stilini değiştirin</p>
+                                </div>
+                                <span class="material-symbols-outlined" id="fetih-nav-chevron" style="transition: transform 0.3s;">expand_more</span>
+                            </div>
+                            <div id="fetih-nav-panel" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+                                <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px;">
+                                    <button class="fx-btn nav-btn" data-nav="nav-normal">Standart</button>
+                                    <button class="fx-btn nav-btn" data-nav="nav-shadow">Gölge & Blur</button>
+                                    <button class="fx-btn nav-btn" data-nav="nav-theme">Tema Rengi</button>
+                                    <button class="fx-btn nav-btn" data-nav="nav-invisible">Görünmez</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Visuals Toggle (NEW) -->
+                        <div class="settings-card">
+                            <div class="settings-info">
+                                <h3>Kart Görselleri</h3>
+                                <p>Altın kutularında ikonları göster/gizle</p>
+                            </div>
+                            <button id="fetih-visuals-btn"
+                                title="Görselleri Aç/Kapat"
+                                style="background:rgba(255,255,255,0.06);border:1px solid rgba(var(--primary-rgb),0.25);border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s; flex-shrink:0;">
+                                <span class="material-symbols-outlined" style="font-size:24px;color:var(--outline)">image</span>
+                            </button>
+                        </div>
+
 
 
                         <!-- Theme Color Selection (Collapsible) -->
@@ -1233,6 +1319,49 @@
                 glowChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
             });
         }
+
+        // Navbar Panel Toggle
+        const navToggle = document.getElementById('fetih-nav-toggle');
+        const navPanel = document.getElementById('fetih-nav-panel');
+        const navChevron = document.getElementById('fetih-nav-chevron');
+        if (navToggle && navPanel) {
+            navToggle.addEventListener('click', () => {
+                const isOpen = navPanel.style.display === 'block';
+                navPanel.style.display = isOpen ? 'none' : 'block';
+                navChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+        }
+
+        // Visuals Toggle
+        const visualsBtn = document.getElementById('fetih-visuals-btn');
+        let visualsEnabled = localStorage.getItem('fetihVisualsEnabled') === 'true';
+        
+        const updateVisualsUI = () => {
+            if (visualsEnabled) {
+                root.classList.add('show-visuals');
+                if (visualsBtn) {
+                    visualsBtn.style.borderColor = 'rgba(var(--primary-rgb), 0.5)';
+                    visualsBtn.style.background = 'rgba(var(--primary-rgb), 0.1)';
+                    visualsBtn.querySelector('span').style.color = 'var(--primary)';
+                }
+            } else {
+                root.classList.remove('show-visuals');
+                if (visualsBtn) {
+                    visualsBtn.style.borderColor = 'rgba(255,255,255,0.1)';
+                    visualsBtn.style.background = 'rgba(255,255,255,0.05)';
+                    visualsBtn.querySelector('span').style.color = 'var(--outline)';
+                }
+            }
+        };
+
+        if (visualsBtn) {
+            visualsBtn.addEventListener('click', () => {
+                visualsEnabled = !visualsEnabled;
+                localStorage.setItem('fetihVisualsEnabled', visualsEnabled);
+                updateVisualsUI();
+            });
+        }
+        updateVisualsUI();
 
         // Color Panel Toggle
         const colorToggle = document.getElementById('fetih-color-toggle');
@@ -1466,7 +1595,7 @@
             
             // Get background image from the preview button
             const btn = document.querySelector(`.tex-btn[data-tex="${texClass}"]`) || document.querySelector('.tex-btn[data-tex=""]');
-            if (btn) livePreview.style.backgroundImage = getComputedStyle(btn).backgroundImage;
+            if (btn) preview.style.backgroundImage = getComputedStyle(btn).backgroundImage;
         }
 
         document.querySelectorAll('.tex-btn').forEach(b   => b.addEventListener('click', () => {
@@ -1565,11 +1694,16 @@
         if (glassLightAngleInput) glassLightAngleInput.value = savedGlassLightAngle;
         updateGlassParams();
         
+        window.applyEffect('nav', localStorage.getItem('fetihNav') || 'nav-normal');
         window.applyEffect('navGlass', localStorage.getItem('fetihNavGlass') || '');
         const currentTex = localStorage.getItem('fetihTex') || '';
         window.applyEffect('tex', currentTex);
         updateTexLivePreview(currentTex);
         window.applyEffect('glow',  localStorage.getItem('fetihGlow')  || '');
+
+        // Navbar buttons binding
+        document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => window.applyEffect('nav', b.dataset.nav)));
+
 
         // --- THEME COLOR PICKER ---
         const themeColors = [
@@ -1981,7 +2115,7 @@
             if (!window._isPMode) {
                 // 1. Apply the "Ultra" combination
                 window.applyEffect('glow', 'glow-aurora');
-                window.applyEffect('tex', 'tex-p17');
+                window.applyEffect('tex', 'tex-p1');
                 window.applyEffect('glass', ''); 
                 
                 window._isPMode = true;
@@ -2203,7 +2337,8 @@
         if (!el || el.textContent === val) return;
 
         if (!val || val === '-' || val === 'NaN') {
-            el.innerHTML = '<span class="material-symbols-outlined loading-icon" style="font-size:32px">sync</span>';
+            const isError = val === 'NaN' || val === '-';
+            el.innerHTML = `<span class="material-symbols-outlined loading-icon ${isError ? 'stop-spin' : ''}" style="font-size:32px">${isError ? 'error' : 'sync'}</span>`;
             return;
         }
 
@@ -2403,18 +2538,29 @@
             const dSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? `${arrow} ${v.sell}` : '<span class="material-symbols-outlined loading-icon" style="font-size:16px">sync</span>';
 
             const sellId = item.key === 'ESKİÇEYREK' ? 'id="val-ceyrek-sell"' : (item.key === 'ESKİATA' ? 'id="val-ata-sell"' : '');
+            
+            const isCoin = ['ESKİÇEYREK', 'ESKİYARIM', 'ESKİTAM', 'ESKİGREMSE'].includes(item.key);
+            const isAtaCoin = item.key === 'ESKİATA';
+            
+            let coinImg = '';
+            if (isCoin) {
+                coinImg = `<img class="card-visual" style="width:230px; height:230px; bottom:-70px; left:-70px;" src="${chrome.runtime.getURL('image/ceyrek.jpg')}" alt="Gold Coin">`;
+            } else if (isAtaCoin) {
+                coinImg = `<img class="card-visual" style="width:230px; height:230px; bottom:-70px; left:-70px;" src="${chrome.runtime.getURL('image/ata.PNG')}" alt="Ata Gold">`;
+            }
 
             return `
-                <div class="mini-card" style="${isAta ? `border: 1px solid var(--ata-accent); box-shadow: 0 0 10px rgba(${accentRgb}, 0.2);` : ''}">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <div class="mini-card" style="overflow:hidden; ${isAta ? `border: 1px solid var(--ata-accent); box-shadow: 0 0 10px rgba(${accentRgb}, 0.2);` : ''}">
+                    ${coinImg}
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; position:relative; z-index:1;">
                         <div style="font-size:11px; font-weight:900; color:${accentColor}; opacity:0.9; letter-spacing:1px">${item.label}</div>
                         ${badge}
                     </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; position:relative; z-index:1;">
                         <span style="font-size:9px; opacity:0.5; font-weight:900; color:#fff">AL</span>
                         <span class="t-val" style="font-size:17px; font-weight:800">${dBuy}</span>
                     </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(255,255,255,0.1)">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(255,255,255,0.1); position:relative; z-index:1;">
                         <span style="font-size:9px; opacity:0.5; font-weight:900; color:#fff">SAT</span>
                         <span ${sellId} class="t-val" style="font-size:17px; font-weight:900; color:${accentColor}">${dSell}</span>
                     </div>
