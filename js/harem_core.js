@@ -14,7 +14,7 @@
  
     /* ───────────── GLOBAL STATE & EFFECTS ───────────── */
     window._GLASS_CLASSES = window._GLASS_CLASSES || ['glass-frost','glass-liquid','glass-gold','glass-none'];
-    window._TEX_CLASSES   = window._TEX_CLASSES || ['tex-snow', ...Array.from({length: 18}, (_, i) => `tex-p${i+1}`)];
+    window._TEX_CLASSES   = window._TEX_CLASSES || ['tex-p1', 'tex-p2', 'tex-p3', 'tex-p4', 'tex-p5', 'tex-p6', 'tex-p7', 'tex-p8', 'tex-p9', 'tex-p10', 'tex-p11', 'tex-p12', 'tex-p13', 'tex-p14', 'tex-p15'];
     window._GLOW_CLASSES  = window._GLOW_CLASSES || ['glow-soft','glow-neon','glow-pulse','glow-halo','glow-orbit','glow-drift','glow-aurora', 'glow-edges', 'glow-corners', 'glow-diagonal', 'glow-cinema', 'glow-matrix'];
     window._isPMode       = window._isPMode || false;
     window._savedEffects  = window._savedEffects || null;
@@ -42,34 +42,8 @@
     function injectStyles() {
         if (document.getElementById('fetih-overhaul-styles')) return;
 
-        // Inject SVG Filter for Liquid Glass
-        if (!document.getElementById('fetih-glass-svg')) {
-            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            svg.id = "fetih-glass-svg";
-            svg.style.display = "none";
-            svg.innerHTML = `
-                <filter id="fetih-glass-filter" x="-20%" y="-20%" width="140%" height="140%">
-                    <feTurbulence id="glass-noise" type="fractalNoise" baseFrequency="0.04" numOctaves="2" result="noise" />
-                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" id="glass-refraction-map" xChannelSelector="R" yChannelSelector="G" result="refracted" />
-                    
-                    <!-- Chromatic Aberration -->
-                    <feOffset dx="0" dy="0" in="refracted" result="red-shift" id="glitch-red" />
-                    <feOffset dx="0" dy="0" in="refracted" result="blue-shift" id="glitch-blue" />
-                    
-                    <feColorMatrix in="red-shift" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>
-                    <feColorMatrix in="refracted" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/>
-                    <feColorMatrix in="blue-shift" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/>
-                    
-                    <feComposite in="r" in2="g" operator="lighter" result="rg"/>
-                    <feComposite in="rg" in2="b" operator="lighter"/>
-                </filter>
-                <filter id="nav-glass-blur" x="-20%" y="-20%" width="140%" height="140%" filterUnits="objectBoundingBox">
-                    <feTurbulence type="fractalNoise" baseFrequency="0.003 0.007" numOctaves="1" result="turbulence" />
-                    <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="15" xChannelSelector="R" yChannelSelector="G" />
-                </filter>
-            `;
-            document.body.appendChild(svg);
-        }
+        // SVG filters removed for performance optimization (feTurbulence/DisplacementMap cause lag)
+
 
         const style = document.createElement('style');
         style.id = 'fetih-overhaul-styles';
@@ -84,12 +58,12 @@
                 --primary-dark: #9a7840;
                 --surface: #000000;
                 --surface-container: #121212;
-                --card-bg: rgba(255, 255, 255, 0.04);
+                --card-bg: #1e1e1e;
                 --on-surface: #e5e2e1;
                 --outline: #6a6254;
                 --error: #f87171;
                 --success: #4ade80;
-                --card-border: rgba(205, 168, 96, 0.35);
+                --card-border: rgba(205, 168, 96, 0.5);
                 --card-surface: #252525;
                 --glow-intensity: 1;
             }
@@ -114,21 +88,17 @@
                 border-radius: 16px;
                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
                 border: 1px solid var(--card-border);
-                transition: all 0.3s ease;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
                 position: relative;
                 overflow: hidden;
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
             }
 
             .glass-classic {
                 background: var(--card-surface);
                 border-radius: 16px;
                 box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
                 border: 1px solid var(--card-border);
-                transition: all 0.3s ease;
+                transition: transform 0.2s ease;
                 position: relative;
                 overflow: hidden;
             }
@@ -146,6 +116,7 @@
                 width: 100%; padding: 8px 40px; display: flex; align-items: center; justify-content: space-between;
                 background: #000; position: sticky; top: 0; z-index: 1000;
                 border-bottom: 1px solid rgba(var(--primary-rgb), 0.1); box-sizing: border-box;
+                padding-right: 50px !important;
             }
             nav.nav-liquid {
                 background: transparent !important;
@@ -153,9 +124,7 @@
             }
             nav.nav-liquid::before {
                 content: ''; position: absolute; inset: 0; z-index: -1;
-                backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-                filter: url(#nav-glass-blur);
-                background: rgba(0, 0, 0, 0.35);
+                background: #000;
                 border-bottom: 1px solid rgba(var(--primary-rgb), 0.2);
             }
             
@@ -206,8 +175,6 @@
                 box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
                 border: 1px solid var(--card-border);
                 text-align: left; position: relative; min-width: 0; 
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
             }
             
             /* --- GLASS OFF OVERRIDES --- */
@@ -216,8 +183,6 @@
             #fetih-root.glass-off .glass-classic,
             #fetih-root.glass-off .mini-card {
                 background: var(--card-surface) !important;
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
                 border: 1px solid var(--card-border) !important;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.6) !important;
             }
@@ -233,7 +198,7 @@
 
             #fetih-root.glass-off tr.glass-classic:hover { background: #1a1a1a !important; }
             #fetih-root.light-mode.glass-off tr.glass-classic:hover { background: #f0f0f0 !important; }
-            #fetih-root.glass-off nav.nav-liquid::before { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; filter: none !important; background: #000 !important; }
+            #fetih-root.glass-off nav.nav-liquid::before { background: #000 !important; }
             #fetih-root.light-mode.glass-off nav.nav-liquid::before { background: #fff !important; border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
             
             /* Gremse-Ata Separator */
@@ -248,14 +213,13 @@
                 display: flex; align-items: center;
                 height: 42px;
                 border-radius: 999px;
-                background: rgba(10, 10, 10, 0.9);
-                border: 1px solid rgba(var(--primary-rgb), 0.25);
+                background: #0a0a0a;
+                border: 1px solid rgba(var(--primary-rgb), 0.4);
                 cursor: pointer;
-                overflow: hidden; /* Kesin clipping */
+                overflow: hidden; 
                 flex-shrink: 0;
-                transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-                will-change: width, border-color;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+                transition: all 0.4s ease;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             }
             #fetih-bot-trigger:hover { border-color: rgba(var(--primary-rgb), 0.5); }
 
@@ -293,8 +257,9 @@
             }
 
             .has-card-active {
-                background: linear-gradient(135deg, var(--primary) 0%, rgba(var(--primary-rgb), 0.7) 100%) !important;
-                border: 1px solid rgba(255,255,255,0.2) !important;
+                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
+                border: 1px solid rgba(255,255,255,0.3) !important;
+                opacity: 1 !important;
             }
             #fetih-root .has-card-active * { color: var(--primary-contrast) !important; }
             #fetih-root .has-card-active .t-val { color: var(--primary-contrast) !important; text-shadow: none !important; }
@@ -318,11 +283,11 @@
                 background: rgba(0,0,0,0.2); border-radius: 10px;
             }
             #fetih-root::-webkit-scrollbar-thumb, #fetih-root *::-webkit-scrollbar-thumb {
-                background: rgba(255, 255, 255, 0.15);
+                background: rgba(255, 255, 255, 0.3);
                 border-radius: 10px;
                 border: 3px solid transparent; 
                 background-clip: content-box;
-                transition: background 0.4s ease, box-shadow 0.4s ease;
+                transition: background 0.4s ease;
             }
             #fetih-root::-webkit-scrollbar-thumb:hover, #fetih-root *::-webkit-scrollbar-thumb:hover {
                 background: var(--primary);
@@ -334,17 +299,17 @@
             #fetih-root.light-mode {
                 --surface: #f4f4f4;
                 --surface-container: #ffffff;
-                --card-bg: rgba(255, 255, 255, 0.35);
+                --card-bg: #fff;
                 --on-surface: #1a1a1a;
                 --outline: #666666;
                 --card-border: rgba(0, 0, 0, 0.15);
-                --card-surface: #ececec;
+                --card-surface: #ffffff;
             }
             #fetih-root.light-mode nav { background: #ffffff !important; border-bottom: 1px solid rgba(0,0,0,0.1); }
             #fetih-root.light-mode .glass-card { border: 1px solid rgba(255,255,255,0.5) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -1px 1px rgba(0,0,0,0.05) !important; }
             #fetih-root.light-mode .glass-card .t-val[style*="color:var(--primary)"] { color: #a57c2a !important; }
             #fetih-root.light-mode th { color: #555 !important; border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
-            #fetih-root.light-mode td { background: rgba(255,255,255,0.4) !important; backdrop-filter: blur(24px) saturate(180%) contrast(1.05) !important; -webkit-backdrop-filter: blur(24px) saturate(180%) contrast(1.05) !important; border-bottom: none !important; color: #111 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.02), inset 0 1px 1px rgba(255,255,255,0.8) !important; }
+            #fetih-root.light-mode td { background: #fff !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; color: #111 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.02) !important; }
             #fetih-root.light-mode td .t-val { color: #111 !important; }
             #fetih-root.light-mode td .t-val[style*="color:var(--primary)"] { color: #a57c2a !important; }
             #fetih-root.light-mode h3.font-headline { color: #111 !important; }
@@ -420,9 +385,9 @@
             /* ── SETTINGS MODAL ── */
             #fetih-dash-modal {
                 position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(0,0,0,0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+                background: rgba(0,0,0,0.85);
                 z-index: 2147483647; display: none; align-items: center; justify-content: center;
-                opacity: 0; transition: opacity 0.4s ease, backdrop-filter 0.4s ease, -webkit-backdrop-filter 0.4s ease;
+                opacity: 0; transition: opacity 0.3s ease;
             }
             #fetih-dash-modal.active { display: flex; opacity: 1; }
 
@@ -502,51 +467,157 @@
             /* ── EFFECTS: TEXTURE (arka planda camın altında kalır) ── */
             /* ── EFFECTS: TEXTURE ── */
             #fetih-bg-tex { 
-                background-size: var(--tex-size, 40px) var(--tex-size, 40px);
-                opacity: var(--tex-opacity, 0.4) !important;
+                background-size: var(--tex-size, 100%) var(--tex-size, 100%);
+                background-repeat: repeat !important;
+                opacity: var(--tex-opacity, 0.8) !important;
                 transition: opacity 0.3s ease;
             }
             .tex-preview, #fetih-bg-tex { background-repeat: repeat; }
             
             /* Pattern Definitions */
-            .p-snow, #fetih-root.tex-snow #fetih-bg-tex { background-image: radial-gradient(circle at 10px 10px, rgba(var(--primary-rgb), 0.5) 1px, transparent 1px), radial-gradient(circle at 35px 35px, rgba(var(--primary-rgb), 0.4) 1.5px, transparent 1.5px); background-size: 50px 50px; }
-            .p-1, #fetih-root.tex-p1 #fetih-bg-tex { background-image: radial-gradient(circle farthest-corner at center, var(--primary), transparent 50%); }
-            .p-2, #fetih-root.tex-p2 #fetih-bg-tex { background-image: radial-gradient(circle at center center, var(--primary), transparent), repeating-radial-gradient(circle at center center, var(--primary), var(--primary), 20px, transparent 40px, transparent 20px); background-blend-mode: multiply; }
-            .p-3, #fetih-root.tex-p3 #fetih-bg-tex { background: repeating-linear-gradient(45deg, var(--primary), var(--primary) 10px, transparent 10px, transparent 50px); }
-            .p-4, #fetih-root.tex-p4 #fetih-bg-tex { background: repeating-linear-gradient(-45deg, var(--primary), var(--primary) 10px, transparent 10px, transparent 50px); }
-            .p-5, #fetih-root.tex-p5 #fetih-bg-tex { background-image: linear-gradient(var(--primary) 2px, transparent 2px), linear-gradient(90deg, var(--primary) 2px, transparent 2px); }
-            .p-6, #fetih-root.tex-p6 #fetih-bg-tex { background-image: linear-gradient(30deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)), linear-gradient(150deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)), linear-gradient(30deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)), linear-gradient(150deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)), linear-gradient(60deg, rgba(var(--primary-rgb),0.5) 25%, transparent 25.5%, transparent 75%, rgba(var(--primary-rgb),0.5) 75%, rgba(var(--primary-rgb),0.5)); background-size: calc(var(--tex-size)*1.5) var(--tex-size); }
-            .p-6.tex-preview { background-size: 18px 12px !important; }
-            .p-7, #fetih-root.tex-p7 #fetih-bg-tex { background-image: radial-gradient(var(--primary) 1px, transparent 1px); }
-            .p-8, #fetih-root.tex-p8 #fetih-bg-tex { background-image: radial-gradient(var(--primary) 1px, transparent 1px), radial-gradient(var(--primary) 1px, transparent 1px); background-position: 0 0, calc(var(--tex-size)/2) calc(var(--tex-size)/2); }
-            .p-8.tex-preview { background-position: 0 0, 6px 6px !important; }
-            .p-9, #fetih-root.tex-p9 #fetih-bg-tex { background-image: linear-gradient(0deg, transparent 50%, var(--primary) 50%); }
-            .p-10, #fetih-root.tex-p10 #fetih-bg-tex { background-image: linear-gradient(to right, var(--primary), var(--primary) 2px, transparent 2px, transparent); }
-            .p-11, #fetih-root.tex-p11 #fetih-bg-tex { background-image: repeating-linear-gradient(45deg, var(--primary) 0, var(--primary) 2px, transparent 0, transparent 50%); }
-            .p-12, #fetih-root.tex-p12 #fetih-bg-tex { background-image: linear-gradient(var(--primary) 2px, transparent 2px), linear-gradient(to right, var(--primary) 2px, transparent 2px); }
-            .p-13, #fetih-root.tex-p13 #fetih-bg-tex { background-image: repeating-linear-gradient(0deg, var(--primary), var(--primary) 2px, transparent 2px, transparent); }
-            .p-14, #fetih-root.tex-p14 #fetih-bg-tex { background-image: repeating-linear-gradient(to right, var(--primary), var(--primary) 2px, transparent 2px, transparent); }
-            .p-15, #fetih-root.tex-p15 #fetih-bg-tex { background-image: linear-gradient(45deg, var(--primary) 50%, transparent 50%); }
-            .p-16, #fetih-root.tex-p16 #fetih-bg-tex { background-image: linear-gradient(-45deg, transparent, transparent 50%, var(--primary) 50%, var(--primary)); }
-            .p-17, #fetih-root.tex-p17 #fetih-bg-tex { background-image: repeating-linear-gradient(45deg, var(--primary) 25%, transparent 25%, transparent 75%, var(--primary) 75%, var(--primary)), repeating-linear-gradient(45deg, var(--primary) 25%, transparent 25%, transparent 75%, var(--primary) 75%, var(--primary)); background-position: 0 0, calc(var(--tex-size)/2) calc(var(--tex-size)/2); }
-            .p-17.tex-preview { background-position: 0 0, 6px 6px !important; }
-            .p-18, #fetih-root.tex-p18 #fetih-bg-tex { background: radial-gradient(circle, transparent 20%, transparent 20%, transparent 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, transparent 20%, transparent 80%, transparent 80%, transparent) 50px 50px, linear-gradient(var(--primary) 4px, transparent 4px) 0 -2px, linear-gradient(90deg, var(--primary) 4px, transparent 4px) -2px 0; }
-            .p-18.tex-preview { background-size: 20px 20px, 20px 20px, 10px 10px, 10px 10px !important; }
+            .p-1, #fetih-root.tex-p1 #fetih-bg-tex { 
+                background-color: var(--surface);
+                background-image: repeating-radial-gradient( circle at 0 0, transparent 0, var(--surface) var(--tex-size, 10px) ), repeating-linear-gradient( rgba(var(--primary-rgb), 0.1), var(--primary) );
+                background-size: 100% 100% !important; background-repeat: no-repeat !important;
+            }
+            .p-1.tex-preview { 
+                background-image: repeating-radial-gradient( circle at 0 0, transparent 0, var(--surface) 10px ), repeating-linear-gradient( rgba(var(--primary-rgb), 0.1), var(--primary) ) !important;
+                background-size: 12px 12px !important; background-repeat: repeat !important; opacity: 1 !important; 
+            }
+
+            .p-2, #fetih-root.tex-p2 #fetih-bg-tex {
+                background-color: var(--surface);
+                background-image: radial-gradient(circle at center center, var(--primary), var(--surface)), repeating-radial-gradient(circle at center center, var(--primary), var(--primary), var(--tex-size, 36px), transparent calc(var(--tex-size, 36px) * 2), transparent var(--tex-size, 36px));
+                background-blend-mode: multiply;
+                background-size: 100% 100% !important; background-repeat: no-repeat !important;
+            }
+            .p-2.tex-preview { 
+                background-image: radial-gradient(circle at center center, var(--primary), var(--surface)), repeating-radial-gradient(circle at center center, var(--primary), var(--primary), 24px, transparent 48px, transparent 24px) !important;
+                background-size: 100% 100% !important; background-repeat: no-repeat !important; opacity: 1 !important; 
+            }
+
+            .p-3, #fetih-root.tex-p3 #fetih-bg-tex {
+                background-color: var(--surface);
+                background: repeating-linear-gradient( 45deg, var(--primary), var(--primary) var(--tex-size, 18px), var(--surface) calc(var(--tex-size, 18px) - 0.5px), var(--surface) calc(var(--tex-size, 18px) * 5) );
+                background-repeat: repeat !important;
+            }
+            .p-3.tex-preview { background-size: 100% 100% !important; background-repeat: repeat !important; opacity: 1 !important; background-image: repeating-linear-gradient( 45deg, var(--primary), var(--primary) 4.5px, var(--surface) 4px, var(--surface) 20px ) !important; }
+
+            .p-4, #fetih-root.tex-p4 #fetih-bg-tex {
+                background-color: var(--surface);
+                background: repeating-linear-gradient( -45deg, var(--primary), var(--primary) var(--tex-size, 18px), var(--surface) calc(var(--tex-size, 18px) - 0.5px), var(--surface) calc(var(--tex-size, 18px) * 5) );
+                background-repeat: repeat !important;
+            }
+            .p-4.tex-preview { background-size: 100% 100% !important; background-repeat: repeat !important; opacity: 1 !important; background-image: repeating-linear-gradient( -45deg, var(--primary), var(--primary) 4.5px, var(--surface) 4px, var(--surface) 20px ) !important; }
+
+            .p-5, #fetih-root.tex-p5 #fetih-bg-tex {
+                background-color: var(--surface);
+                background-image: linear-gradient(30deg, var(--primary) 12.5%, transparent 12.5%, transparent 87.5%, var(--primary) 87.5%, var(--primary)), linear-gradient(150deg, var(--primary) 12.5%, transparent 12.5%, transparent 87.5%, var(--primary) 87.5%, var(--primary)), linear-gradient(30deg, var(--primary) 12.5%, transparent 12.5%, transparent 87.5%, var(--primary) 87.5%, var(--primary)), linear-gradient(150deg, var(--primary) 12.5%, transparent 12.5%, transparent 87.5%, var(--primary) 87.5%, var(--primary)), linear-gradient(60deg, rgba(var(--primary-rgb),0.4) 25.5%, transparent 25.5%, transparent 75.5%, rgba(var(--primary-rgb),0.4) 75.5%, rgba(var(--primary-rgb),0.4)), linear-gradient(60deg, rgba(var(--primary-rgb),0.4) 25.5%, transparent 25.5%, transparent 75.5%, rgba(var(--primary-rgb),0.4) 75.5%, rgba(var(--primary-rgb),0.4));
+                background-size: var(--tex-size, 72px) calc(var(--tex-size, 72px) * 1.75);
+                background-position: 0 0, 0 0, calc(var(--tex-size, 72px) * 0.5) calc(var(--tex-size, 72px) * 0.875), calc(var(--tex-size, 72px) * 0.5) calc(var(--tex-size, 72px) * 0.875), 0 0, calc(var(--tex-size, 72px) * 0.5) calc(var(--tex-size, 72px) * 0.875);
+                background-repeat: repeat !important;
+            }
+            .p-5.tex-preview { 
+                background-image: linear-gradient(30deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)), linear-gradient(150deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)), linear-gradient(30deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)), linear-gradient(150deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)), linear-gradient(60deg, rgba(var(--primary-rgb),0.4) 25%, transparent 25.5%, transparent 75%, rgba(var(--primary-rgb),0.4) 75%, rgba(var(--primary-rgb),0.4)), linear-gradient(60deg, rgba(var(--primary-rgb),0.4) 25%, transparent 25.5%, transparent 75%, rgba(var(--primary-rgb),0.4) 75%, rgba(var(--primary-rgb),0.4)) !important;
+                background-size: 12px 21px !important; background-position: 0 0, 0 0, 6px 10.5px, 6px 10.5px, 0 0, 6px 10.5px !important; opacity: 1 !important; 
+            }
+
+            .p-6, #fetih-root.tex-p6 #fetih-bg-tex {
+                background-color: var(--surface);
+                background-image: radial-gradient(var(--primary) 1.8px, var(--surface) 1.8px);
+                background-size: var(--tex-size, 36px) var(--tex-size, 36px);
+                background-repeat: repeat !important;
+            }
+            .p-6.tex-preview { background-size: 10px 10px !important; opacity: 1 !important; }
+
+            .p-7, #fetih-root.tex-p7 #fetih-bg-tex {
+                background-color: var(--surface);
+                background-image: radial-gradient(var(--primary) 1.8px, transparent 1.8px), radial-gradient(var(--primary) 1.8px, var(--surface) 1.8px);
+                background-size: var(--tex-size, 72px) var(--tex-size, 72px);
+                background-position: 0 0, calc(var(--tex-size, 72px) * 0.5) calc(var(--tex-size, 72px) * 0.5);
+                background-repeat: repeat !important;
+            }
+            .p-7.tex-preview { background-size: 16px 16px !important; background-position: 0 0, 8px 8px !important; opacity: 1 !important; }
+
+            .p-8, #fetih-root.tex-p8 #fetih-bg-tex {
+                background-color: var(--surface);
+                background-image: linear-gradient(0deg, var(--surface) 50%, var(--primary) 50%);
+                background-size: var(--tex-size, 36px) var(--tex-size, 36px);
+                background-repeat: repeat !important;
+            }
+            .p-8.tex-preview { background-size: 12px 12px !important; opacity: 1 !important; }
+
+            .p-9, #fetih-root.tex-p9 #fetih-bg-tex {
+                background-color: var(--surface);
+                background-image: linear-gradient(to right, var(--primary), var(--primary) calc(var(--tex-size, 36px) * 0.5), var(--surface) calc(var(--tex-size, 36px) * 0.5), var(--surface) );
+                background-size: var(--tex-size, 36px) 100%;
+                background-repeat: repeat !important;
+            }
+            .p-9.tex-preview { background-size: 12px 100% !important; opacity: 1 !important; }
+
+            .p-10, #fetih-root.tex-p10 #fetih-bg-tex {
+                background-color: var(--surface);
+                background-image: repeating-linear-gradient(45deg, var(--primary) 0, var(--primary) 3.6px, var(--surface) 0, var(--surface) 50%);
+                background-size: var(--tex-size, 36px) var(--tex-size, 36px);
+                background-repeat: repeat !important;
+            }
+            .p-10.tex-preview { background-size: 12px 12px !important; opacity: 1 !important; }
+
+            .p-11, #fetih-root.tex-p11 #fetih-bg-tex {
+                background-color: var(--surface);
+                background-image: linear-gradient(var(--primary) 3.6px, transparent 3.6px), linear-gradient(to right, var(--primary) 3.6px, var(--surface) 3.6px);
+                background-size: var(--tex-size, 72px) var(--tex-size, 72px);
+                background-repeat: repeat !important;
+            }
+            .p-11.tex-preview { background-size: 16px 16px !important; opacity: 1 !important; }
+
+            .p-12, #fetih-root.tex-p12 #fetih-bg-tex {
+                background-color: var(--surface);
+                background-image: repeating-linear-gradient(0deg, var(--primary), var(--primary) 3.6px, var(--surface) 3.6px, var(--surface));
+                background-size: var(--tex-size, 72px) var(--tex-size, 72px);
+                background-repeat: repeat !important;
+            }
+            .p-12.tex-preview { background-size: 16px 16px !important; opacity: 1 !important; }
+
+            .p-13, #fetih-root.tex-p13 #fetih-bg-tex {
+                background-color: var(--surface);
+                background-image: repeating-linear-gradient(to right, var(--primary), var(--primary) 3.6px, var(--surface) 3.6px, var(--surface));
+                background-size: var(--tex-size, 72px) var(--tex-size, 72px);
+                background-repeat: repeat !important;
+            }
+            .p-13.tex-preview { background-size: 16px 16px !important; opacity: 1 !important; }
+
+            .p-14, #fetih-root.tex-p14 #fetih-bg-tex {
+                background-color: var(--surface);
+                background-image: repeating-linear-gradient(45deg, var(--primary) 25.5%, transparent 25.5%, transparent 75.5%, var(--primary) 75.5%, var(--primary)), repeating-linear-gradient(45deg, var(--primary) 25.5%, var(--surface) 25.5%, var(--surface) 75.5%, var(--primary) 75.5%, var(--primary));
+                background-position: 0 0, calc(var(--tex-size, 72px) * 0.5) calc(var(--tex-size, 72px) * 0.5);
+                background-size: var(--tex-size, 72px) var(--tex-size, 72px);
+                background-repeat: repeat !important;
+            }
+            .p-14.tex-preview { background-size: 16px 16px !important; background-position: 0 0, 8px 8px !important; opacity: 1 !important; }
+
+            .p-15, #fetih-root.tex-p15 #fetih-bg-tex {
+                background: radial-gradient(circle, transparent 20%, var(--surface) 20%, var(--surface) 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, var(--surface) 20%, var(--surface) 80%, transparent 80%, transparent) calc(var(--tex-size, 180px) * 0.5) calc(var(--tex-size, 180px) * 0.5), linear-gradient(var(--primary) calc(var(--tex-size, 180px) * 0.04), transparent calc(var(--tex-size, 180px) * 0.04)) 0 calc(var(--tex-size, 180px) * -0.02), linear-gradient(90deg, var(--primary) calc(var(--tex-size, 180px) * 0.04), var(--surface) calc(var(--tex-size, 180px) * 0.04)) calc(var(--tex-size, 180px) * -0.02) 0;
+                background-size: var(--tex-size, 180px) var(--tex-size, 180px), var(--tex-size, 180px) var(--tex-size, 180px), calc(var(--tex-size, 180px) * 0.5) calc(var(--tex-size, 180px) * 0.5), calc(var(--tex-size, 180px) * 0.5) calc(var(--tex-size, 180px) * 0.5);
+                background-repeat: repeat !important;
+            }
+            .p-15.tex-preview { background-size: 30px 30px, 30px 30px, 15px 15px, 15px 15px !important; background-position: 0 0, 15px 15px, 0 -1px, -1px 0 !important; opacity: 1 !important; }
 
             .tex-preview {
-                width: 100%; aspect-ratio: 1/1; border-radius: 12px;
-                background-color: rgba(255,255,255,0.03);
-                border: 2px solid rgba(255,255,255,0.06);
-                cursor: pointer; transition: all 0.2s;
-                background-size: 16px 16px;
-                padding: 0; margin: 0;
-                box-sizing: border-box;
-                min-width: 0;
+                width: 100% !important; aspect-ratio: 1/1 !important; border-radius: 12px;
+                background-color: rgba(var(--primary-rgb), 0.05);
+                border: 1px solid rgba(var(--primary-rgb), 0.2) !important;
+                cursor: pointer; position: relative; overflow: hidden;
+                transition: all 0.2s ease;
                 display: flex; align-items: center; justify-content: center;
+                box-sizing: border-box; padding: 0 !important; margin: 0 !important;
+                opacity: 1 !important;
+                min-width: 0;
             }
-            .tex-preview:hover { border-color: rgba(var(--primary-rgb), 0.4); background-color: rgba(var(--primary-rgb), 0.05); }
-            .tex-preview.active { border-color: var(--primary); box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.3); background-color: rgba(var(--primary-rgb), 0.1); }
-            .tex-preview.no-tex { background: linear-gradient(45deg, transparent 45%, var(--error) 45%, var(--error) 55%, transparent 55%); opacity: 0.5; }
+            .tex-preview:hover { border-color: rgba(var(--primary-rgb), 0.5) !important; background-color: rgba(var(--primary-rgb), 0.1); }
+            .tex-preview.active { border-color: var(--primary) !important; box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.4); background-color: rgba(var(--primary-rgb), 0.15); }
+            .tex-preview.no-tex { background: rgba(255,255,255,0.02); }
+            .tex-preview.no-tex::after { content: 'block'; font-family: 'Material Symbols Outlined'; font-size: 22px; color: var(--outline); opacity: 0.6; }
 
             /* SVG Filter for Liquid Glass */
             #fetih-glass-svg { position: absolute; width: 0; height: 0; pointer-events: none; }
@@ -607,7 +678,7 @@
 
             /* Background Elements Base Styles */
             #fetih-bg-tex, #fetih-bg-glow { position: fixed; inset: -100px; z-index: -1; pointer-events: none; transition: all 0.5s ease; }
-            #fetih-bg-glow { filter: blur(40px); }
+            #fetih-bg-glow { opacity: 0.15; }
 
             /* ── EFFECTS: FX BUTTONS ── */
             .fx-btn { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); color: var(--outline); border-radius: 10px; padding: 9px 11px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: left; transition: all 0.2s; width: 100%; display: block; }
@@ -995,88 +1066,7 @@
                             </div>
                         </div>
 
-                        <!-- Tema Efektleri (Cam Ayarları) (Collapsible) -->
-                        <div class="settings-card" style="flex-direction: column; align-items: stretch; margin-top: 10px;">
-                            <div id="fetih-glass-toggle" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 4px 0;">
-                                <div class="settings-info">
-                                    <h3 style="display: flex; align-items: center; gap: 8px;">
-                                        <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">blur_on</span> 
-                                        Cam (Glass) Ayarları
-                                        <span style="font-size:9px; font-weight:900; letter-spacing:0.08em; color:#fff; background:linear-gradient(135deg,rgba(var(--primary-rgb),0.8),rgba(var(--primary-rgb),0.4)); border:1px solid rgba(var(--primary-rgb),0.5); border-radius:999px; padding:2px 9px; text-transform:uppercase; opacity:0.85;">Yakında</span>
-                                    </h3>
-                                    <p>Pencere ve menü cam efektlerini düzenle</p>
-                                </div>
-                                <span class="material-symbols-outlined" id="fetih-glass-chevron" style="transition: transform 0.3s;">expand_more</span>
-                            </div>
-                            <div id="fetih-glass-panel" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
-                                <div style="display:flex; gap:10px; margin-bottom:20px;">
-                                    <button id="btn-glass-random" class="fx-btn" style="flex:1; display:flex; align-items:center; justify-content:center; gap:5px; background:rgba(var(--primary-rgb),0.1); border-color:var(--primary); color:var(--primary);">
-                                        <span class="material-symbols-outlined" style="font-size:16px;">shuffle</span> Rastgele
-                                    </button>
-                                    <button id="btn-glass-off" class="fx-btn" style="flex:1; display:flex; align-items:center; justify-content:center; gap:5px; background:rgba(248,113,113,0.1); border-color:#f87171; color:#f87171;">
-                                        <span class="material-symbols-outlined" style="font-size:16px;">visibility_off</span> Kapat
-                                    </button>
-                                </div>
-                                <div style="display:flex; flex-direction:column; gap:16px; transition: opacity 0.3s;" id="glass-sliders-container">
-                                    <div>
-                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">Bulanıklık (Blur)</span>
-                                            <span id="glass-blur-val" style="font-size:11px; font-weight:900; color:var(--primary);">10.8px</span>
-                                        </div>
-                                        <input type="range" id="glass-blur-input" min="0" max="40" step="0.1" value="10.8" style="width:100%">
-                                    </div>
-                                    <div>
-                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">Arka Plan Şeffaflığı</span>
-                                            <span id="glass-bg-val" style="font-size:11px; font-weight:900; color:var(--primary);">0%</span>
-                                        </div>
-                                        <input type="range" id="glass-bg-input" min="0" max="100" value="0" style="width:100%">
-                                    </div>
-                                    <div>
-                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">Çerçeve (Outline)</span>
-                                            <span id="glass-border-val" style="font-size:11px; font-weight:900; color:var(--primary);">100%</span>
-                                        </div>
-                                        <input type="range" id="glass-border-input" min="0" max="100" value="100" style="width:100%">
-                                    </div>
-                                    <div>
-                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">Cam Kırılması (Refraction)</span>
-                                            <span id="glass-refraction-val" style="font-size:11px; font-weight:900; color:var(--primary);">0</span>
-                                        </div>
-                                        <input type="range" id="glass-refraction-input" min="0" max="100" value="0" style="width:100%">
-                                    </div>
-                                    <div>
-                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">Kırılma Yönü (Rota)</span>
-                                            <span id="glass-refraction-angle-val" style="font-size:11px; font-weight:900; color:var(--primary);">0°</span>
-                                        </div>
-                                        <input type="range" id="glass-refraction-angle-input" min="0" max="90" value="0" style="width:100%">
-                                    </div>
-                                    <div>
-                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">Renk Sapması (Glitch)</span>
-                                            <span id="glass-glitch-val" style="font-size:11px; font-weight:900; color:var(--primary);">0</span>
-                                        </div>
-                                        <input type="range" id="glass-glitch-input" min="0" max="20" step="0.5" value="0" style="width:100%">
-                                    </div>
-                                    <div>
-                                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">Işık Yönü (Çerçeve Glow)</span>
-                                            <span id="glass-light-angle-val" style="font-size:11px; font-weight:900; color:var(--primary);">135°</span>
-                                        </div>
-                                        <input type="range" id="glass-light-angle-input" min="0" max="360" value="135" style="width:100%">
-                                    </div>
-                                </div>
-                                <div id="glass-navbar-fx-container" style="transition: opacity 0.3s;">
-                                    <div style="font-size:10px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-top:24px;margin-bottom:12px;display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:14px;">water_drop</span>Navbar Efekti</div>
-                                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-                                        <button class="fx-btn navGlass-btn active" data-nav-glass="">Klasik</button>
-                                        <button class="fx-btn navGlass-btn" data-nav-glass="nav-liquid">Sıvı Cam (Liquid)</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
 
                         <!-- Dedicated Glow Section (Collapsible) -->
                         <div class="settings-card" style="flex-direction: column; align-items: stretch; margin-top: 10px;">
@@ -1133,7 +1123,7 @@
                             <div id="fetih-tex-panel" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
                                 <!-- Live Preview Box -->
                                 <div style="margin-bottom: 24px; border-radius: 16px; overflow: hidden; position: relative; height: 80px; border: 1px solid rgba(var(--primary-rgb), 0.3);">
-                                    <div id="tex-live-preview" style="position: absolute; inset: 0; background-color: #1a1a1a; opacity: var(--tex-opacity, 0.4); background-size: var(--tex-size, 40px) var(--tex-size, 40px); background-repeat: repeat;"></div>
+                                    <div id="tex-live-preview" style="position: absolute; inset: 0; background-color: var(--surface); opacity: var(--tex-opacity, 0.8); background-size: var(--tex-size, 40px) var(--tex-size, 40px); background-repeat: repeat;"></div>
                                     <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #fff; mix-blend-mode: overlay; letter-spacing: 2px;">CANLI ÖNİZLEME</div>
                                 </div>
                                 <!-- Sliders -->
@@ -1156,10 +1146,9 @@
 
                                 <!-- Pattern Selection Grid -->
                                 <div style="font-size: 10px; font-weight: 900; color: var(--outline); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">DESEN SE&#199;&#304;M&#304;</div>
-                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; box-sizing: border-box;" id="fetih-tex-grid">
+                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; box-sizing: border-box;" id="fetih-tex-grid">
                                     <button class="tex-preview tex-btn no-tex" data-tex="" title="Yok"></button>
-                                    <button class="tex-preview tex-btn p-snow" data-tex="tex-snow" title="Kar"></button>
-                                    ${Array.from({length: 18}, (_, i) => `<button class="tex-preview tex-btn p-${i+1}" data-tex="tex-p${i+1}" title="P${i+1}"></button>`).join('')}
+                                    ${Array.from({length: 15}, (_, i) => `<button class="tex-preview tex-btn p-${i+1}" data-tex="tex-p${i+1}" title="P${i+1}"></button>`).join('')}
                                 </div>
                             </div>
                         </div>
@@ -1218,23 +1207,8 @@
         const closeBtn = document.getElementById('fetih-dash-close');
         if (closeBtn) closeBtn.addEventListener('click', () => window.closeFetihDash());
         
-        document.addEventListener('keydown', (e) => {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-            const modal = document.getElementById('fetih-dash-modal');
-            if (!modal || modal.style.display === 'none' || modal.classList.contains('active') === false) return;
-            
-            const key = e.key.toLowerCase();
-            if (key === 'r') {
-                const toggle = document.getElementById('fetih-color-toggle');
-                if (toggle) toggle.click();
-            } else if (key === 'c') {
-                const toggle = document.getElementById('fetih-glass-toggle');
-                if (toggle) toggle.click();
-            } else if (key === 'd') {
-                const toggle = document.getElementById('fetih-tex-toggle');
-                if (toggle) toggle.click();
-            }
-        });
+        // Remoting conflicting internal key listener
+
 
         const soundBtn = document.getElementById('fetih-sound-btn');
         if (soundBtn) {
@@ -1479,8 +1453,17 @@
         document.querySelectorAll('.navGlass-btn').forEach(b => b.addEventListener('click', () => window.applyEffect('navGlass', b.dataset.navGlass)));
         
         function updateTexLivePreview(texClass) {
-            const livePreview = document.getElementById('tex-live-preview');
-            if (!livePreview) return;
+            const preview = document.getElementById('tex-live-preview');
+            if (!preview) return;
+            
+            // Background color always matches theme surface
+            preview.style.backgroundColor = 'var(--surface)';
+
+            if (!texClass) {
+                preview.style.backgroundImage = 'none';
+                return;
+            }
+            
             // Get background image from the preview button
             const btn = document.querySelector(`.tex-btn[data-tex="${texClass}"]`) || document.querySelector('.tex-btn[data-tex=""]');
             if (btn) livePreview.style.backgroundImage = getComputedStyle(btn).backgroundImage;
@@ -2020,6 +2003,34 @@
                 const isHidden = root.style.display === 'none';
                 root.style.display = isHidden ? 'flex' : 'none';
                 document.body.style.overflow = isHidden ? 'hidden' : 'auto';
+            }
+            return;
+        }
+        if (code === 'KeyK') {
+            const modal = document.getElementById('fetih-dash-modal');
+            if (modal) {
+                // If modal is not active, open it
+                if (!modal.classList.contains('active')) {
+                    window.openFetihDash();
+                }
+                
+                // Focus on Texture Panel
+                const texPanel = document.getElementById('fetih-tex-panel');
+                const texChevron = document.getElementById('fetih-tex-chevron');
+                const glowPanel = document.getElementById('fetih-glow-panel');
+                const glowChevron = document.getElementById('fetih-glow-chevron');
+                
+                // Expand Texture, Collapse Glow
+                if (texPanel) {
+                    texPanel.style.display = 'block';
+                    if (texChevron) texChevron.style.transform = 'rotate(180deg)';
+                    // Scroll to it
+                    texPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                if (glowPanel) {
+                    glowPanel.style.display = 'none';
+                    if (glowChevron) glowChevron.style.transform = 'rotate(0deg)';
+                }
             }
             return;
         }
