@@ -70,8 +70,8 @@
                 --outline: #6a6254;
                 --error: #f87171;
                 --success: #4ade80;
-                --card-border: rgba(205, 168, 96, 0.5);
-                --card-surface: #252525;
+                --card-border: rgba(var(--primary-rgb), 0.6);
+                --card-surface: #1e1e1e;
                 --glow-intensity: 1;
             }
 
@@ -93,9 +93,9 @@
             .glass-card, .fetih-card {
                 background: var(--card-surface);
                 border-radius: 16px;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
                 border: 1px solid var(--card-border);
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.3s ease;
                 position: relative;
                 overflow: hidden;
             }
@@ -142,9 +142,9 @@
 
             .live-dot { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; animation: live-pulse 2.5s infinite ease-in-out; display: inline-block; vertical-align: middle; }
             @keyframes live-pulse { 
-                0% { background: var(--primary); transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.7); } 
-                50% { background: #ffffff; transform: scale(1.4); box-shadow: 0 0 12px 6px rgba(255, 255, 255, 0.4); } 
-                100% { background: var(--primary); transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0); } 
+                0% { background: var(--primary); transform: scale(1); box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.5), inset 0 0 4px rgba(255,255,255,0.3); } 
+                50% { background: #ffffff; transform: scale(1.4); box-shadow: 0 0 15px 8px rgba(255, 255, 255, 0.5); } 
+                100% { background: var(--primary); transform: scale(1); box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.5), inset 0 0 4px rgba(255,255,255,0.3); } 
             }
             @keyframes spin { 100% { transform: rotate(360deg); } }
             .loading-icon { animation: spin 2s linear infinite; color: var(--outline); font-size: 24px; }
@@ -249,12 +249,14 @@
             #fetih-root.glass-off nav.nav-liquid::before { background: #000 !important; }
             #fetih-root.light-mode.glass-off nav.nav-liquid::before { background: #fff !important; border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
             
-            /* Gremse-Ata Separator */
-            .overview-grid > div:nth-child(5)::before {
-                content: ''; position: absolute; left: -7.5px; top: 15%; height: 70%; width: 3px; 
-                background: var(--primary); opacity: 0.6; border-radius: 2px;
+            /* Gremse-Ata Separator - Fixed Positioning */
+            .overview-grid { position: relative; }
+            .overview-grid > div:nth-child(5)::after {
+                content: ''; position: absolute; left: -8px; top: 20%; height: 60%; width: 2px; 
+                background: var(--primary); opacity: 0.4; border-radius: 2px;
+                z-index: 10; pointer-events: none;
             }
-            @media (max-width: 900px) { .overview-grid > div:nth-child(5)::before { display: none; } }
+            @media (max-width: 900px) { .overview-grid > div:nth-child(5)::after { display: none; } }
             
             /* ── NAVBAR BOT ── */
             #fetih-bot-trigger {
@@ -306,12 +308,17 @@
 
             .has-card-active {
                 background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
-                border: 1px solid rgba(255,255,255,0.3) !important;
+                border: 1px solid rgba(255,255,255,0.4) !important;
                 opacity: 1 !important;
+                box-shadow: 0 15px 40px rgba(var(--primary-rgb), 0.3) !important;
+            }
+            #fetih-root.light-mode .has-card-active {
+                background: linear-gradient(135deg, var(--primary) 0%, #fff 250%) !important;
+                box-shadow: 0 15px 40px rgba(var(--primary-rgb), 0.15) !important;
             }
             #fetih-root .has-card-active * { color: var(--primary-contrast) !important; }
             #fetih-root .has-card-active .t-val { color: var(--primary-contrast) !important; text-shadow: none !important; }
-            #fetih-root .has-card-active .live-dot { background: var(--primary-contrast) !important; box-shadow: 0 0 10px var(--primary-contrast) !important; }
+            #fetih-root .has-card-active .live-dot { box-shadow: 0 0 12px rgba(255,255,255,0.4) !important; }
             
             .mult-badge {
                 font-size: 10px; font-weight: 900; letter-spacing: 0.05em; color: var(--primary);
@@ -353,7 +360,13 @@
                 --card-border: rgba(0, 0, 0, 0.15);
                 --card-surface: #ffffff;
             }
-            #fetih-root.light-mode nav:not(.nav-shadow):not(.nav-theme):not(.nav-invisible) { background: #ffffff; border-bottom: 1px solid rgba(0,0,0,0.1); }
+            #fetih-root.light-mode nav:not(.nav-shadow):not(.nav-theme):not(.nav-invisible) { background: #ffffff; border-bottom: 1px solid rgba(0,0,0,0.05); }
+            #fetih-root.light-mode .glass-card, #fetih-root.light-mode .mini-card { 
+                background: #fff !important; 
+                border: 1px solid rgba(var(--primary-rgb), 0.5) !important; 
+                box-shadow: 0 10px 40px rgba(0,0,0,0.05) !important; 
+            }
+
             #fetih-root.light-mode .glass-card { border: 1px solid rgba(255,255,255,0.5) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -1px 1px rgba(0,0,0,0.05) !important; }
             #fetih-root.light-mode .glass-card .t-val[style*="color:var(--primary)"] { color: #a57c2a !important; }
             #fetih-root.light-mode th { color: #555 !important; border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
@@ -870,7 +883,7 @@
                     </div>
 
                     <div class="fetih-card card-3" style="padding:28px; position:relative; overflow:hidden;">
-                        <img class="card-visual" src="${chrome.runtime.getURL('image/gram-24.jpg')}" alt="Gold Bar" style="width: 200px; height: 200px; bottom: -50px; right: -50px; left:auto; transform: rotate(15deg);">
+                        <img class="card-visual" src="${chrome.runtime.getURL('image/gram-24.jpg')}" alt="Gold Bar" style="width: 200px; height: 200px; bottom: -50px; right: -80px; left:auto; transform: rotate(15deg);">
                         <div style="position:relative; z-index:1;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
                                 <h3 class="font-headline" style="font-size:16px; font-weight:900; color:var(--primary); text-transform:uppercase; letter-spacing:1px; margin:0">Gram Altın</h3>
@@ -2557,11 +2570,11 @@
                         ${badge}
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; position:relative; z-index:1;">
-                        <span style="font-size:9px; opacity:0.5; font-weight:900; color:#fff">AL</span>
+                        <span style="font-size:9px; opacity:0.8; font-weight:900; color:var(--on-surface)">AL</span>
                         <span class="t-val" style="font-size:17px; font-weight:800">${dBuy}</span>
                     </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(255,255,255,0.1); position:relative; z-index:1;">
-                        <span style="font-size:9px; opacity:0.5; font-weight:900; color:#fff">SAT</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(var(--primary-rgb), 0.2); position:relative; z-index:1;">
+                        <span style="font-size:9px; opacity:0.8; font-weight:900; color:var(--on-surface)">SAT</span>
                         <span ${sellId} class="t-val" style="font-size:17px; font-weight:900; color:${accentColor}">${dSell}</span>
                     </div>
                 </div>
