@@ -18,13 +18,11 @@
     window._GLOW_CLASSES  = window._GLOW_CLASSES || ['glow-soft','glow-neon','glow-pulse','glow-halo','glow-orbit','glow-drift','glow-aurora', 'glow-edges', 'glow-corners', 'glow-diagonal', 'glow-cinema', 'glow-matrix'];
     window._NAV_CLASSES   = window._NAV_CLASSES || ['nav-normal', 'nav-shadow', 'nav-theme', 'nav-invisible'];
     window._isPMode       = window._isPMode || false;
-    window._savedEffects  = window._savedEffects || null;
- 
     window.applyEffect = function(type, value) {
         const r = document.getElementById('fetih-root');
         const pools = { glass: window._GLASS_CLASSES, tex: window._TEX_CLASSES, glow: window._GLOW_CLASSES, nav: window._NAV_CLASSES, navGlass: ['nav-liquid'] };
         const keys  = { glass: 'fetihGlass', tex: 'fetihTex', glow: 'fetihGlow', nav: 'fetihNav', navGlass: 'fetihNavGlass' };
- 
+
         if (type === 'navGlass') {
             const nav = document.querySelector('#fetih-root nav');
             if (nav) {
@@ -44,6 +42,7 @@
         localStorage.setItem(keys[type], value || '');
         document.querySelectorAll(`.${type}-btn`).forEach(b => b.classList.toggle('active', b.dataset[type] === value));
     };
+
 
     /* ───────────── CSS INJECTION ───────────── */
     function injectStyles() {
@@ -142,9 +141,9 @@
 
             .live-dot { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; animation: live-pulse 2.5s infinite ease-in-out; display: inline-block; vertical-align: middle; }
             @keyframes live-pulse { 
-                0% { background: var(--primary); transform: scale(1); box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.5), inset 0 0 4px rgba(255,255,255,0.3); } 
+                0% { background: color-mix(in srgb, var(--primary), white 40%); transform: scale(1); box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.5); } 
                 50% { background: #ffffff; transform: scale(1.4); box-shadow: 0 0 15px 8px rgba(255, 255, 255, 0.5); } 
-                100% { background: var(--primary); transform: scale(1); box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.5), inset 0 0 4px rgba(255,255,255,0.3); } 
+                100% { background: color-mix(in srgb, var(--primary), white 40%); transform: scale(1); box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.5); } 
             }
             @keyframes spin { 100% { transform: rotate(360deg); } }
             .loading-icon { animation: spin 2s linear infinite; color: var(--outline); font-size: 24px; }
@@ -367,8 +366,7 @@
                 box-shadow: 0 10px 40px rgba(0,0,0,0.05) !important; 
             }
 
-            #fetih-root.light-mode .glass-card { border: 1px solid rgba(255,255,255,0.5) !important; box-shadow: 0 10px 40px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -1px 1px rgba(0,0,0,0.05) !important; }
-            #fetih-root.light-mode .glass-card .t-val[style*="color:var(--primary)"] { color: #a57c2a !important; }
+            #fetih-root.light-mode .glass-card { box-shadow: 0 10px 40px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -1px 1px rgba(0,0,0,0.05) !important; }
             #fetih-root.light-mode th { color: #555 !important; border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
             #fetih-root.light-mode td { background: #fff !important; border-bottom: 1px solid rgba(0,0,0,0.05) !important; color: #111 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.02) !important; }
             #fetih-root.light-mode td .t-val { color: #111 !important; }
@@ -1718,6 +1716,7 @@
         document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => window.applyEffect('nav', b.dataset.nav)));
 
 
+
         // --- THEME COLOR PICKER ---
         const themeColors = [
             '#CDA860', // Orijinal Altın
@@ -1818,7 +1817,7 @@
         updateColorDots();
 
         function updateFavicon(color) {
-            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 1500 1500"><g transform="matrix(1, 0, 0, 1, 398, 123)"><g fill="${color}"><g transform="translate(0.7, 992)"><path d="M 686.5 -518.8 L 639.9 -739.1 L 609.1 -730.1 C 606.5 -729.5 603.6 -729.0 600.7 -728.7 C 597.7 -728.3 594.2 -728.2 590.3 -728.2 L 19.8 -728.2 L 20.8 -697.4 L 55.5 -693.4 L 77.3 -676.6 L 81.3 -658.7 C 81.3 -659.4 82.0 -657.1 83.3 -651.8 L 84.3 -102.1 L 80.3 24.7 L 71.4 80.3 L 60.5 130.9 L 42.6 168.6 L 19.8 204.3 L 340.2 -2.9 L 314.5 -17.8 C 309.2 -20.5 301.9 -26.4 292.6 -35.7 L 280.7 -64.4 L 274.8 -101.1 L 276.7 -283.7 L 308.5 -316.4 L 340.2 -343.2 L 368.0 -354.1 L 394.8 -359.1 L 414.7 -351.2 L 432.5 -338.3 L 441.4 -313.5 L 446.4 -282.7 L 576.4 -410.7 L 550.6 -461.3 L 528.7 -480.1 L 504.9 -495.0 L 486.1 -501.0 L 447.4 -501.0 L 416.6 -485.1 L 385.9 -464.3 L 274.8 -327.3 L 276.7 -697.4 L 363.1 -689.5 L 439.5 -671.6 L 480.1 -655.7 L 511.9 -640.9 L 548.6 -621.0 L 581.3 -599.2 L 628 -554.5 L 645.8 -524.8 L 660.7 -497.0 Z"/></g></g></g></g></svg>`;
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 1500 1500" preserveAspectRatio="xMidYMid meet"><g transform="matrix(1, 0, 0, 1, 398, 123)"><g fill="${color}"><g transform="translate(0.786776, 991.992386)"><path d="M 686.546875 -518.875 L 639.90625 -739.125 L 609.15625 -730.1875 C 606.507812 -729.53125 603.695312 -729.035156 600.71875 -728.703125 C 597.738281 -728.367188 594.269531 -728.203125 590.3125 -728.203125 L 19.84375 -728.203125 L 20.828125 -697.453125 L 55.5625 -693.484375 L 77.390625 -676.625 L 81.359375 -658.765625 C 81.359375 -659.421875 82.019531 -657.101562 83.34375 -651.8125 L 84.328125 -102.1875 L 80.359375 24.796875 L 71.4375 80.359375 L 60.515625 130.953125 L 42.65625 168.65625 L 19.84375 204.375 L 340.296875 -2.96875 L 314.5 -17.859375 C 309.207031 -20.503906 301.929688 -26.457031 292.671875 -35.71875 L 280.765625 -64.484375 L 274.8125 -101.1875 L 276.796875 -283.75 L 308.546875 -316.484375 L 340.296875 -343.265625 L 368.078125 -354.1875 L 394.859375 -359.140625 L 414.703125 -351.203125 L 432.5625 -338.3125 L 441.484375 -313.5 L 446.453125 -282.75 L 576.421875 -410.734375 L 550.625 -461.328125 L 528.796875 -480.1875 L 504.984375 -495.0625 L 486.140625 -501.015625 L 447.4375 -501.015625 L 416.6875 -485.140625 L 385.9375 -464.3125 L 274.8125 -327.390625 L 276.796875 -697.453125 L 363.109375 -689.515625 L 439.5 -671.65625 L 480.1875 -655.78125 L 511.921875 -640.90625 L 548.640625 -621.0625 L 581.375 -599.234375 L 628 -554.59375 L 645.859375 -524.828125 L 660.75 -497.046875 Z M 686.546875 -518.875 "/></g></g></g></svg>`;
             const blob = new Blob([svg], {type: 'image/svg+xml'});
             const url = URL.createObjectURL(blob);
             let link = document.querySelector("link[rel*='icon']");
