@@ -11,17 +11,17 @@
     window._fetihOverhaulActive = true;
 
     console.log('Fetih Premium Overhaul v5.9 Starting...');
- 
+
     /* ───────────── GLOBAL STATE & EFFECTS ───────────── */
-    window._GLASS_CLASSES = window._GLASS_CLASSES || ['glass-frost','glass-liquid','glass-gold','glass-none'];
-    window._TEX_CLASSES   = window._TEX_CLASSES || ['tex-p1', 'tex-p2', 'tex-p3', 'tex-p4', 'tex-p5', 'tex-p6', 'tex-p7', 'tex-p8', 'tex-p9', 'tex-p10', 'tex-p11', 'tex-p12', 'tex-p13', 'tex-p14', 'tex-p15'];
-    window._GLOW_CLASSES  = window._GLOW_CLASSES || ['glow-soft','glow-neon','glow-pulse','glow-halo','glow-orbit','glow-drift','glow-aurora', 'glow-edges', 'glow-corners', 'glow-diagonal', 'glow-cinema', 'glow-matrix'];
-    window._NAV_CLASSES   = window._NAV_CLASSES || ['nav-normal', 'nav-shadow', 'nav-theme', 'nav-invisible'];
-    window._isPMode       = window._isPMode || false;
-    window.applyEffect = function(type, value) {
+    window._GLASS_CLASSES = window._GLASS_CLASSES || ['glass-frost', 'glass-liquid', 'glass-gold', 'glass-none'];
+    window._TEX_CLASSES = window._TEX_CLASSES || ['tex-p1', 'tex-p2', 'tex-p3', 'tex-p4', 'tex-p5', 'tex-p6', 'tex-p7', 'tex-p8', 'tex-p9', 'tex-p10', 'tex-p11', 'tex-p12', 'tex-p13', 'tex-p14', 'tex-p15'];
+    window._GLOW_CLASSES = window._GLOW_CLASSES || ['glow-soft', 'glow-neon', 'glow-pulse', 'glow-halo', 'glow-orbit', 'glow-drift', 'glow-aurora', 'glow-edges', 'glow-corners', 'glow-diagonal', 'glow-cinema', 'glow-matrix'];
+    window._NAV_CLASSES = window._NAV_CLASSES || ['nav-normal', 'nav-shadow', 'nav-theme', 'nav-invisible'];
+    window._isPMode = window._isPMode || false;
+    window.applyEffect = function (type, value) {
         const r = document.getElementById('fetih-root');
         const pools = { glass: window._GLASS_CLASSES, tex: window._TEX_CLASSES, glow: window._GLOW_CLASSES, nav: window._NAV_CLASSES, navGlass: ['nav-liquid'] };
-        const keys  = { glass: 'fetihGlass', tex: 'fetihTex', glow: 'fetihGlow', nav: 'fetihNav', navGlass: 'fetihNavGlass' };
+        const keys = { glass: 'fetihGlass', tex: 'fetihTex', glow: 'fetihGlow', nav: 'fetihNav', navGlass: 'fetihNavGlass' };
 
         if (type === 'navGlass') {
             const nav = document.querySelector('#fetih-root nav');
@@ -178,7 +178,7 @@
                 left: -20px;
                 width: 140px;
                 height: 140px;
-                opacity: 0.5;
+                opacity: 0.7;
                 pointer-events: none;
                 z-index: 0;
                 transform: rotate(-12deg);
@@ -268,7 +268,7 @@
                 overflow: hidden; 
                 flex-shrink: 0;
                 transition: all 0.4s ease;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+                box-shadow: none !important;
             }
             #fetih-bot-trigger:hover { border-color: rgba(var(--primary-rgb), 0.5); }
 
@@ -365,6 +365,8 @@
                 border: 1px solid rgba(var(--primary-rgb), 0.5) !important; 
                 box-shadow: 0 10px 40px rgba(0,0,0,0.05) !important; 
             }
+            #fetih-root.light-mode .mini-card .card-title { color: #000 !important; }
+            #fetih-root.light-mode .mini-card .label-text { color: var(--primary) !important; opacity: 1 !important; }
 
             #fetih-root.light-mode .glass-card { box-shadow: 0 10px 40px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -1px 1px rgba(0,0,0,0.05) !important; }
             #fetih-root.light-mode th { color: #555 !important; border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
@@ -452,14 +454,15 @@
 
             .settings-container {
                 width: 90%; max-width: 480px; 
-                background: rgba(20, 20, 20, 0.85); 
-                border: 1px solid rgba(var(--primary-rgb),0.2);
+                background: #141414; /* Using solid-ish color instead of heavy transparency */
+                border: 1px solid rgba(var(--primary-rgb),0.3);
                 border-radius: 32px; display: flex; flex-direction: column; 
                 overflow-y: auto; overflow-x: hidden;
-                box-shadow: 0 40px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+                box-shadow: none !important;
                 padding: 40px;
                 transform: translateY(20px) scale(0.95);
-                transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), background 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+                transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.4s ease;
+                will-change: transform, opacity;
                 box-sizing: border-box;
             }
             .settings-card { transition: opacity 0.4s ease; }
@@ -530,6 +533,13 @@
                 background-repeat: repeat !important;
                 opacity: var(--tex-opacity, 0.8) !important;
                 transition: opacity 0.3s ease;
+            }
+            #fetih-root.tex-fade-active #fetih-bg-tex {
+                position: absolute;
+                height: 150vh;
+                mask-image: linear-gradient(to bottom, black 0%, black 50%, transparent 100%);
+                -webkit-mask-image: linear-gradient(to bottom, black 0%, black 50%, transparent 100%);
+                opacity: var(--tex-opacity, 0.8) !important;
             }
             .tex-preview, #fetih-bg-tex { background-repeat: repeat; }
             
@@ -881,7 +891,7 @@
                     </div>
 
                     <div class="fetih-card card-3" style="padding:28px; position:relative; overflow:hidden;">
-                        <img class="card-visual" src="${chrome.runtime.getURL('image/gram-24.jpg')}" alt="Gold Bar" style="width: 200px; height: 200px; bottom: -50px; right: -80px; left:auto; transform: rotate(15deg);">
+                        <img class="card-visual" src="${chrome.runtime.getURL('image/gram-24.png')}" alt="Gold Bar" style="width: 260px; height: 260px; bottom: -60px; right: -120px; left:auto; transform: rotate(0deg); opacity: 0.8;">
                         <div style="position:relative; z-index:1;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
                                 <h3 class="font-headline" style="font-size:16px; font-weight:900; color:var(--primary); text-transform:uppercase; letter-spacing:1px; margin:0">Gram Altın</h3>
@@ -953,8 +963,8 @@
             </main>
 
             <!-- Chart Modal -->
-            <div id="fetih-chart-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); z-index:2147483648; display:none; flex-direction:column; align-items:center; justify-content:center; opacity:0; transition:opacity 0.4s ease;">
-                <div class="chart-modal-container" style="width:95%; max-width:1200px; background:var(--surface-container); border:1px solid rgba(var(--primary-rgb),0.2); border-radius:32px; padding:30px; display:flex; flex-direction:column; transform:translateY(20px) scale(0.95); transition:transform 0.4s; box-shadow:0 40px 80px rgba(0,0,0,0.8);">
+            <div id="fetih-chart-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:2147483648; display:none; flex-direction:column; align-items:center; justify-content:center; opacity:0; transition:opacity 0.4s ease;">
+                <div class="chart-modal-container" style="width:95%; max-width:1200px; background:var(--surface-container); border:1px solid rgba(var(--primary-rgb),0.2); border-radius:32px; padding:30px; display:flex; flex-direction:column; transform:translateY(20px) scale(0.95); transition:transform 0.4s; box-shadow:none !important;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                         <div style="display:flex; align-items:center; gap:12px;">
                             <span class="material-symbols-outlined" style="font-size:32px; color:var(--primary)">monitoring</span>
@@ -970,7 +980,7 @@
                         <!-- Custom Controls -->
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px; background:rgba(0,0,0,0.2); padding:15px 25px; border-radius:20px; border:1px solid rgba(255,255,255,0.05);">
                             <div id="custom-time-controls" style="display:flex; flex-wrap:wrap; gap:10px;">
-                                ${['Gün', 'Hafta', 'Ay', '6 Ay', 'Yıl', '5 Yıl', 'Max'].map(t => `<button class="custom-chart-btn time-btn ${t==='Hafta'?'active':''}" data-val="${t}">${t}</button>`).join('')}
+                                ${['Gün', 'Hafta', 'Ay', '6 Ay', 'Yıl', '5 Yıl', 'Max'].map(t => `<button class="custom-chart-btn time-btn ${t === 'Hafta' ? 'active' : ''}" data-val="${t}">${t}</button>`).join('')}
                             </div>
                             <div style="display:flex; gap:10px; align-items:center;">
                                 <span style="font-size:12px; font-weight:800; color:var(--outline); text-transform:uppercase;">Varlık:</span>
@@ -1241,11 +1251,19 @@
                                     </div>
                                 </div>
 
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <div class="settings-info">
+                                        <h4 style="margin:0; font-size:13px; color:#fff;">Doku Geçişi (Fade)</h4>
+                                        <p style="font-size:11px;">Alta doğru yavaşça yok olsun</p>
+                                    </div>
+                                    <button id="fetih-tex-fade-btn" class="fx-btn" style="width: auto; padding: 8px 16px;">Pasif</button>
+                                </div>
+
                                 <!-- Pattern Selection Grid -->
                                 <div style="font-size: 10px; font-weight: 900; color: var(--outline); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">DESEN SE&#199;&#304;M&#304;</div>
                                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; box-sizing: border-box;" id="fetih-tex-grid">
                                     <button class="tex-preview tex-btn no-tex" data-tex="" title="Yok"></button>
-                                    ${Array.from({length: 15}, (_, i) => `<button class="tex-preview tex-btn p-${i+1}" data-tex="tex-p${i+1}" title="P${i+1}"></button>`).join('')}
+                                    ${Array.from({ length: 15 }, (_, i) => `<button class="tex-preview tex-btn p-${i + 1}" data-tex="tex-p${i + 1}" title="P${i + 1}"></button>`).join('')}
                                 </div>
                             </div>
                         </div>
@@ -1303,7 +1321,7 @@
 
         const closeBtn = document.getElementById('fetih-dash-close');
         if (closeBtn) closeBtn.addEventListener('click', () => window.closeFetihDash());
-        
+
         // Remoting conflicting internal key listener
 
 
@@ -1346,7 +1364,7 @@
         // Visuals Toggle
         const visualsBtn = document.getElementById('fetih-visuals-btn');
         let visualsEnabled = localStorage.getItem('fetihVisualsEnabled') === 'true';
-        
+
         const updateVisualsUI = () => {
             if (visualsEnabled) {
                 root.classList.add('show-visuals');
@@ -1414,10 +1432,10 @@
                 localStorage.setItem('fetihLightMode', isLightMode);
                 if (isLightMode) {
                     root.classList.add('light-mode');
-                    if(themeIcon) themeIcon.textContent = 'dark_mode';
+                    if (themeIcon) themeIcon.textContent = 'dark_mode';
                 } else {
                     root.classList.remove('light-mode');
-                    if(themeIcon) themeIcon.textContent = 'light_mode';
+                    if (themeIcon) themeIcon.textContent = 'light_mode';
                 }
             });
         }
@@ -1475,34 +1493,34 @@
             const refAngle = glassRefractionAngleInput?.value || 0;
             const glitch = glassGlitchInput?.value || 0;
             const lightAngle = glassLightAngleInput?.value || 135;
-            
+
             root.style.setProperty('--fetih-glass-blur', `${blur}px`);
             root.style.setProperty('--fetih-glass-bg', bgOp);
             root.style.setProperty('--fetih-glass-border', borderOp);
-            
+
             const rad = lightAngle * Math.PI / 180;
             const lx = Math.cos(rad) * 3;
             const ly = Math.sin(rad) * 3;
             root.style.setProperty('--fetih-glass-light-x', `${lx}px`);
             root.style.setProperty('--fetih-glass-light-y', `${ly}px`);
-            
+
             const blurValEl = document.getElementById('glass-blur-val');
             const bgValEl = document.getElementById('glass-bg-val');
             const borderValEl = document.getElementById('glass-border-val');
             const refAngleValEl = document.getElementById('glass-refraction-angle-val');
             const glitchValEl = document.getElementById('glass-glitch-val');
             const lightAngleValEl = document.getElementById('glass-light-angle-val');
-            
+
             if (blurValEl) blurValEl.textContent = `${blur}px`;
             if (bgValEl) bgValEl.textContent = `${Math.round(bgOp * 100)}%`;
             if (borderValEl) borderValEl.textContent = `${Math.round(borderOp * 100)}%`;
             if (refAngleValEl) refAngleValEl.textContent = `${refAngle}°`;
             if (glitchValEl) glitchValEl.textContent = glitch;
             if (lightAngleValEl) lightAngleValEl.textContent = `${lightAngle}°`;
-            
+
             const refrMap = document.getElementById('glass-refraction-map');
             if (refrMap) refrMap.setAttribute('scale', refraction);
-            
+
             const glassNoise = document.getElementById('glass-noise');
             if (glassNoise) {
                 // Interpolate base frequency based on angle (0 to 90)
@@ -1511,12 +1529,12 @@
                 const fy = 0.1 - (0.1 - 0.005) * ratio;
                 glassNoise.setAttribute('baseFrequency', `${fx} ${fy}`);
             }
-            
+
             const glitchRed = document.getElementById('glitch-red');
             const glitchBlue = document.getElementById('glitch-blue');
             if (glitchRed) glitchRed.setAttribute('dx', glitch);
             if (glitchBlue) glitchBlue.setAttribute('dx', -glitch);
-            
+
             const refrValEl = document.getElementById('glass-refraction-val');
             if (refrValEl) refrValEl.textContent = refraction;
 
@@ -1542,7 +1560,7 @@
         const btnGlassOff = document.getElementById('btn-glass-off');
         const slidersContainer = document.getElementById('glass-sliders-container');
         const navbarFxContainer = document.getElementById('glass-navbar-fx-container');
-        
+
         function toggleGlassOff(force) {
             const rootEl = document.getElementById('fetih-root');
             if (!rootEl) return;
@@ -1591,11 +1609,11 @@
 
         // Bind effect buttons
         document.querySelectorAll('.navGlass-btn').forEach(b => b.addEventListener('click', () => window.applyEffect('navGlass', b.dataset.navGlass)));
-        
+
         function updateTexLivePreview(texClass) {
             const preview = document.getElementById('tex-live-preview');
             if (!preview) return;
-            
+
             // Background color always matches theme surface
             preview.style.backgroundColor = 'var(--surface)';
 
@@ -1603,18 +1621,18 @@
                 preview.style.backgroundImage = 'none';
                 return;
             }
-            
+
             // Get background image from the preview button
             const btn = document.querySelector(`.tex-btn[data-tex="${texClass}"]`) || document.querySelector('.tex-btn[data-tex=""]');
             if (btn) preview.style.backgroundImage = getComputedStyle(btn).backgroundImage;
         }
 
-        document.querySelectorAll('.tex-btn').forEach(b   => b.addEventListener('click', () => {
+        document.querySelectorAll('.tex-btn').forEach(b => b.addEventListener('click', () => {
             window.applyEffect('tex', b.dataset.tex);
             updateTexLivePreview(b.dataset.tex);
         }));
-        
-        document.querySelectorAll('.glow-btn').forEach(b  => b.addEventListener('click', () => window.applyEffect('glow',  b.dataset.glow)));
+
+        document.querySelectorAll('.glow-btn').forEach(b => b.addEventListener('click', () => window.applyEffect('glow', b.dataset.glow)));
 
         // --- GLOW INTENSITY SLIDER ---
         const glowIntensityInput = document.getElementById('glow-intensity-input');
@@ -1635,14 +1653,14 @@
         const allSliders = document.querySelectorAll('#fetih-dash-modal input[type="range"]');
         const dashModal = document.getElementById('fetih-dash-modal');
         const settingsContainer = document.querySelector('.settings-container');
-        
+
         allSliders.forEach(slider => {
             const startPreview = () => {
-                if(dashModal) {
+                if (dashModal) {
                     dashModal.style.backdropFilter = 'blur(0px)';
                     dashModal.style.webkitBackdropFilter = 'blur(0px)';
                 }
-                if(settingsContainer) {
+                if (settingsContainer) {
                     settingsContainer.style.background = 'rgba(20, 20, 20, 0.2)';
                     settingsContainer.style.boxShadow = 'none';
                     settingsContainer.style.borderColor = 'transparent';
@@ -1655,11 +1673,11 @@
                 }
             };
             const stopPreview = () => {
-                if(dashModal) {
+                if (dashModal) {
                     dashModal.style.backdropFilter = '';
                     dashModal.style.webkitBackdropFilter = '';
                 }
-                if(settingsContainer) {
+                if (settingsContainer) {
                     settingsContainer.style.background = '';
                     settingsContainer.style.boxShadow = '';
                     settingsContainer.style.borderColor = '';
@@ -1670,7 +1688,7 @@
                 }
             };
             slider.addEventListener('mousedown', startPreview);
-            slider.addEventListener('touchstart', startPreview, {passive: true});
+            slider.addEventListener('touchstart', startPreview, { passive: true });
             slider.addEventListener('mouseup', stopPreview);
             slider.addEventListener('touchend', stopPreview);
             slider.addEventListener('blur', stopPreview);
@@ -1690,12 +1708,12 @@
         const savedGlassRefAngle = localStorage.getItem('fetihGlassRefAngle') || '0';
         const savedGlassGlitch = localStorage.getItem('fetihGlassGlitch') || '0';
         const savedGlassLightAngle = localStorage.getItem('fetihGlassLightAngle') || '135';
-        
+
         // Cam efektleri varsayılan olarak kapalı
         if (localStorage.getItem('fetihGlassIsOff') !== '0') {
             toggleGlassOff(true);
         }
-        
+
         if (glassBlurInput) glassBlurInput.value = savedGlassBlur;
         if (glassBgInput) glassBgInput.value = savedGlassBg * 100;
         if (glassBorderInput) glassBorderInput.value = savedGlassBorder * 100;
@@ -1704,18 +1722,52 @@
         if (glassGlitchInput) glassGlitchInput.value = savedGlassGlitch;
         if (glassLightAngleInput) glassLightAngleInput.value = savedGlassLightAngle;
         updateGlassParams();
-        
+
         window.applyEffect('nav', localStorage.getItem('fetihNav') || 'nav-normal');
         window.applyEffect('navGlass', localStorage.getItem('fetihNavGlass') || '');
         const currentTex = localStorage.getItem('fetihTex') || '';
         window.applyEffect('tex', currentTex);
         updateTexLivePreview(currentTex);
-        window.applyEffect('glow',  localStorage.getItem('fetihGlow')  || '');
+        window.applyEffect('glow', localStorage.getItem('fetihGlow') || '');
 
         // Navbar buttons binding
         document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => window.applyEffect('nav', b.dataset.nav)));
 
 
+
+        const texFadeBtn = document.getElementById('fetih-tex-fade-btn');
+        if (texFadeBtn) {
+            const updateTexFade = (active) => {
+                root.classList.toggle('tex-fade-active', active);
+                texFadeBtn.textContent = active ? 'Aktif' : 'Pasif';
+                texFadeBtn.classList.toggle('active', active);
+                localStorage.setItem('fetihTexFade', active ? '1' : '0');
+                if (!active) {
+                    root.style.setProperty('--scroll-fade', '1');
+                } else {
+                    // Trigger initial update
+                    root.dispatchEvent(new Event('scroll'));
+                }
+            };
+
+            const savedFade = localStorage.getItem('fetihTexFade') === '1';
+            updateTexFade(savedFade);
+
+            texFadeBtn.addEventListener('click', () => {
+                const isNowActive = !root.classList.contains('tex-fade-active');
+                updateTexFade(isNowActive);
+            });
+
+            // Scroll listener for texture fade
+            root.addEventListener('scroll', () => {
+                if (root.classList.contains('tex-fade-active')) {
+                    const scrollY = root.scrollTop;
+                    const fadeEnd = 600; // More aggressive fade (fully gone at 600px)
+                    const fadeAmount = Math.max(0, Math.min(1, 1 - (scrollY / fadeEnd)));
+                    root.style.setProperty('--scroll-fade', fadeAmount.toFixed(3));
+                }
+            }, { passive: true });
+        }
 
         // --- THEME COLOR PICKER ---
         const themeColors = [
@@ -1736,7 +1788,7 @@
             '#37BC9B', // Akuamarin
             '#656D78'  // Koyu Kurşun
         ];
-        
+
         const colorPicker = document.getElementById('fetih-color-picker');
         let activeColor = localStorage.getItem('fetihThemeColor') || '#CDA860';
 
@@ -1748,35 +1800,35 @@
         }
 
         function darkenHex(hex, amount) {
-            let r = Math.max(0, parseInt(hex.slice(1,3), 16) - amount);
-            let g = Math.max(0, parseInt(hex.slice(3,5), 16) - amount);
-            let b = Math.max(0, parseInt(hex.slice(5,7), 16) - amount);
-            return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
+            let r = Math.max(0, parseInt(hex.slice(1, 3), 16) - amount);
+            let g = Math.max(0, parseInt(hex.slice(3, 5), 16) - amount);
+            let b = Math.max(0, parseInt(hex.slice(5, 7), 16) - amount);
+            return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
         }
 
         function applyThemeColor(color) {
             root.style.setProperty('--primary', color);
             root.style.setProperty('--primary-rgb', hexToRgb(color));
             root.style.setProperty('--primary-dark', darkenHex(color, 55));
-            
+
             // Calculate Contrast Color
-            let r = parseInt(color.slice(1,3), 16);
-            let g = parseInt(color.slice(3,5), 16);
-            let b = parseInt(color.slice(5,7), 16);
+            let r = parseInt(color.slice(1, 3), 16);
+            let g = parseInt(color.slice(3, 5), 16);
+            let b = parseInt(color.slice(5, 7), 16);
             let brightness = (r * 299 + g * 587 + b * 114) / 1000;
             let contrast = brightness > 140 ? '#000000' : '#ffffff';
             root.style.setProperty('--primary-contrast', contrast);
-            
+
             let ataR = 255, ataG = 152, ataB = 0; // #ff9800 default
             if (color.toUpperCase() !== '#CDA860') {
-                let r = parseInt(color.slice(1,3), 16);
-                let g = parseInt(color.slice(3,5), 16);
-                let b = parseInt(color.slice(5,7), 16);
-                
+                let r = parseInt(color.slice(1, 3), 16);
+                let g = parseInt(color.slice(3, 5), 16);
+                let b = parseInt(color.slice(5, 7), 16);
+
                 ataR = 255 - r;
                 ataG = 255 - g;
                 ataB = 255 - b;
-                
+
                 if (ataR < 80 && ataG < 80 && ataB < 80) {
                     ataR = Math.min(255, ataR + 100);
                     ataG = Math.min(255, ataG + 100);
@@ -1785,12 +1837,12 @@
             }
             root.style.setProperty('--ata-accent', `rgb(${ataR}, ${ataG}, ${ataB})`);
             root.style.setProperty('--ata-accent-rgb', `${ataR}, ${ataG}, ${ataB}`);
-            
+
             localStorage.setItem('fetihThemeColor', color);
             activeColor = color;
             updateColorDots();
             updateFavicon(color);
-            
+
             // Diğer dinamik yerleri güncelle (varsa)
             document.querySelectorAll('[style*="#CDA860"]').forEach(el => {
                 el.style.color = el.style.color.replace(/#CDA860/gi, color);
@@ -1818,7 +1870,7 @@
 
         function updateFavicon(color) {
             const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 1500 1500" preserveAspectRatio="xMidYMid meet"><g transform="matrix(1, 0, 0, 1, 398, 123)"><g fill="${color}"><g transform="translate(0.786776, 991.992386)"><path d="M 686.546875 -518.875 L 639.90625 -739.125 L 609.15625 -730.1875 C 606.507812 -729.53125 603.695312 -729.035156 600.71875 -728.703125 C 597.738281 -728.367188 594.269531 -728.203125 590.3125 -728.203125 L 19.84375 -728.203125 L 20.828125 -697.453125 L 55.5625 -693.484375 L 77.390625 -676.625 L 81.359375 -658.765625 C 81.359375 -659.421875 82.019531 -657.101562 83.34375 -651.8125 L 84.328125 -102.1875 L 80.359375 24.796875 L 71.4375 80.359375 L 60.515625 130.953125 L 42.65625 168.65625 L 19.84375 204.375 L 340.296875 -2.96875 L 314.5 -17.859375 C 309.207031 -20.503906 301.929688 -26.457031 292.671875 -35.71875 L 280.765625 -64.484375 L 274.8125 -101.1875 L 276.796875 -283.75 L 308.546875 -316.484375 L 340.296875 -343.265625 L 368.078125 -354.1875 L 394.859375 -359.140625 L 414.703125 -351.203125 L 432.5625 -338.3125 L 441.484375 -313.5 L 446.453125 -282.75 L 576.421875 -410.734375 L 550.625 -461.328125 L 528.796875 -480.1875 L 504.984375 -495.0625 L 486.140625 -501.015625 L 447.4375 -501.015625 L 416.6875 -485.140625 L 385.9375 -464.3125 L 274.8125 -327.390625 L 276.796875 -697.453125 L 363.109375 -689.515625 L 439.5 -671.65625 L 480.1875 -655.78125 L 511.921875 -640.90625 L 548.640625 -621.0625 L 581.375 -599.234375 L 628 -554.59375 L 645.859375 -524.828125 L 660.75 -497.046875 Z M 686.546875 -518.875 "/></g></g></g></svg>`;
-            const blob = new Blob([svg], {type: 'image/svg+xml'});
+            const blob = new Blob([svg], { type: 'image/svg+xml' });
             const url = URL.createObjectURL(blob);
             let link = document.querySelector("link[rel*='icon']");
             if (!link) {
@@ -1834,18 +1886,18 @@
         function checkFullscreen() {
             const rootEl = document.getElementById('fetih-root');
             if (!rootEl) return;
-            
+
             // Check if window is very close to screen height (F11 mode) or manual toggle
             const heightRatio = window.innerHeight / window.screen.height;
             const isFull = manualFullscreen || heightRatio > 0.98 || document.fullscreenElement;
-            
+
             if (isFull) {
                 rootEl.classList.add('is-fullscreen');
             } else {
                 rootEl.classList.remove('is-fullscreen');
             }
         }
-        
+
         window.addEventListener('resize', checkFullscreen);
         window.addEventListener('keydown', (e) => {
             if (e.key === 'F11') {
@@ -2128,8 +2180,8 @@
                 // 1. Apply the "Ultra" combination
                 window.applyEffect('glow', 'glow-aurora');
                 window.applyEffect('tex', 'tex-p1');
-                window.applyEffect('glass', ''); 
-                
+                window.applyEffect('glass', '');
+
                 window._isPMode = true;
                 if (window._fetihSetMessage) window._fetihSetMessage("✨ Ultra Estetik Modu: AÇIK", true);
             } else {
@@ -2137,7 +2189,7 @@
                 window.applyEffect('glow', '');
                 window.applyEffect('tex', '');
                 window.applyEffect('glass', 'glass-none');
-                
+
                 window._isPMode = false;
                 if (window._fetihSetMessage) window._fetihSetMessage("🌑 Tüm Efektler Kapatıldı", true);
             }
@@ -2159,13 +2211,13 @@
                 if (!modal.classList.contains('active')) {
                     window.openFetihDash();
                 }
-                
+
                 // Focus on Texture Panel
                 const texPanel = document.getElementById('fetih-tex-panel');
                 const texChevron = document.getElementById('fetih-tex-chevron');
                 const glowPanel = document.getElementById('fetih-glow-panel');
                 const glowChevron = document.getElementById('fetih-glow-chevron');
-                
+
                 // Expand Texture, Collapse Glow
                 if (texPanel) {
                     texPanel.style.display = 'block';
@@ -2486,7 +2538,7 @@
         if (currentDataString === lastDataString) return;
         lastDataString = currentDataString;
         lastUpdateTimestamp = Date.now();
-        
+
         // Restore CANLI if it was DURDU
         const liveText = document.getElementById('live-text-span');
         if (liveText && liveText.textContent === 'DURDU') {
@@ -2537,7 +2589,7 @@
         overview.innerHTML = requested.map(item => {
             const v = data[item.key] || { buy: '-', sell: '-', rate: '%0.00', dir: '' };
             const isAta = item.key === 'ESKİATA';
-            const accentColor = isAta ? 'var(--ata-accent)' : 'var(--primary)'; 
+            const accentColor = isAta ? 'var(--ata-accent)' : 'var(--primary)';
             const accentRgb = isAta ? 'var(--ata-accent-rgb)' : 'var(--primary-rgb)';
 
             const badge = item.mult ? `<span class="mult-badge" style="${isAta ? `color:${accentColor}; border-color:rgba(${accentRgb},0.3); background:rgba(${accentRgb},0.1);` : ''}">${item.mult}</span>` :
@@ -2550,30 +2602,30 @@
             const dSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? `${arrow} ${v.sell}` : '<span class="material-symbols-outlined loading-icon" style="font-size:16px">sync</span>';
 
             const sellId = item.key === 'ESKİÇEYREK' ? 'id="val-ceyrek-sell"' : (item.key === 'ESKİATA' ? 'id="val-ata-sell"' : '');
-            
+
             const isCoin = ['ESKİÇEYREK', 'ESKİYARIM', 'ESKİTAM', 'ESKİGREMSE'].includes(item.key);
             const isAtaCoin = item.key === 'ESKİATA';
-            
+
             let coinImg = '';
             if (isCoin) {
-                coinImg = `<img class="card-visual" style="width:230px; height:230px; bottom:-70px; left:-70px;" src="${chrome.runtime.getURL('image/ceyrek.jpg')}" alt="Gold Coin">`;
+                coinImg = `<img class="card-visual" style="width:230px; height:230px; bottom:-70px; left:-70px; opacity:0.7;" src="${chrome.runtime.getURL('image/ceyrek.jpg')}" alt="Gold Coin">`;
             } else if (isAtaCoin) {
-                coinImg = `<img class="card-visual" style="width:230px; height:230px; bottom:-70px; left:-70px;" src="${chrome.runtime.getURL('image/ata.PNG')}" alt="Ata Gold">`;
+                coinImg = `<img class="card-visual" style="width:230px; height:230px; bottom:-70px; left:-70px; opacity:0.7;" src="${chrome.runtime.getURL('image/ata.PNG')}" alt="Ata Gold">`;
             }
 
             return `
                 <div class="mini-card" style="overflow:hidden; ${isAta ? `border: 1px solid var(--ata-accent); box-shadow: 0 0 10px rgba(${accentRgb}, 0.2);` : ''}">
                     ${coinImg}
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; position:relative; z-index:1;">
-                        <div style="font-size:11px; font-weight:900; color:${accentColor}; opacity:0.9; letter-spacing:1px">${item.label}</div>
+                        <div class="card-title" style="font-size:11px; font-weight:900; color:${accentColor}; opacity:0.9; letter-spacing:1px">${item.label}</div>
                         ${badge}
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; position:relative; z-index:1;">
-                        <span style="font-size:9px; opacity:0.8; font-weight:900; color:var(--on-surface)">AL</span>
+                        <span class="label-text" style="font-size:9px; opacity:0.8; font-weight:900; color:var(--on-surface)">AL</span>
                         <span class="t-val" style="font-size:17px; font-weight:800">${dBuy}</span>
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(var(--primary-rgb), 0.2); position:relative; z-index:1;">
-                        <span style="font-size:9px; opacity:0.8; font-weight:900; color:var(--on-surface)">SAT</span>
+                        <span class="label-text" style="font-size:9px; opacity:0.8; font-weight:900; color:var(--on-surface)">SAT</span>
                         <span ${sellId} class="t-val" style="font-size:17px; font-weight:900; color:${accentColor}">${dSell}</span>
                     </div>
                 </div>
@@ -2650,16 +2702,16 @@
 
             // Backup Timer: Sadece her şeyin yolunda olduğundan emin olmak için 5 saniyede bir
             setInterval(sync, 5000);
-            
+
             // Connection Monitor (1 dk = 60000 ms)
             setInterval(() => {
                 const liveText = document.getElementById('live-text-span');
                 if (!liveText) return;
-                
+
                 // Original site might show a warning modal
                 const siteModal = document.querySelector('.sweet-alert.showSweetAlert, .swal-modal, .swal2-container');
                 const isStale = Date.now() - lastUpdateTimestamp > 60000;
-                
+
                 if (isStale || siteModal) {
                     if (liveText.textContent !== 'DURDU') {
                         liveText.textContent = 'DURDU';
