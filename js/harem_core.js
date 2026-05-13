@@ -367,6 +367,7 @@
             }
             #fetih-root.light-mode .mini-card .card-title { color: #000 !important; }
             #fetih-root.light-mode .mini-card .label-text { color: var(--primary) !important; opacity: 1 !important; }
+            #fetih-root.light-mode .mini-card-sep { border-top: 1px solid #000 !important; }
 
             #fetih-root.light-mode .glass-card { box-shadow: 0 10px 40px rgba(0,0,0,0.05), inset 0 1px 1px rgba(255,255,255,0.8), inset 0 -1px 1px rgba(0,0,0,0.05) !important; }
             #fetih-root.light-mode th { color: #555 !important; border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
@@ -446,7 +447,8 @@
             /* ── SETTINGS MODAL ── */
             #fetih-dash-modal {
                 position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(0,0,0,0.85);
+                background: rgba(0, 0, 0, 0.4); /* 40% opacity black */
+                backdrop-filter: blur(8px);
                 z-index: 2147483647; display: none; align-items: center; justify-content: center;
                 opacity: 0; transition: opacity 0.3s ease;
             }
@@ -454,7 +456,8 @@
 
             .settings-container {
                 width: 90%; max-width: 480px; 
-                background: #141414; /* Using solid-ish color instead of heavy transparency */
+                background: rgba(18, 18, 18, 0.85); /* Transparent container to see background */
+                backdrop-filter: blur(20px);
                 border: 1px solid rgba(var(--primary-rgb),0.3);
                 border-radius: 32px; display: flex; flex-direction: column; 
                 overflow-y: auto; overflow-x: hidden;
@@ -902,7 +905,7 @@
                                     <span style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:8px">ALIŞ</span>
                                     <div id="val-gram-buy" class="t-val" style="font-size:32px; font-weight:900; color:var(--on-surface);">--</div>
                                 </div>
-                                <div style="padding-top:20px; border-top:1px solid rgba(255,255,255,0.1)">
+                                <div class="mini-card-sep" style="padding-top:20px; border-top:1px solid rgba(255,255,255,0.1)">
                                     <span style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:8px">SATIŞ</span>
                                     <div id="val-gram-sell" class="t-val" style="font-size:32px; font-weight:900; color:var(--primary);">--</div>
                                 </div>
@@ -920,7 +923,7 @@
                                 <span style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:8px">USD / ONS</span>
                                 <div id="val-ons-buy" class="t-val" style="font-size:32px; font-weight:900; color:var(--on-surface);">--</div>
                             </div>
-                            <div style="padding-top:20px; border-top:1px solid rgba(255,255,255,0.1)">
+                            <div class="mini-card-sep" style="padding-top:20px; border-top:1px solid rgba(255,255,255,0.1)">
                                 <span style="font-size:11px; font-weight:900; color:var(--primary); opacity:0.8; text-transform:uppercase; display:block; margin-bottom:8px">SATIŞ</span>
                                 <div id="val-ons-sell" class="t-val" style="font-size:32px; font-weight:900; color:var(--primary);">--</div>
                             </div>
@@ -2624,7 +2627,7 @@
                         <span class="label-text" style="font-size:9px; opacity:0.8; font-weight:900; color:var(--on-surface)">AL</span>
                         <span class="t-val" style="font-size:17px; font-weight:800">${dBuy}</span>
                     </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(var(--primary-rgb), 0.2); position:relative; z-index:1;">
+                    <div class="mini-card-sep" style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(var(--primary-rgb), 0.2); position:relative; z-index:1;">
                         <span class="label-text" style="font-size:9px; opacity:0.8; font-weight:900; color:var(--on-surface)">SAT</span>
                         <span ${sellId} class="t-val" style="font-size:17px; font-weight:900; color:${accentColor}">${dSell}</span>
                     </div>
