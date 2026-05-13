@@ -2611,7 +2611,14 @@
 
             let coinImg = '';
             if (isCoin) {
-                coinImg = `<img class="card-visual" style="width:230px; height:230px; bottom:-70px; left:-70px; opacity:0.7;" src="${chrome.runtime.getURL('image/ceyrek.jpg')}" alt="Gold Coin">`;
+                let coinSize = 230;
+                if (item.key === 'ESKİÇEYREK') coinSize = 125;
+                else if (item.key === 'ESKİYARIM') coinSize = 155;
+                else if (item.key === 'ESKİTAM') coinSize = 190;
+                else if (item.key === 'ESKİGREMSE') coinSize = 230;
+
+                const coinOffset = - (coinSize * 70 / 230);
+                coinImg = `<img class="card-visual" style="width:${coinSize}px; height:${coinSize}px; bottom:${coinOffset}px; left:${coinOffset}px; opacity:0.7;" src="${chrome.runtime.getURL('image/ceyrek.jpg')}" alt="Gold Coin">`;
             } else if (isAtaCoin) {
                 coinImg = `<img class="card-visual" style="width:230px; height:230px; bottom:-70px; left:-70px; opacity:0.7;" src="${chrome.runtime.getURL('image/ata.PNG')}" alt="Ata Gold">`;
             }
