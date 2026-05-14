@@ -2956,7 +2956,17 @@
 
             // MutationObserver: Sitedeki değişiklikleri izle, timer'ı kapat ve DEBOUNCE ekle
             let syncTimeout;
-            const observer = new MutationObserver(() => {
+            const observer = new MutationObserver((mutations) => {
+                // Kendi arayüzümüzde olan değişiklikleri yoksay (Sonsuz döngüyü/kasmayı engeller)
+                let isOwnMutation = true;
+                for (let m of mutations) {
+                    if (m.target.id !== 'fetih-root' && (!m.target.closest || !m.target.closest('#fetih-root'))) {
+                        isOwnMutation = false;
+                        break;
+                    }
+                }
+                if (isOwnMutation) return;
+
                 if (syncTimeout) clearTimeout(syncTimeout);
                 syncTimeout = setTimeout(sync, 250); // 250ms Debounce (Performans artışı)
             });

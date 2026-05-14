@@ -24,10 +24,10 @@
     };
 
     const ASSET_KEYS = {
-        'HAS':    ['val-has-sell',  'Has Altın'],
+        'HAS': ['val-has-sell', 'Has Altın'],
         'CEYREK': ['val-ceyrek-sell', 'Çeyrek Altın'],
-        'ATA':    ['val-ata-sell',  'Ata Altın'],
-        'ONS':    ['val-ons-sell',  'Ons Altın'],
+        'ATA': ['val-ata-sell', 'Ata Altın'],
+        'ONS': ['val-ons-sell', 'Ons Altın'],
     };
 
     let db = null;
@@ -134,9 +134,9 @@
 
     // Hareket seviyesini belirle
     function classifyMove(absPct) {
-        if (absPct < MOVE.NORMAL_MAX)  return 'normal';
-        if (absPct < MOVE.MEDIUM_MAX)  return 'medium';
-        if (absPct < MOVE.FAST_MAX)    return 'fast';
+        if (absPct < MOVE.NORMAL_MAX) return 'normal';
+        if (absPct < MOVE.MEDIUM_MAX) return 'medium';
+        if (absPct < MOVE.FAST_MAX) return 'fast';
         return 'extreme';
     }
 
@@ -164,8 +164,8 @@
     }
 
     function buildComparison(records, currentPrice) {
-        const day   = findClosestRecord(records, 24 * 60 * 60 * 1000);
-        const week  = findClosestRecord(records, 7 * 24 * 60 * 60 * 1000);
+        const day = findClosestRecord(records, 24 * 60 * 60 * 1000);
+        const week = findClosestRecord(records, 7 * 24 * 60 * 60 * 1000);
         const month = findClosestRecord(records, 30 * 24 * 60 * 60 * 1000);
 
         const fmt = (rec) => {
@@ -189,10 +189,10 @@
         let ups = 0, downs = 0, consUp = 0, consDown = 0, maxConsUp = 0, maxConsDown = 0;
 
         for (let i = 1; i < recent.length; i++) {
-            if (recent[i].price > recent[i-1].price) {
+            if (recent[i].price > recent[i - 1].price) {
                 ups++; consUp++; consDown = 0;
                 maxConsUp = Math.max(maxConsUp, consUp);
-            } else if (recent[i].price < recent[i-1].price) {
+            } else if (recent[i].price < recent[i - 1].price) {
                 downs++; consDown++; consUp = 0;
                 maxConsDown = Math.max(maxConsDown, consDown);
             }
@@ -204,7 +204,7 @@
         const totalPct = Math.abs(calcPct(oldest, newest));
 
         // Zaman bazlı hız (dk başına % değişim)
-        const timeDiffMs = recent[recent.length-1].ts - recent[0].ts;
+        const timeDiffMs = recent[recent.length - 1].ts - recent[0].ts;
         const minutes = Math.max(timeDiffMs / 60000, 1);
         const speed = totalPct / minutes;
 
@@ -299,10 +299,10 @@
     ═══════════════════════════════════════ */
     async function checkStaleData() {
         if (startupCooldown) return false;
-        
+
         const now = new Date();
-        const day = now.getDay(); 
-        if (day === 0 || day === 6) return false; 
+        const day = now.getDay();
+        if (day === 0 || day === 6) return false;
 
         // 1. İnternet Bağlantısı Kontrolü (Hemen kontrol et)
         if (!navigator.onLine) {
@@ -351,8 +351,8 @@
         let icon = 'sync_problem';
         let color = '#f87171';
 
-        if (minutes >= 60) { 
-            text = `⚠️ Veri Akışı Durdu: ${Math.floor(minutes/60)} saattir güncelleme yok!`;
+        if (minutes >= 60) {
+            text = `⚠️ Veri Akışı Durdu: ${Math.floor(minutes / 60)} saattir güncelleme yok!`;
         } else if (minutes >= 5) {
             text = `⚠️ Dikkat: Veriler ${minutes} dakikadır güncellenmiyor. Donma olabilir.`;
         } else if (minutes >= 1) {
@@ -392,7 +392,7 @@
 
             const sign = data.pct > 0 ? '+' : '';
             const pctColor = data.pct > 0 ? '#22c55e' : (data.pct < 0 ? '#ef4444' : '#888');
-            const tlColor  = data.pct > 0 ? 'color:var(--on-surface);text-decoration:underline;text-decoration-color:#22c55e;text-underline-offset:3px' : (data.pct < 0 ? 'color:var(--on-surface);text-decoration:underline;text-decoration-color:#ef4444;text-underline-offset:3px' : 'color:var(--on-surface)');
+            const tlColor = data.pct > 0 ? 'color:var(--on-surface);text-decoration:underline;text-decoration-color:#22c55e;text-underline-offset:3px' : (data.pct < 0 ? 'color:var(--on-surface);text-decoration:underline;text-decoration-color:#ef4444;text-underline-offset:3px' : 'color:var(--on-surface)');
             const iconName = periodIcons[periodLabel] || 'schedule';
 
             let m = `${label}: <span style="color:var(--primary);font-weight:800">${current.toLocaleString('tr-TR')}</span>`;
@@ -419,7 +419,7 @@
     /* ═══════════════════════════════════════
        DASHBOARD API (değişmedi)
     ═══════════════════════════════════════ */
-    window.getFetihAssetAnalysis = async function(asset) {
+    window.getFetihAssetAnalysis = async function (asset) {
         const now = Date.now();
         const records = await getLevelRecords(asset, now - 31 * 24 * 60 * 60 * 1000);
         const current = readCurrentPrice(asset);
@@ -430,11 +430,11 @@
 
         const levels = await (async () => {
             const [d, w, m] = await Promise.all([
-                getLevelRecords(asset, now - 24*60*60*1000),
-                getLevelRecords(asset, now - 7*24*60*60*1000),
-                getLevelRecords(asset, now - 30*24*60*60*1000),
+                getLevelRecords(asset, now - 24 * 60 * 60 * 1000),
+                getLevelRecords(asset, now - 7 * 24 * 60 * 60 * 1000),
+                getLevelRecords(asset, now - 30 * 24 * 60 * 60 * 1000),
             ]);
-            const mm = (arr) => { if (!arr.length) return null; const p = arr.map(r=>r.price); return { high: Math.max(...p), low: Math.min(...p) }; };
+            const mm = (arr) => { if (!arr.length) return null; const p = arr.map(r => r.price); return { high: Math.max(...p), low: Math.min(...p) }; };
             return { daily: mm(d), weekly: mm(w), monthly: mm(m) };
         })();
         const range = levels.monthly || levels.weekly || levels.daily;
@@ -469,7 +469,7 @@
                 saveRecord(asset, price);
             }
         }
-        
+
         if (anyChange) {
             lastGlobalChangeTs = Date.now();
         }
@@ -501,7 +501,7 @@
             try {
                 const comments = await analyzeAsset(asset);
                 if (comments?.length) results.push(...comments);
-            } catch (_) {}
+            } catch (_) { }
         }
         if (results.length) {
             // Sadece cache'i güncelle — gösterim rotateComment döngüsüne bırakılıyor
@@ -550,7 +550,7 @@
         const GOLD = 'var(--primary)';
         let s = text;
         // Sadece Varlık isimlerini altın rengi yap (zaten tag varsa dokunma)
-        ['Has Altın','Çeyrek Altın','Ons Altın','Ata Altın'].forEach(a => {
+        ['Has Altın', 'Çeyrek Altın', 'Ons Altın', 'Ata Altın'].forEach(a => {
             const rx = new RegExp(`(?<![\\w\u00c0-\u017f])(${a})(?![\\w\u00c0-\u017f])`, 'gi');
             if (!s.includes(`style="color:${GOLD}`)) {
                 s = s.replace(rx, `<span style="color:${GOLD};font-weight:700">$1</span>`);
@@ -580,7 +580,7 @@
             } else {
                 // Normal mesajlar: Stil sıfırla (Kırmızı/Yeşil kalmasın)
                 const iconEl = document.querySelector('.siri-icon');
-                const orbEl  = document.querySelector('.siri-orb');
+                const orbEl = document.querySelector('.siri-orb');
                 if (iconEl) {
                     const isCollecting = text.includes('toplanıyor') || text.includes('hazırlanıyor');
                     iconEl.textContent = isCollecting ? 'progress_activity' : 'smart_toy';
@@ -645,13 +645,13 @@
     /* ═══════════════════════════════════════
        DIŞ ENTEGRASYON
     ═══════════════════════════════════════ */
-    window.fetihBotNotify = function(text, iconName = 'notifications_active', iconColor = '#f87171', persistent = false) {
+    window.fetihBotNotify = function (text, iconName = 'notifications_active', iconColor = '#f87171', persistent = false) {
         const msg = document.getElementById('asst-msg');
         if (!msg) return;
         setMessage(msg, text, true);
 
         const iconEl = document.querySelector('.siri-icon');
-        const orbEl  = document.querySelector('.siri-orb');
+        const orbEl = document.querySelector('.siri-orb');
         const trigger = document.getElementById('fetih-bot-trigger');
 
         if (iconEl) {
