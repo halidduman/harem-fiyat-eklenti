@@ -174,26 +174,27 @@
             .card-visual {
                 position: absolute;
                 bottom: -20px;
-                left: -20px;
+                left: var(--visual-pos-left, -20px);
+                right: var(--visual-pos-right, auto);
                 width: 140px;
                 height: 140px;
                 opacity: 0.7;
                 pointer-events: none;
                 z-index: 0;
-                transform: rotate(-12deg);
+                transform: rotate(var(--visual-rotate, -12deg));
                 display: none;
                 filter: brightness(1.1) contrast(1.1);
                 object-fit: contain;
+                transition: left 0.3s, right 0.3s, transform 0.3s, opacity 0.3s;
             }
             #fetih-root.show-visuals .card-visual { display: block !important; }
             #fetih-root.light-mode .card-visual { filter: brightness(1.1) contrast(1.1); opacity: 0.9; }
             #fetih-root:not(.light-mode) .card-visual { filter: brightness(0.7) contrast(1.8) sepia(0.5) hue-rotate(-10deg); opacity: 0.85; }
 
-            /* Negative labels for better readability over visuals */
-            #fetih-root.show-visuals .mini-card .label-text {
-                color: #fff !important;
-                mix-blend-mode: difference !important;
-                opacity: 1 !important;
+            /* Dynamic gradient opacity for coin visuals */
+            .mini-card .card-visual {
+                mask-image: linear-gradient(var(--visual-mask-dir, to right), rgba(0,0,0,0) 0%, rgba(0,0,0,var(--visual-mask-start, 0)) var(--visual-mask-stop, 0%), rgba(0,0,0,1) 100%);
+                -webkit-mask-image: linear-gradient(var(--visual-mask-dir, to right), rgba(0,0,0,0) 0%, rgba(0,0,0,var(--visual-mask-start, 0)) var(--visual-mask-stop, 0%), rgba(0,0,0,1) 100%);
             }
 
             /* Table Styles - UNIFIED FLEX SLABS */
@@ -268,7 +269,7 @@
             /* ── NAVBAR BOT ── */
             #fetih-bot-trigger {
                 display: flex; align-items: center;
-                height: 34px;
+                height: 38px; min-width: 38px;
                 border-radius: 999px;
                 background: #0a0a0a;
                 border: 1px solid rgba(var(--primary-rgb), 0.4);
@@ -281,7 +282,7 @@
             #fetih-bot-trigger:hover { border-color: rgba(var(--primary-rgb), 0.5); }
 
             .siri-orb {
-                width: 32px; height: 32px; flex-shrink: 0;
+                width: 38px; height: 38px; flex-shrink: 0;
                 border-radius: 50%;
                 background: #000;
                 display: flex; align-items: center; justify-content: center;
@@ -878,8 +879,8 @@
                         </div>
                         <span id="asst-msg" class="bot-msg-text"></span>
                     </div>
-                    <button id="fetih-chart-btn" title="Geçmiş Veriler ve Grafik" style="background:rgba(255,255,255,0.06);border:1px solid rgba(var(--primary-rgb),0.25);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s; margin-left:8px;">
-                        <span class="material-symbols-outlined" style="font-size:22px;color:var(--primary)">show_chart</span>
+                    <button id="fetih-chart-btn" title="Geçmiş Veriler ve Grafik" style="background:rgba(255,255,255,0.06); border:1px solid rgba(var(--primary-rgb),0.25); border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.3s; margin-left:8px;">
+                        <span class="material-symbols-outlined" style="font-size:20px; color:var(--primary)">show_chart</span>
                     </button>
                 </div>
             </nav>
@@ -1163,17 +1164,74 @@
                             </div>
                         </div>
 
-                        <!-- Card Visuals Toggle (NEW) -->
-                        <div class="settings-card">
-                            <div class="settings-info">
-                                <h3>Kart Görselleri</h3>
-                                <p>Altın kutularında ikonları göster/gizle</p>
+                        <!-- Card Visuals Comprehensive Settings -->
+                        <div class="settings-card" style="flex-direction: column; align-items: stretch;">
+                            <div id="fetih-visuals-toggle" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 4px 0;">
+                                <div class="settings-info">
+                                    <h3 style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">image</span> 
+                                        Kart Görselleri Ayarları
+                                    </h3>
+                                    <p>İkonların görünümü, boyutu ve konumu</p>
+                                </div>
+                                <span class="material-symbols-outlined" id="fetih-visuals-chevron" style="transition: transform 0.3s;">expand_more</span>
                             </div>
-                            <button id="fetih-visuals-btn"
-                                title="Görselleri Aç/Kapat"
-                                style="background:rgba(255,255,255,0.06);border:1px solid rgba(var(--primary-rgb),0.25);border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s; flex-shrink:0;">
-                                <span class="material-symbols-outlined" style="font-size:24px;color:var(--outline)">image</span>
-                            </button>
+
+                            <div id="fetih-visuals-panel" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+                                <!-- Main Toggle -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <div class="settings-info">
+                                        <h4 style="margin:0; font-size:13px; color:#fff;">Görselleri Göster</h4>
+                                        <p style="font-size:11px;">Tüm kart ikonlarını aç/kapat</p>
+                                    </div>
+                                    <button id="fetih-visuals-btn" class="fx-btn" style="width: auto; padding: 8px 16px;">Aktif</button>
+                                </div>
+
+                                <!-- Position Toggle -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                                    <div class="settings-info">
+                                        <h4 style="margin:0; font-size:13px; color:#fff;">Görsel Konumu</h4>
+                                        <p style="font-size:11px;">İkonların köşesini seçin</p>
+                                    </div>
+                                    <div style="display:flex; background:rgba(0,0,0,0.3); padding:4px; border-radius:12px;">
+                                        <button id="pos-left-btn" class="fx-btn active" style="width:auto; padding:6px 12px; border-radius:8px;">SOL</button>
+                                        <button id="pos-right-btn" class="fx-btn" style="width:auto; padding:6px 12px; border-radius:8px;">SAĞ</button>
+                                    </div>
+                                </div>
+
+                                <!-- Size Multiplier -->
+                                <div style="margin-bottom: 24px;">
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                        <span style="font-size:11px; font-weight:800; color:var(--outline);">GÖRSEL BOYUTU</span>
+                                        <span id="visual-size-val" style="font-size:11px; font-weight:900; color:var(--primary);">1.0x</span>
+                                    </div>
+                                    <input type="range" id="visual-size-input" min="0.5" max="2" step="0.1" value="1" style="width:100%; accent-color:var(--primary);">
+                                </div>
+
+                                <!-- Fade Settings -->
+                                <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                        <div class="settings-info">
+                                            <h4 style="margin:0; font-size:13px; color:#fff;">Geçiş (Fade) Efekti</h4>
+                                            <p style="font-size:11px;">Görselleri yumuşatarak karart</p>
+                                        </div>
+                                        <button id="fetih-visual-fade-btn" class="fx-btn" style="width: auto; padding: 8px 16px;">Aktif</button>
+                                    </div>
+                                    <div id="fetih-visual-fade-panel">
+                                        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">GEÇİŞ ŞİDDETİ</span>
+                                            <span id="visual-fade-val" style="font-size:11px; font-weight:900; color:var(--primary);">100%</span>
+                                        </div>
+                                        <input type="range" id="visual-fade-input" min="0" max="100" value="100" style="width:100%; accent-color:var(--primary);">
+                                    </div>
+                                </div>
+
+                                <!-- Reset Button -->
+                                <button id="fetih-visuals-reset" style="margin-top: 25px; width:100%; padding:12px; border-radius:12px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:#f87171; font-weight:800; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.3s;">
+                                    <span class="material-symbols-outlined" style="font-size:18px;">restart_alt</span>
+                                    GÖRSEL AYARLARINI SIFIRLA
+                                </button>
+                            </div>
                         </div>
 
 
@@ -1385,36 +1443,166 @@
             });
         }
 
-        // Visuals Toggle
+        // --- COMPREHENSIVE CARD VISUALS LOGIC ---
         const visualsBtn = document.getElementById('fetih-visuals-btn');
-        let visualsEnabled = localStorage.getItem('fetihVisualsEnabled') === 'true';
+        const visualsPanel = document.getElementById('fetih-visuals-panel');
+        const visualsToggle = document.getElementById('fetih-visuals-toggle');
+        const visualsChevron = document.getElementById('fetih-visuals-chevron');
+        const visualsReset = document.getElementById('fetih-visuals-reset');
+        
+        const posLeftBtn = document.getElementById('pos-left-btn');
+        const posRightBtn = document.getElementById('pos-right-btn');
+        const sizeInput = document.getElementById('visual-size-input');
+        const sizeVal = document.getElementById('visual-size-val');
+        
+        const fadeBtn = document.getElementById('fetih-visual-fade-btn');
+        const fadeInput = document.getElementById('visual-fade-input');
+        const fadeVal = document.getElementById('visual-fade-val');
+        const fadePanel = document.getElementById('fetih-visual-fade-panel');
 
-        const updateVisualsUI = () => {
+        // State & Persistence
+        const getSetting = (key, def) => localStorage.getItem(key) !== null ? localStorage.getItem(key) : def;
+
+        let visualsEnabled = getSetting('fetihVisualsEnabled', 'false') === 'true';
+        let visualPos = getSetting('fetihVisualPos', 'left');
+        let visualSize = getSetting('fetihVisualSize', '1');
+        let fadeEnabled = getSetting('fetihVisualFadeEnabled', 'true') === 'true';
+        let fadeIntensity = getSetting('fetihVisualFadeIntensity', '100');
+
+        const updateAllVisualsUI = () => {
+            // Main Visibility
             if (visualsEnabled) {
                 root.classList.add('show-visuals');
-                if (visualsBtn) {
-                    visualsBtn.style.borderColor = 'rgba(var(--primary-rgb), 0.5)';
-                    visualsBtn.style.background = 'rgba(var(--primary-rgb), 0.1)';
-                    visualsBtn.querySelector('span').style.color = 'var(--primary)';
-                }
+                visualsBtn.textContent = 'Aktif';
+                visualsBtn.classList.add('active');
             } else {
                 root.classList.remove('show-visuals');
-                if (visualsBtn) {
-                    visualsBtn.style.borderColor = 'rgba(255,255,255,0.1)';
-                    visualsBtn.style.background = 'rgba(255,255,255,0.05)';
-                    visualsBtn.querySelector('span').style.color = 'var(--outline)';
-                }
+                visualsBtn.textContent = 'Kapalı';
+                visualsBtn.classList.remove('active');
             }
+
+            // Position
+            if (visualPos === 'left') {
+                posLeftBtn.classList.add('active');
+                posRightBtn.classList.remove('active');
+                root.style.setProperty('--visual-pos-left', 'var(--coin-base-offset)');
+                root.style.setProperty('--visual-pos-right', 'auto');
+                root.style.setProperty('--visual-rotate', '-12deg');
+                root.style.setProperty('--visual-mask-dir', 'to right');
+            } else {
+                posLeftBtn.classList.remove('active');
+                posRightBtn.classList.add('active');
+                root.style.setProperty('--visual-pos-left', 'auto');
+                root.style.setProperty('--visual-pos-right', 'var(--coin-base-offset)');
+                root.style.setProperty('--visual-rotate', '12deg');
+                root.style.setProperty('--visual-mask-dir', 'to left');
+            }
+
+            // Size
+            root.style.setProperty('--visual-size-mult', visualSize);
+            sizeVal.textContent = visualSize + 'x';
+            sizeInput.value = visualSize;
+
+            // Fade
+            if (fadeEnabled) {
+                // Şiddeti artırıyoruz: 100% şiddet, görselin %80'ini karartabilir
+                const intensityFactor = fadeIntensity / 100;
+                const maskStop = intensityFactor * 85; // %0 - %85 arası kayma
+                const startOpacity = Math.max(0, 1 - (intensityFactor * 2)); // Daha agresif şeffaflaşma
+                
+                root.style.setProperty('--visual-mask-stop', maskStop + '%');
+                root.style.setProperty('--visual-mask-start', startOpacity);
+                
+                fadeBtn.textContent = 'Aktif';
+                fadeBtn.classList.add('active');
+                fadePanel.style.opacity = '1';
+                fadePanel.style.pointerEvents = 'auto';
+            } else {
+                root.style.setProperty('--visual-mask-stop', '0%');
+                root.style.setProperty('--visual-mask-start', '1');
+                fadeBtn.textContent = 'Kapalı';
+                fadeBtn.classList.remove('active');
+                fadePanel.style.opacity = '0.3';
+                fadePanel.style.pointerEvents = 'none';
+            }
+            fadeVal.textContent = fadeIntensity + '%';
+            fadeInput.value = fadeIntensity;
         };
 
-        if (visualsBtn) {
-            visualsBtn.addEventListener('click', () => {
-                visualsEnabled = !visualsEnabled;
-                localStorage.setItem('fetihVisualsEnabled', visualsEnabled);
-                updateVisualsUI();
+        // Listeners
+        if (visualsToggle) {
+            visualsToggle.addEventListener('click', () => {
+                const isHidden = visualsPanel.style.display === 'none';
+                visualsPanel.style.display = isHidden ? 'block' : 'none';
+                visualsChevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
             });
         }
-        updateVisualsUI();
+
+        visualsBtn.addEventListener('click', () => {
+            visualsEnabled = !visualsEnabled;
+            localStorage.setItem('fetihVisualsEnabled', visualsEnabled);
+            updateAllVisualsUI();
+        });
+
+        posLeftBtn.addEventListener('click', () => {
+            visualPos = 'left';
+            localStorage.setItem('fetihVisualPos', visualPos);
+            updateAllVisualsUI();
+        });
+
+        posRightBtn.addEventListener('click', () => {
+            visualPos = 'right';
+            localStorage.setItem('fetihVisualPos', visualPos);
+            updateAllVisualsUI();
+        });
+
+        sizeInput.addEventListener('input', (e) => {
+            visualSize = e.target.value;
+            localStorage.setItem('fetihVisualSize', visualSize);
+            updateAllVisualsUI();
+        });
+
+        fadeBtn.addEventListener('click', () => {
+            fadeEnabled = !fadeEnabled;
+            localStorage.setItem('fetihVisualFadeEnabled', fadeEnabled);
+            updateAllVisualsUI();
+        });
+
+        fadeInput.addEventListener('input', (e) => {
+            fadeIntensity = e.target.value;
+            localStorage.setItem('fetihVisualFadeIntensity', fadeIntensity);
+            updateAllVisualsUI();
+        });
+
+        visualsReset.addEventListener('click', () => {
+            visualsEnabled = true;
+            visualPos = 'left';
+            visualSize = '1';
+            fadeEnabled = true;
+            fadeIntensity = '100';
+            
+            localStorage.setItem('fetihVisualsEnabled', visualsEnabled);
+            localStorage.setItem('fetihVisualPos', visualPos);
+            localStorage.setItem('fetihVisualSize', visualSize);
+            localStorage.setItem('fetihVisualFadeEnabled', fadeEnabled);
+            localStorage.setItem('fetihVisualFadeIntensity', fadeIntensity);
+            
+            updateAllVisualsUI();
+            
+            // UI Feedback
+            visualsReset.style.background = 'rgba(74, 222, 128, 0.2)';
+            visualsReset.style.borderColor = '#4ade80';
+            visualsReset.style.color = '#4ade80';
+            visualsReset.innerHTML = '<span class="material-symbols-outlined">done</span> SIFIRLANDI';
+            setTimeout(() => {
+                visualsReset.style.background = '';
+                visualsReset.style.borderColor = '';
+                visualsReset.style.color = '';
+                visualsReset.innerHTML = '<span class="material-symbols-outlined">restart_alt</span> GÖRSEL AYARLARINI SIFIRLA';
+            }, 2000);
+        });
+
+        updateAllVisualsUI();
 
         // Color Panel Toggle
         const colorToggle = document.getElementById('fetih-color-toggle');
@@ -2610,92 +2798,139 @@
             { key: 'ESKİATA', label: 'Ata', star: true }
         ];
 
-        overview.innerHTML = requested.map(item => {
+        // İlk yüklemede iskeleti oluştur
+        if (overview.children.length === 0) {
+            overview.innerHTML = requested.map(item => {
+                const isAta = item.key === 'ESKİATA';
+                const accentColor = isAta ? 'var(--ata-accent)' : 'var(--primary)';
+                const accentRgb = isAta ? 'var(--ata-accent-rgb)' : 'var(--primary-rgb)';
+                const badge = item.mult ? `<span class="mult-badge" style="${isAta ? `color:${accentColor}; border-color:rgba(${accentRgb},0.3); background:rgba(${accentRgb},0.1);` : ''}">${item.mult}</span>` :
+                    (item.star ? `<span class="star-badge" style="${isAta ? `border-color:rgba(${accentRgb},0.4); background:rgba(${accentRgb},0.1);` : ''}"><span class="material-symbols-outlined" style="font-size:12px;color:${accentColor}">star</span></span>` : '');
+
+                let coinImg = '';
+                const isCoin = ['ESKİÇEYREK', 'ESKİYARIM', 'ESKİTAM', 'ESKİGREMSE'].includes(item.key);
+                if (isCoin) {
+                    let coinSize = 230;
+                    if (item.key === 'ESKİÇEYREK') coinSize = 125;
+                    else if (item.key === 'ESKİYARIM') coinSize = 155;
+                    else if (item.key === 'ESKİTAM') coinSize = 190;
+                    else if (item.key === 'ESKİGREMSE') coinSize = 230;
+                    const coinOffset = - (coinSize * 70 / 230);
+                    coinImg = `<img class="card-visual" style="
+                        --coin-base-size: ${coinSize}px;
+                        --coin-base-offset: ${coinOffset}px;
+                        width: calc(var(--coin-base-size) * var(--visual-size-mult, 1));
+                        height: calc(var(--coin-base-size) * var(--visual-size-mult, 1));
+                        bottom: calc(var(--coin-base-offset) * var(--visual-size-mult, 1));
+                        left: var(--visual-pos-left, calc(var(--coin-base-offset) * var(--visual-size-mult, 1)));
+                        right: var(--visual-pos-right, auto);
+                        transform: rotate(var(--visual-rotate, -12deg));
+                    " src="${chrome.runtime.getURL('image/ceyrek.png')}" alt="Gold Coin">`;
+                } else if (item.key === 'ESKİATA') {
+                    coinImg = `<img class="card-visual" style="
+                        --coin-base-size: 230px;
+                        --coin-base-offset: -70px;
+                        width: calc(var(--coin-base-size) * var(--visual-size-mult, 1));
+                        height: calc(var(--coin-base-size) * var(--visual-size-mult, 1));
+                        bottom: calc(var(--coin-base-offset) * var(--visual-size-mult, 1));
+                        left: var(--visual-pos-left, calc(var(--coin-base-offset) * var(--visual-size-mult, 1)));
+                        right: var(--visual-pos-right, auto);
+                        transform: rotate(var(--visual-rotate, -12deg));
+                    " src="${chrome.runtime.getURL('image/ata.png')}" alt="Ata Gold">`;
+                }
+
+                return `
+                    <div class="mini-card" data-key="${item.key}" style="overflow:hidden; ${isAta ? `border: 1px solid var(--ata-accent); box-shadow: 0 0 10px rgba(${accentRgb}, 0.2);` : ''}">
+                        ${coinImg}
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; position:relative; z-index:1;">
+                            <div class="card-title" style="font-size:11px; font-weight:900; color:${accentColor}; opacity:0.9; letter-spacing:1px">${item.label}</div>
+                            ${badge}
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; position:relative; z-index:1;">
+                            <span class="label-text" style="font-size:9px; opacity:0.8; font-weight:900; color:var(--on-surface)">AL</span>
+                            <span class="t-val ov-buy" style="font-size:17px; font-weight:800">--</span>
+                        </div>
+                        <div class="mini-card-sep" style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(var(--primary-rgb), 0.2); position:relative; z-index:1;">
+                            <span class="label-text" style="font-size:9px; opacity:0.8; font-weight:900; color:var(--on-surface)">SAT</span>
+                            <span class="t-val ov-sell" style="font-size:17px; font-weight:900; color:${accentColor}">--</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Sadece değerleri güncelle
+        requested.forEach(item => {
+            const card = overview.querySelector(`.mini-card[data-key="${item.key}"]`);
+            if (!card) return;
             const v = data[item.key] || { buy: '-', sell: '-', rate: '%0.00', dir: '' };
-            const isAta = item.key === 'ESKİATA';
-            const accentColor = isAta ? 'var(--ata-accent)' : 'var(--primary)';
-            const accentRgb = isAta ? 'var(--ata-accent-rgb)' : 'var(--primary-rgb)';
-
-            const badge = item.mult ? `<span class="mult-badge" style="${isAta ? `color:${accentColor}; border-color:rgba(${accentRgb},0.3); background:rgba(${accentRgb},0.1);` : ''}">${item.mult}</span>` :
-                (item.star ? `<span class="star-badge" style="${isAta ? `border-color:rgba(${accentRgb},0.4); background:rgba(${accentRgb},0.1);` : ''}"><span class="material-symbols-outlined" style="font-size:12px;color:${accentColor}">star</span></span>` : '');
-
-            const arrow = v.dir === 'up' ? `<span class="material-symbols-outlined" style="color:var(--success);font-size:16px;vertical-align:text-bottom">arrow_upward</span>` :
-                (v.dir === 'down' ? `<span class="material-symbols-outlined" style="color:var(--error);font-size:16px;vertical-align:text-bottom">arrow_downward</span>` : '');
-
-            const dBuy = (v.buy && v.buy !== '-' && v.buy !== 'NaN') ? `${arrow} ${v.buy}` : '<span class="material-symbols-outlined loading-icon" style="font-size:16px">sync</span>';
-            const dSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? `${arrow} ${v.sell}` : '<span class="material-symbols-outlined loading-icon" style="font-size:16px">sync</span>';
-
-            const sellId = item.key === 'ESKİÇEYREK' ? 'id="val-ceyrek-sell"' : (item.key === 'ESKİATA' ? 'id="val-ata-sell"' : '');
-
-            const isCoin = ['ESKİÇEYREK', 'ESKİYARIM', 'ESKİTAM', 'ESKİGREMSE'].includes(item.key);
-            const isAtaCoin = item.key === 'ESKİATA';
-
-            let coinImg = '';
-            if (isCoin) {
-                let coinSize = 230;
-                if (item.key === 'ESKİÇEYREK') coinSize = 125;
-                else if (item.key === 'ESKİYARIM') coinSize = 155;
-                else if (item.key === 'ESKİTAM') coinSize = 190;
-                else if (item.key === 'ESKİGREMSE') coinSize = 230;
-
-                const coinOffset = - (coinSize * 70 / 230);
-                coinImg = `<img class="card-visual" style="width:${coinSize}px; height:${coinSize}px; bottom:${coinOffset}px; left:${coinOffset}px;" src="${chrome.runtime.getURL('image/ceyrek.png')}" alt="Gold Coin">`;
-            } else if (isAtaCoin) {
-                coinImg = `<img class="card-visual" style="width:230px; height:230px; bottom:-70px; left:-70px;" src="${chrome.runtime.getURL('image/ata.png')}" alt="Ata Gold">`;
-            }
-
-            return `
-                <div class="mini-card" style="overflow:hidden; ${isAta ? `border: 1px solid var(--ata-accent); box-shadow: 0 0 10px rgba(${accentRgb}, 0.2);` : ''}">
-                    ${coinImg}
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; position:relative; z-index:1;">
-                        <div class="card-title" style="font-size:11px; font-weight:900; color:${accentColor}; opacity:0.9; letter-spacing:1px">${item.label}</div>
-                        ${badge}
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; position:relative; z-index:1;">
-                        <span class="label-text" style="font-size:9px; opacity:0.8; font-weight:900; color:var(--on-surface)">AL</span>
-                        <span class="t-val" style="font-size:17px; font-weight:800">${dBuy}</span>
-                    </div>
-                    <div class="mini-card-sep" style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(var(--primary-rgb), 0.2); position:relative; z-index:1;">
-                        <span class="label-text" style="font-size:9px; opacity:0.8; font-weight:900; color:var(--on-surface)">SAT</span>
-                        <span ${sellId} class="t-val" style="font-size:17px; font-weight:900; color:${accentColor}">${dSell}</span>
-                    </div>
-                </div>
-            `;
-        }).join('');
+            const arrow = v.dir === 'up' ? '↑' : (v.dir === 'down' ? '↓' : '');
+            
+            const buyEl = card.querySelector('.ov-buy');
+            const sellEl = card.querySelector('.ov-sell');
+            
+            const newBuy = (v.buy && v.buy !== '-') ? `${arrow} ${v.buy}` : '--';
+            const newSell = (v.sell && v.sell !== '-') ? `${arrow} ${v.sell}` : '--';
+            
+            if (buyEl.textContent !== newBuy) buyEl.textContent = newBuy;
+            if (sellEl.textContent !== newSell) sellEl.textContent = newSell;
+        });
     }
 
     function renderTable(data) {
         const tbody = document.getElementById('sync-tbody');
         if (!tbody) return;
-        tbody.innerHTML = Object.values(data).map(v => {
-            const arrowIcon = v.dir === 'down' ? 'arrow_downward' : 'arrow_upward';
-            const iconBg = 'rgba(255,255,255,0.08)';
-            const iconColor = v.dir === 'down' ? 'var(--error)' : 'var(--success)';
-            const iconHTML = `<div style="display:flex; align-items:center; justify-content:center; width:48px; height:48px; border-radius:50%; background:${iconBg}; margin-right:24px; flex-shrink:0;">
-                                <span class="material-symbols-outlined" style="font-size:28px !important; color:${iconColor} !important; font-weight:bold !important;">${arrowIcon}</span>
-                              </div>`;
 
+        Object.values(data).forEach(v => {
+            const cleanKey = (v.name || '').replace(/\s+/g, '');
+            let row = tbody.querySelector(`tr[data-asset="${cleanKey}"]`);
+            
             const tBuy = (v.buy && v.buy !== '-' && v.buy !== 'NaN') ? v.buy : '--';
             const tSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? v.sell : '--';
-            const safeName = (v.name || '').replace('ALTIN', ' ALTIN').replace('ESKI', 'ESKİ ').trim();
-
             const changeVal = v.rate ? (String(v.rate).includes('%') ? String(v.rate) : `%${v.rate}`) : '%0.00';
             const changeColor = changeVal.includes('-') ? 'var(--error)' : 'var(--success)';
+            const arrowIcon = v.dir === 'down' ? 'arrow_downward' : 'arrow_upward';
+            const iconColor = v.dir === 'down' ? 'var(--error)' : 'var(--success)';
 
-            return `
-            <tr class="glass-classic">
-                <td style="font-weight:700 !important; color:var(--on-surface) !important; letter-spacing:1px !important; font-size:19px !important;">
-                    <div style="display:flex; align-items:center;">
-                        ${iconHTML}
-                        ${safeName}
-                    </div>
-                </td>
-                <td class="t-val" style="font-size:25px !important; color:var(--on-surface) !important;">${tBuy}</td>
-                <td class="t-val" style="color:var(--primary) !important; font-size:25px !important; font-weight:900 !important;">${tSell}</td>
-                <td class="t-val" style="font-size:24px !important; color:${changeColor} !important; text-align:right !important;">${changeVal}</td>
-            </tr>
-            `;
-        }).join('');
+            if (!row) {
+                const safeName = (v.name || '').replace('ALTIN', ' ALTIN').replace('ESKI', 'ESKİ ').trim();
+                const iconHTML = `<div style="display:flex; align-items:center; justify-content:center; width:48px; height:48px; border-radius:50%; background:rgba(255,255,255,0.08); margin-right:24px; flex-shrink:0;">
+                                    <span class="material-symbols-outlined row-icon" style="font-size:28px !important; color:${iconColor} !important; font-weight:bold !important;">${arrowIcon}</span>
+                                  </div>`;
+                
+                row = document.createElement('tr');
+                row.className = 'glass-classic';
+                row.setAttribute('data-asset', cleanKey);
+                row.innerHTML = `
+                    <td style="font-weight:700 !important; color:var(--on-surface) !important; letter-spacing:1px !important; font-size:19px !important;">
+                        <div style="display:flex; align-items:center;">
+                            ${iconHTML}
+                            <span class="row-name">${safeName}</span>
+                        </div>
+                    </td>
+                    <td class="t-val row-buy" style="font-size:25px !important; color:var(--on-surface) !important;">${tBuy}</td>
+                    <td class="t-val row-sell" style="color:var(--primary) !important; font-size:25px !important; font-weight:900 !important;">${tSell}</td>
+                    <td class="t-val row-rate" style="font-size:24px !important; color:${changeColor} !important; text-align:right !important;">${changeVal}</td>
+                `;
+                tbody.appendChild(row);
+            } else {
+                const bEl = row.querySelector('.row-buy');
+                const sEl = row.querySelector('.row-sell');
+                const rEl = row.querySelector('.row-rate');
+                const iEl = row.querySelector('.row-icon');
+
+                if (bEl.textContent !== tBuy) bEl.textContent = tBuy;
+                if (sEl.textContent !== tSell) sEl.textContent = tSell;
+                if (rEl.textContent !== changeVal) {
+                    rEl.textContent = changeVal;
+                    rEl.style.color = changeColor;
+                }
+                if (iEl.textContent !== arrowIcon) {
+                    iEl.textContent = arrowIcon;
+                    iEl.style.color = iconColor + ' !important';
+                }
+            }
+        });
     }
 
     /* ───────────── BOOT ───────────── */
@@ -2723,7 +2958,7 @@
             let syncTimeout;
             const observer = new MutationObserver(() => {
                 if (syncTimeout) clearTimeout(syncTimeout);
-                syncTimeout = setTimeout(sync, 100); // 100ms Debounce (Performans artışı)
+                syncTimeout = setTimeout(sync, 250); // 250ms Debounce (Performans artışı)
             });
 
             const target = document.querySelector('.dashboard-grid') || document.body;
