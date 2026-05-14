@@ -84,7 +84,6 @@
                 padding-bottom: 120px; overflow-y: auto; overflow-x: hidden;
                 color: var(--on-surface) !important;
                 font-family: 'Inter', sans-serif !important;
-                scrollbar-gutter: stable;
             }
             #fetih-root * { box-sizing: border-box !important; }
             .section-width { width: 100% !important; max-width: 1240px !important; margin: 0 auto !important; }
@@ -186,7 +185,16 @@
                 filter: brightness(1.1) contrast(1.1);
                 object-fit: contain;
             }
-            #fetih-root.light-mode.show-visuals .card-visual { display: block !important; }
+            #fetih-root.show-visuals .card-visual { display: block !important; }
+            #fetih-root.light-mode .card-visual { filter: brightness(1.1) contrast(1.1); opacity: 0.9; }
+            #fetih-root:not(.light-mode) .card-visual { filter: brightness(0.7) contrast(1.8) sepia(0.5) hue-rotate(-10deg); opacity: 0.85; }
+
+            /* Negative labels for better readability over visuals */
+            #fetih-root.show-visuals .mini-card .label-text {
+                color: #fff !important;
+                mix-blend-mode: difference !important;
+                opacity: 1 !important;
+            }
 
             /* Table Styles - UNIFIED FLEX SLABS */
             #fetih-root .fetih-table-box { background: transparent; border: none; }
@@ -260,7 +268,7 @@
             /* ── NAVBAR BOT ── */
             #fetih-bot-trigger {
                 display: flex; align-items: center;
-                height: 42px;
+                height: 34px;
                 border-radius: 999px;
                 background: #0a0a0a;
                 border: 1px solid rgba(var(--primary-rgb), 0.4);
@@ -273,7 +281,7 @@
             #fetih-bot-trigger:hover { border-color: rgba(var(--primary-rgb), 0.5); }
 
             .siri-orb {
-                width: 40px; height: 40px; flex-shrink: 0;
+                width: 32px; height: 32px; flex-shrink: 0;
                 border-radius: 50%;
                 background: #000;
                 display: flex; align-items: center; justify-content: center;
@@ -281,10 +289,10 @@
                 z-index: 10; /* Yazının üstünde kalması için */
             }
 
-            .siri-icon { color: var(--primary); font-size: 20px; position: relative; }
+            .siri-icon { color: var(--primary); font-size: 18px; position: relative; }
 
             .bot-msg-text {
-                font-size: 13px; font-weight: 700; color: #fff;
+                font-size: 12px; font-weight: 700; color: #fff;
                 white-space: nowrap; 
                 overflow: hidden;
                 max-width: 0; opacity: 0;
@@ -307,12 +315,13 @@
 
             .has-card-active {
                 background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
-                border: 1px solid rgba(255,255,255,0.4) !important;
+                border: none !important;
                 opacity: 1 !important;
                 box-shadow: 0 15px 40px rgba(var(--primary-rgb), 0.3) !important;
             }
             #fetih-root.light-mode .has-card-active {
-                background: linear-gradient(135deg, var(--primary) 0%, #fff 250%) !important;
+                background: linear-gradient(135deg, var(--primary) 0%, #fff 150%) !important;
+                border: none !important;
                 box-shadow: 0 15px 40px rgba(var(--primary-rgb), 0.15) !important;
             }
             #fetih-root .has-card-active * { color: var(--primary-contrast) !important; }
@@ -329,24 +338,32 @@
                 border-radius: 50%; background: rgba(var(--primary-rgb),0.10); border: 1px solid rgba(var(--primary-rgb),0.30);
             }
 
-            /* Custom Scrollbar for Fetih UI */
+            /* Custom Scrollbar for Fetih UI - No Layout Space */
             #fetih-root::-webkit-scrollbar, #fetih-root *::-webkit-scrollbar {
-                width: 10px; height: 10px;
+                width: 0px; height: 0px;
+                background: transparent;
+            }
+            #fetih-root:hover::-webkit-scrollbar, #fetih-root *:hover::-webkit-scrollbar {
+                width: 8px; height: 8px;
             }
             #fetih-root::-webkit-scrollbar-track, #fetih-root *::-webkit-scrollbar-track {
-                background: rgba(0,0,0,0.2); border-radius: 10px;
+                background: transparent;
+            }
+            #fetih-root:hover::-webkit-scrollbar-track, #fetih-root *:hover::-webkit-scrollbar-track {
+                background: transparent;
             }
             #fetih-root::-webkit-scrollbar-thumb, #fetih-root *::-webkit-scrollbar-thumb {
-                background: rgba(255, 255, 255, 0.3);
+                background: transparent;
                 border-radius: 10px;
-                border: 3px solid transparent; 
+            }
+            #fetih-root:hover::-webkit-scrollbar-thumb, #fetih-root *:hover::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.15);
+                border: 2px solid transparent;
                 background-clip: content-box;
-                transition: background 0.4s ease;
             }
             #fetih-root::-webkit-scrollbar-thumb:hover, #fetih-root *::-webkit-scrollbar-thumb:hover {
-                background: var(--primary);
-                background-clip: content-box; /* Boyutun değişmemesi için sabit tutuyoruz */
-                box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.4);
+                background: var(--primary) !important;
+                background-clip: content-box !important;
             }
 
             /* ── LIGHT THEME OVERRIDES ── */
@@ -393,10 +410,14 @@
             #fetih-root.light-mode #am-insight { color: #555 !important; }
             #fetih-root.light-mode #analysis-modal-box div[style*="color:var(--outline)"] { color: #777 !important; }
 
-            /* Light Mode Scrollbars */
-            #fetih-root.light-mode::-webkit-scrollbar-track, #fetih-root.light-mode *::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
-            #fetih-root.light-mode::-webkit-scrollbar-thumb, #fetih-root.light-mode *::-webkit-scrollbar-thumb { background: rgba(var(--primary-rgb),0.4); border: 3px solid transparent; background-clip: content-box; }
-            #fetih-root.light-mode::-webkit-scrollbar-thumb:hover, #fetih-root.light-mode *::-webkit-scrollbar-thumb:hover { background: rgba(var(--primary-rgb),0.8); background-clip: content-box; }
+            /* Light Mode Scrollbars - Hidden until Hover */
+            #fetih-root.light-mode::-webkit-scrollbar, #fetih-root.light-mode *::-webkit-scrollbar { width: 0px; height: 0px; }
+            #fetih-root.light-mode:hover::-webkit-scrollbar, #fetih-root.light-mode *:hover::-webkit-scrollbar { width: 8px; height: 8px; }
+            #fetih-root.light-mode::-webkit-scrollbar-track, #fetih-root.light-mode *::-webkit-scrollbar-track { background: transparent; }
+            #fetih-root.light-mode:hover::-webkit-scrollbar-track, #fetih-root.light-mode *:hover::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); }
+            #fetih-root.light-mode::-webkit-scrollbar-thumb, #fetih-root.light-mode *::-webkit-scrollbar-thumb { background: transparent; }
+            #fetih-root.light-mode:hover::-webkit-scrollbar-thumb, #fetih-root.light-mode *:hover::-webkit-scrollbar-thumb { background: rgba(var(--primary-rgb),0.3); border: 2px solid transparent; background-clip: content-box; }
+            #fetih-root.light-mode::-webkit-scrollbar-thumb:hover, #fetih-root.light-mode *::-webkit-scrollbar-thumb:hover { background: var(--primary) !important; }
 
             /* ── CHART OVERRIDES ── */
             #fetih-chart-modal.active { display: flex !important; opacity: 1 !important; }
@@ -894,7 +915,7 @@
                     </div>
 
                     <div class="fetih-card card-3" style="padding:28px; position:relative; overflow:hidden;">
-                        <img class="card-visual" src="${chrome.runtime.getURL('image/gram-24.png')}" alt="Gold Bar" style="width: 260px; height: 260px; bottom: -60px; right: -120px; left:auto; transform: rotate(0deg); opacity: 0.8;">
+                        <img class="card-visual" src="${chrome.runtime.getURL('image/gram-24.png')}" alt="Gold Bar" style="width: 260px; height: 260px; bottom: -60px; right: -120px; left:auto; transform: rotate(0deg);">
                         <div style="position:relative; z-index:1;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
                                 <h3 class="font-headline" style="font-size:16px; font-weight:900; color:var(--primary); text-transform:uppercase; letter-spacing:1px; margin:0">Gram Altın</h3>
@@ -2618,9 +2639,9 @@
                 else if (item.key === 'ESKİGREMSE') coinSize = 230;
 
                 const coinOffset = - (coinSize * 70 / 230);
-                coinImg = `<img class="card-visual" style="width:${coinSize}px; height:${coinSize}px; bottom:${coinOffset}px; left:${coinOffset}px; opacity:0.7;" src="${chrome.runtime.getURL('image/ceyrek.jpg')}" alt="Gold Coin">`;
+                coinImg = `<img class="card-visual" style="width:${coinSize}px; height:${coinSize}px; bottom:${coinOffset}px; left:${coinOffset}px;" src="${chrome.runtime.getURL('image/ceyrek.png')}" alt="Gold Coin">`;
             } else if (isAtaCoin) {
-                coinImg = `<img class="card-visual" style="width:230px; height:230px; bottom:-70px; left:-70px; opacity:0.7;" src="${chrome.runtime.getURL('image/ata.PNG')}" alt="Ata Gold">`;
+                coinImg = `<img class="card-visual" style="width:230px; height:230px; bottom:-70px; left:-70px;" src="${chrome.runtime.getURL('image/ata.png')}" alt="Ata Gold">`;
             }
 
             return `
