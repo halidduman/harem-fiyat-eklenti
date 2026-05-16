@@ -15,13 +15,13 @@
     /* ───────────── GLOBAL STATE & EFFECTS ───────────── */
     window._GLASS_CLASSES = window._GLASS_CLASSES || ['glass-frost', 'glass-liquid', 'glass-gold', 'glass-none'];
     window._TEX_CLASSES = window._TEX_CLASSES || ['tex-p1', 'tex-p2', 'tex-p3', 'tex-p4', 'tex-p5', 'tex-p6', 'tex-p7', 'tex-p8', 'tex-p9', 'tex-p10', 'tex-p11', 'tex-p12', 'tex-p13', 'tex-p14', 'tex-p15'];
-    window._GLOW_CLASSES = window._GLOW_CLASSES || ['glow-soft', 'glow-neon', 'glow-pulse', 'glow-halo', 'glow-orbit', 'glow-drift', 'glow-aurora', 'glow-edges', 'glow-corners', 'glow-diagonal', 'glow-cinema', 'glow-matrix'];
+    // Glow efektleri kaldırıldı (performans nedeniyle)
     window._NAV_CLASSES = window._NAV_CLASSES || ['nav-normal', 'nav-shadow', 'nav-theme', 'nav-invisible'];
     window._isPMode = window._isPMode || false;
     window.applyEffect = function (type, value) {
         const r = document.getElementById('fetih-root');
-        const pools = { glass: window._GLASS_CLASSES, tex: window._TEX_CLASSES, glow: window._GLOW_CLASSES, nav: window._NAV_CLASSES, navGlass: ['nav-liquid'] };
-        const keys = { glass: 'fetihGlass', tex: 'fetihTex', glow: 'fetihGlow', nav: 'fetihNav', navGlass: 'fetihNavGlass' };
+        const pools = { glass: window._GLASS_CLASSES, tex: window._TEX_CLASSES, nav: window._NAV_CLASSES, navGlass: ['nav-liquid'] };
+        const keys = { glass: 'fetihGlass', tex: 'fetihTex', nav: 'fetihNav', navGlass: 'fetihNavGlass' };
 
         if (type === 'navGlass') {
             const nav = document.querySelector('#fetih-root nav');
@@ -85,13 +85,31 @@
                 color: var(--on-surface) !important;
                 font-family: 'Inter', sans-serif !important;
             }
+
+            /* Custom Hidden Scrollbar */
+            #fetih-root::-webkit-scrollbar {
+                width: 6px;
+                background: transparent;
+            }
+            #fetih-root::-webkit-scrollbar-thumb {
+                background: transparent;
+                border-radius: 10px;
+                transition: background 0.3s;
+            }
+            #fetih-root.show-scrollbar::-webkit-scrollbar-thumb {
+                background: rgba(var(--primary-rgb), 0.5);
+            }
+            #fetih-root.show-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: var(--primary);
+            }
             #fetih-root * { box-sizing: border-box !important; }
             .section-width { width: 100% !important; max-width: 1240px !important; margin: 0 auto !important; }
 
             .glass-card, .fetih-card {
                 background: var(--card-surface);
                 border-radius: 16px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+                /* Daha sert ve belirgin gölgeler */
+                box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 10px 20px rgba(0,0,0,0.4);
                 border: 1px solid var(--card-border);
                 transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.3s ease;
                 position: relative;
@@ -138,7 +156,7 @@
             #fetih-settings-btn span.material-symbols-outlined { transition: transform 0.5s ease; }
             #fetih-settings-btn:hover span.material-symbols-outlined { transform: rotate(180deg); }
 
-            .live-dot { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; animation: live-pulse 2.5s infinite ease-in-out; display: inline-block; vertical-align: middle; }
+            .live-dot { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; animation: live-pulse 2.5s infinite ease-in-out; display: inline-block; vertical-align: middle; will-change: transform, box-shadow; }
             @keyframes live-pulse { 
                 0% { background: color-mix(in srgb, var(--primary), white 40%); transform: scale(1); box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.5); } 
                 50% { background: #ffffff; transform: scale(1.4); box-shadow: 0 0 15px 8px rgba(255, 255, 255, 0.5); } 
@@ -178,23 +196,27 @@
                 right: var(--visual-pos-right, auto);
                 width: 140px;
                 height: 140px;
-                opacity: 0.7;
+                /* Ana opacity: slider ile kontrol edilebilir (varsayılan %85) */
+                opacity: var(--visual-base-opacity, 0.85);
                 pointer-events: none;
                 z-index: 0;
-                transform: rotate(var(--visual-rotate, -12deg));
+                transform: rotate(var(--visual-rotate, -12deg)) translateZ(0);
                 display: none;
-                filter: brightness(1.1) contrast(1.1);
+                /* Drop-shadow geri getirildi (sol alttan gölge) */
+                filter: drop-shadow(-10px 10px 15px rgba(0,0,0,0.6)) brightness(1.1);
                 object-fit: contain;
                 transition: left 0.3s, right 0.3s, transform 0.3s, opacity 0.3s;
+                /* Fade (Görsel Şiddeti) için mask-image: Sadece transparanlık geçişi sağlar */
+                -webkit-mask-image: linear-gradient(var(--visual-mask-dir, to right), rgba(0,0,0,var(--visual-mask-start, 1)) 0%, rgba(0,0,0,0) var(--visual-mask-stop, 100%));
+                mask-image: linear-gradient(var(--visual-mask-dir, to right), rgba(0,0,0,var(--visual-mask-start, 1)) 0%, rgba(0,0,0,0) var(--visual-mask-stop, 100%));
             }
             #fetih-root.show-visuals .card-visual { display: block !important; }
-            #fetih-root.light-mode .card-visual { filter: brightness(1.1) contrast(1.1); opacity: 0.9; }
-            #fetih-root:not(.light-mode) .card-visual { filter: brightness(0.7) contrast(1.8) sepia(0.5) hue-rotate(-10deg); opacity: 0.85; }
+            #fetih-root.light-mode .card-visual { filter: drop-shadow(-15px 15px 25px rgba(0,0,0,0.5)) brightness(1.05); }
+            #fetih-root:not(.light-mode) .card-visual { filter: drop-shadow(-25px 25px 40px rgba(0,0,0,0.9)) brightness(0.65); }
 
-            /* Dynamic gradient opacity for coin visuals */
-            .mini-card .card-visual {
-                mask-image: linear-gradient(var(--visual-mask-dir, to right), rgba(0,0,0,0) 0%, rgba(0,0,0,var(--visual-mask-start, 0)) var(--visual-mask-stop, 0%), rgba(0,0,0,1) 100%);
-                -webkit-mask-image: linear-gradient(var(--visual-mask-dir, to right), rgba(0,0,0,0) 0%, rgba(0,0,0,var(--visual-mask-start, 0)) var(--visual-mask-stop, 0%), rgba(0,0,0,1) 100%);
+            /* Fade efekti: mask-image yerine hafif pseudo-element overlay kullan */
+            .mini-card .card-visual-wrap {
+                position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; border-radius: inherit;
             }
 
             /* Table Styles - UNIFIED FLEX SLABS */
@@ -230,7 +252,9 @@
                 border-radius: 16px;
                 box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
                 border: 1px solid var(--card-border);
-                text-align: left; position: relative; min-width: 0; 
+                text-align: left; position: relative; min-width: 0;
+                /* Kartı izole et: komşu kartları yeniden çizdirmez */
+                contain: layout paint;
             }
             
             /* --- GLASS OFF OVERRIDES --- */
@@ -339,30 +363,24 @@
                 border-radius: 50%; background: rgba(var(--primary-rgb),0.10); border: 1px solid rgba(var(--primary-rgb),0.30);
             }
 
-            /* Custom Scrollbar for Fetih UI - No Layout Space */
-            #fetih-root::-webkit-scrollbar, #fetih-root *::-webkit-scrollbar {
-                width: 0px; height: 0px;
+            /* Custom Scrollbar — JS ile .show-scrollbar class, 0.5s fade animasyonu */
+            #fetih-root::-webkit-scrollbar {
+                width: 8px; /* Her zaman 8px yer — sadece thumb şeffaf, layout sıçraması yok */
                 background: transparent;
             }
-            #fetih-root:hover::-webkit-scrollbar, #fetih-root *:hover::-webkit-scrollbar {
-                width: 8px; height: 8px;
-            }
-            #fetih-root::-webkit-scrollbar-track, #fetih-root *::-webkit-scrollbar-track {
-                background: transparent;
-            }
-            #fetih-root:hover::-webkit-scrollbar-track, #fetih-root *:hover::-webkit-scrollbar-track {
-                background: transparent;
-            }
-            #fetih-root::-webkit-scrollbar-thumb, #fetih-root *::-webkit-scrollbar-thumb {
+            #fetih-root::-webkit-scrollbar-track { background: transparent; }
+            /* width transition çalışmaz; background transition ile yumuşak açılma */
+            #fetih-root::-webkit-scrollbar-thumb {
                 background: transparent;
                 border-radius: 10px;
+                transition: background 0.5s ease;
             }
-            #fetih-root:hover::-webkit-scrollbar-thumb, #fetih-root *:hover::-webkit-scrollbar-thumb {
+            #fetih-root.show-scrollbar::-webkit-scrollbar-thumb {
                 background: rgba(255, 255, 255, 0.15);
                 border: 2px solid transparent;
                 background-clip: content-box;
             }
-            #fetih-root::-webkit-scrollbar-thumb:hover, #fetih-root *::-webkit-scrollbar-thumb:hover {
+            #fetih-root.show-scrollbar::-webkit-scrollbar-thumb:hover {
                 background: var(--primary) !important;
                 background-clip: content-box !important;
             }
@@ -378,10 +396,14 @@
                 --card-surface: #ffffff;
             }
             #fetih-root.light-mode nav:not(.nav-shadow):not(.nav-theme):not(.nav-invisible) { background: #ffffff; border-bottom: 1px solid rgba(0,0,0,0.05); }
-            #fetih-root.light-mode .glass-card, #fetih-root.light-mode .mini-card { 
-                background: #fff !important; 
-                border: 1px solid rgba(var(--primary-rgb), 0.5) !important; 
-                box-shadow: 0 10px 40px rgba(0,0,0,0.05) !important; 
+            /* has-card-active hariç — Diğer kartlara sol alttan yükselen daha belirgin gölge (gradient) */
+            #fetih-root.light-mode .glass-card:not(.has-card-active), 
+            #fetih-root.light-mode .mini-card:not(.has-card-active), 
+            #fetih-root.light-mode .fetih-card:not(.has-card-active) { 
+                background: linear-gradient(to top right, #e8e8e8 0%, #ffffff 50%) !important; 
+                border: 2px solid var(--primary) !important; 
+                box-shadow: 0 15px 45px rgba(0,0,0,0.12) !important;
+                box-sizing: border-box !important;
             }
             #fetih-root.light-mode .mini-card .card-title { color: #000 !important; }
             #fetih-root.light-mode .mini-card .label-text { color: var(--primary) !important; opacity: 1 !important; }
@@ -411,14 +433,11 @@
             #fetih-root.light-mode #am-insight { color: #555 !important; }
             #fetih-root.light-mode #analysis-modal-box div[style*="color:var(--outline)"] { color: #777 !important; }
 
-            /* Light Mode Scrollbars - Hidden until Hover */
-            #fetih-root.light-mode::-webkit-scrollbar, #fetih-root.light-mode *::-webkit-scrollbar { width: 0px; height: 0px; }
-            #fetih-root.light-mode:hover::-webkit-scrollbar, #fetih-root.light-mode *:hover::-webkit-scrollbar { width: 8px; height: 8px; }
-            #fetih-root.light-mode::-webkit-scrollbar-track, #fetih-root.light-mode *::-webkit-scrollbar-track { background: transparent; }
-            #fetih-root.light-mode:hover::-webkit-scrollbar-track, #fetih-root.light-mode *:hover::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); }
-            #fetih-root.light-mode::-webkit-scrollbar-thumb, #fetih-root.light-mode *::-webkit-scrollbar-thumb { background: transparent; }
-            #fetih-root.light-mode:hover::-webkit-scrollbar-thumb, #fetih-root.light-mode *:hover::-webkit-scrollbar-thumb { background: rgba(var(--primary-rgb),0.3); border: 2px solid transparent; background-clip: content-box; }
-            #fetih-root.light-mode::-webkit-scrollbar-thumb:hover, #fetih-root.light-mode *::-webkit-scrollbar-thumb:hover { background: var(--primary) !important; }
+            /* Light Mode Scrollbars — 0.5s fade animasyonu */
+            #fetih-root.light-mode::-webkit-scrollbar { width: 8px; }
+            #fetih-root.light-mode::-webkit-scrollbar-thumb { background: transparent; transition: background 0.5s ease; }
+            #fetih-root.light-mode.show-scrollbar::-webkit-scrollbar-thumb { background: rgba(var(--primary-rgb),0.3); border: 2px solid transparent; background-clip: content-box; }
+            #fetih-root.light-mode.show-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--primary) !important; }
 
             /* ── CHART OVERRIDES ── */
             #fetih-chart-modal.active { display: flex !important; opacity: 1 !important; }
@@ -716,63 +735,8 @@
             /* SVG Filter for Liquid Glass */
             #fetih-glass-svg { position: absolute; width: 0; height: 0; pointer-events: none; }
 
-            /* ── EFFECTS: GLOW (Arka Plan I&#351;&#305;k Sistemi) ── */
-            #fetih-root.glow-soft #fetih-bg-glow { background-image: radial-gradient(ellipse at 50% 30%, rgba(var(--primary-rgb),calc(0.15 * var(--glow-intensity))) 0%, transparent 60%); }
-            #fetih-root.glow-neon #fetih-bg-glow { background-image: radial-gradient(ellipse at 50% 20%, rgba(var(--primary-rgb),calc(0.25 * var(--glow-intensity))) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(var(--primary-rgb),calc(0.12 * var(--glow-intensity))) 0%, transparent 40%); }
-            #fetih-root.glow-pulse #fetih-bg-glow { background: radial-gradient(ellipse at 50% 30%, rgba(var(--primary-rgb),calc(0.2 * var(--glow-intensity))) 0%, transparent 55%); animation: bgPulse 4s ease-in-out infinite; }
-            @keyframes bgPulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
-            #fetih-root.glow-orbit #fetih-bg-glow { 
-                background: radial-gradient(circle at center, transparent 0%, transparent 100%),
-                            radial-gradient(circle at 30% 30%, rgba(var(--primary-rgb),0.2) 0%, transparent 40%),
-                            radial-gradient(circle at 70% 70%, rgba(var(--primary-rgb),0.15) 0%, transparent 40%);
-                animation: bgOrbit 12s linear infinite;
-            }
-            @keyframes bgOrbit { 0% { transform: rotate(0deg); scale: 1; } 50% { transform: rotate(180deg); scale: 1.2; } 100% { transform: rotate(360deg); scale: 1; } }
-            
-            #fetih-root.glow-drift #fetih-bg-glow { 
-                background: radial-gradient(circle at 20% 20%, rgba(var(--primary-rgb),0.15) 0%, transparent 35%),
-                            radial-gradient(circle at 80% 40%, rgba(var(--primary-rgb),0.12) 0%, transparent 35%),
-                            radial-gradient(circle at 40% 80%, rgba(var(--primary-rgb),0.1) 0%, transparent 35%);
-                animation: bgDrift 20s ease-in-out infinite alternate;
-            }
-            @keyframes bgDrift { 0% { transform: translate(-5%, -5%); } 100% { transform: translate(5%, 5%); } }
-            
-            #fetih-root.glow-aurora #fetih-bg-glow { 
-                background: linear-gradient(120deg, transparent 30%, rgba(var(--primary-rgb),0.1) 45%, rgba(var(--primary-rgb),0.15) 50%, rgba(var(--primary-rgb),0.1) 55%, transparent 70%);
-                background-size: 200% 100%;
-                animation: bgAurora 8s linear infinite;
-            }
-            @keyframes bgAurora { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-            
-            #fetih-root.glow-halo #fetih-bg-glow { box-shadow: inset 0 0 150px rgba(var(--primary-rgb),calc(0.12 * var(--glow-intensity))), inset 0 0 400px rgba(var(--primary-rgb),calc(0.06 * var(--glow-intensity))); }
-            #fetih-root.glow-edges #fetih-bg-glow { box-shadow: inset 0 0 120px rgba(var(--primary-rgb),calc(0.3 * var(--glow-intensity))); }
-            #fetih-root.glow-corners #fetih-bg-glow { 
-                background: 
-                    radial-gradient(circle at top left, rgba(var(--primary-rgb), 0.3) 0%, transparent 40%),
-                    radial-gradient(circle at bottom right, rgba(var(--primary-rgb), 0.3) 0%, transparent 40%),
-                    radial-gradient(circle at top right, rgba(var(--primary-rgb), 0.2) 0%, transparent 35%),
-                    radial-gradient(circle at bottom left, rgba(var(--primary-rgb), 0.2) 0%, transparent 35%); 
-            }
-            #fetih-root.glow-diagonal #fetih-bg-glow { 
-                background: linear-gradient(45deg, transparent 30%, rgba(var(--primary-rgb), 0.2) 50%, transparent 70%);
-                background-size: 200% 200%;
-                animation: diagonalSweep 5s infinite linear;
-            }
-            @keyframes diagonalSweep { 0% { background-position: 100% 100%; } 100% { background-position: 0% 0%; } }
-            #fetih-root.glow-cinema #fetih-bg-glow { 
-                background: linear-gradient(to bottom, rgba(var(--primary-rgb),0.3) 0%, transparent 15%, transparent 85%, rgba(var(--primary-rgb),0.3) 100%); 
-            }
-            #fetih-root.glow-matrix #fetih-bg-glow { 
-                background: linear-gradient(to bottom, transparent, rgba(var(--primary-rgb), 0.4) 50%, transparent);
-                background-size: 100% 20%;
-                background-repeat: no-repeat;
-                animation: scanline 4s infinite linear;
-            }
-            @keyframes scanline { 0% { background-position: 0% -50%; } 100% { background-position: 0% 150%; } }
-
             /* Background Elements Base Styles */
-            #fetih-bg-tex, #fetih-bg-glow { position: fixed; inset: -100px; z-index: -1; pointer-events: none; transition: all 0.5s ease; }
-            #fetih-bg-glow { opacity: 0.15; }
+            #fetih-bg-tex { position: fixed; inset: -100px; z-index: -1; pointer-events: none; transition: opacity 0.5s ease; will-change: opacity; transform: translateZ(0); }
 
             /* ── EFFECTS: FX BUTTONS ── */
             .fx-btn { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); color: var(--outline); border-radius: 10px; padding: 9px 11px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: left; transition: all 0.2s; width: 100%; display: block; }
@@ -788,6 +752,7 @@
 
             /* ── LIGHT MODE: BOT TEXT FIX ── */
             #fetih-root.light-mode .bot-msg-text { color: #1a1a1a !important; }
+            #fetih-root.light-mode .fetih-card { border: 1px solid rgba(0,0,0,0.1); }
 
             /* ── RESPONSIVE DESIGN ── */
             @media (max-width: 1240px) {
@@ -851,7 +816,6 @@
         root.id = 'fetih-root';
         root.innerHTML = `
             <div id="fetih-bg-tex"></div>
-            <div id="fetih-bg-glow"></div>
             <nav>
                 <div id="fetih-main-logo" style="height:32px; width:auto; display:block; cursor:pointer;">
                     <svg class="themed-svg" width="120" height="32" viewBox="0 0 187.5 75" preserveAspectRatio="xMidYMid meet">
@@ -879,7 +843,7 @@
                         </div>
                         <span id="asst-msg" class="bot-msg-text"></span>
                     </div>
-                    <button id="fetih-chart-btn" title="Geçmiş Veriler ve Grafik" style="background:rgba(255,255,255,0.06); border:1px solid rgba(var(--primary-rgb),0.25); border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.3s; margin-left:8px;">
+                    <button id="fetih-chart-btn" title="Geçmiş Veriler ve Grafik" style="background:rgba(var(--primary-rgb),0.15); border:1px solid rgba(var(--primary-rgb),0.5); border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.3s; margin-left:8px;">
                         <span class="material-symbols-outlined" style="font-size:20px; color:var(--primary)">show_chart</span>
                     </button>
                 </div>
@@ -959,13 +923,13 @@
                 </div> <!-- End of F11 Hero Wrapper -->
 
                 <!-- Market Table Section -->
-                <div class="section-width" style="margin-top: 80px;">
+                <div class="section-width" style="margin-top: 80px; contain: layout;">
                     <div style="margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:flex-end; width:100%;">
                         <div style="display:flex; flex-direction:column; gap:8px;">
                             <h3 class="font-headline" style="font-size:24px; font-weight:700; text-transform:uppercase; color:var(--primary); letter-spacing:1px; margin:0">TÜM PİYASA FİYATLARI</h3>
                             <div style="width:80px; height:3px; background:var(--primary); border-radius:2px;"></div>
                         </div>
-                        <a href="#" id="fetih-settings-btn" style="font-size:13px; font-weight:800; color:var(--primary); text-decoration:none; text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px; padding: 10px 22px; background: rgba(var(--primary-rgb), 0.1); border-radius: 999px; border: 1px solid rgba(var(--primary-rgb), 0.2); transition: all 0.3s; margin-bottom: 4px;">
+                        <a href="#" id="fetih-settings-btn" style="font-size:13px; font-weight:800; color:var(--primary); text-decoration:none; text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px; padding: 10px 22px; background: rgba(var(--primary-rgb), 0.2); border-radius: 999px; border: 1px solid rgba(var(--primary-rgb), 0.5); transition: all 0.3s; margin-bottom: 4px;">
                             <span class="material-symbols-outlined" style="font-size:18px">settings</span>
                             AYARLAR
                         </a>
@@ -1142,7 +1106,26 @@
                             </button>
                         </div>
 
-                        <!-- Navbar Appearance Section (NEW) -->
+                        <!-- Tema Rengi (Görünüm Modunun hemen altında) -->
+                        <div class="settings-card" style="flex-direction: column; align-items: stretch; margin-top: 10px;">
+                            <div id="fetih-color-toggle" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 4px 0;">
+                                <div class="settings-info">
+                                    <h3 style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">palette</span> 
+                                        Tema Rengi
+                                    </h3>
+                                    <p>Arayüzün ana renk tonunu özelleştir</p>
+                                </div>
+                                <span class="material-symbols-outlined" id="fetih-color-chevron" style="transition: transform 0.3s;">expand_more</span>
+                            </div>
+                            <div id="fetih-color-panel" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+                                <div class="theme-color-grid" id="fetih-color-picker">
+                                    <!-- Colors will be injected here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navbar Appearance Section -->
                         <div class="settings-card" style="flex-direction: column; align-items: stretch; margin-top: 10px;">
                             <div id="fetih-nav-toggle" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 4px 0;">
                                 <div class="settings-info">
@@ -1223,6 +1206,12 @@
                                             <span id="visual-fade-val" style="font-size:11px; font-weight:900; color:var(--primary);">100%</span>
                                         </div>
                                         <input type="range" id="visual-fade-input" min="0" max="100" value="100" style="width:100%; accent-color:var(--primary);">
+                                        
+                                        <div style="display:flex; justify-content:space-between; margin-bottom:8px; margin-top:20px;">
+                                            <span style="font-size:11px; font-weight:800; color:var(--outline);">GÖRSEL OPAKLIĞI</span>
+                                            <span id="visual-opacity-val" style="font-size:11px; font-weight:900; color:var(--primary);">85%</span>
+                                        </div>
+                                        <input type="range" id="visual-opacity-input" min="0" max="100" value="85" style="width:100%; accent-color:var(--primary);">
                                     </div>
                                 </div>
 
@@ -1235,66 +1224,6 @@
                         </div>
 
 
-
-                        <!-- Theme Color Selection (Collapsible) -->
-                        <div class="settings-card" style="flex-direction: column; align-items: stretch; margin-top: 10px;">
-                            <div id="fetih-color-toggle" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 4px 0;">
-                                <div class="settings-info">
-                                    <h3 style="display: flex; align-items: center; gap: 8px;">
-                                        <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">palette</span> 
-                                        Tema Rengi
-                                    </h3>
-                                    <p>Arayüzün ana renk tonunu özelleştir</p>
-                                </div>
-                                <span class="material-symbols-outlined" id="fetih-color-chevron" style="transition: transform 0.3s;">expand_more</span>
-                            </div>
-                            <div id="fetih-color-panel" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
-                                <div class="theme-color-grid" id="fetih-color-picker">
-                                    <!-- Colors will be injected here -->
-                                </div>
-                            </div>
-                        </div>
-
-
-
-                        <!-- Dedicated Glow Section (Collapsible) -->
-                        <div class="settings-card" style="flex-direction: column; align-items: stretch; margin-top: 10px;">
-                            <div id="fetih-glow-toggle" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 4px 0;">
-                                <div class="settings-info">
-                                    <h3 style="display: flex; align-items: center; gap: 8px;">
-                                        <span class="material-symbols-outlined" style="font-size: 20px; color: var(--primary);">flare</span> 
-                                        I&#351;&#305;k (Glow) Ayarlar&#305;
-                                    </h3>
-                                    <p>Arka plan ayd&#305;nlatma ve animasyon efektleri</p>
-                                </div>
-                                <span class="material-symbols-outlined" id="fetih-glow-chevron" style="transition: transform 0.3s;">expand_more</span>
-                            </div>
-                            
-                            <div id="fetih-glow-panel" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
-                                <div style="margin-bottom: 20px;">
-                                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                                        <span style="font-size:11px; font-weight:800; color:var(--outline);">&#9889; ŞİDDET</span>
-                                        <span id="glow-intensity-val" style="font-size:11px; font-weight:900; color:var(--primary);">100%</span>
-                                    </div>
-                                    <input type="range" id="glow-intensity-input" min="0" max="300" value="100" style="width:100%; accent-color:var(--primary);">
-                                </div>
-                                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
-                                    <button class="fx-btn glow-btn" data-glow="">Yok</button>
-                                    <button class="fx-btn glow-btn" data-glow="glow-soft">Sabit Soft</button>
-                                    <button class="fx-btn glow-btn" data-glow="glow-neon">Sabit Neon</button>
-                                    <button class="fx-btn glow-btn" data-glow="glow-pulse">&#128171; Puls (Nab&#305;z)</button>
-                                    <button class="fx-btn glow-btn" data-glow="glow-orbit">&#128304; Orbit (D&#246;nen)</button>
-                                    <button class="fx-btn glow-btn" data-glow="glow-drift">&#127787;&#65039; Drift (S&#252;z&#252;len)</button>
-                                    <button class="fx-btn glow-btn" data-glow="glow-aurora">&#127752; Aurora (Dalga)</button>
-                                    <button class="fx-btn glow-btn" data-glow="glow-halo">Halo (Hale)</button>
-                                    <button class="fx-btn glow-btn" data-glow="glow-edges">&#128306; Kenarlar</button>
-                                    <button class="fx-btn glow-btn" data-glow="glow-corners">&#128308; K&#246;&#351;eler</button>
-                                    <button class="fx-btn glow-btn" data-glow="glow-diagonal">&#128260; &#199;apraz Ge&#231;i&#351;</button>
-                                    <button class="fx-btn glow-btn" data-glow="glow-cinema">&#127916; Sinematik</button>
-                                    <button class="fx-btn glow-btn" data-glow="glow-matrix">&#128187; Taray&#305;c&#305; (Matrix)</button>
-                                </div>
-                            </div>
-                        </div>
 
                         <!-- Dedicated Texture Section (Collapsible) -->
                         <div class="settings-card" style="flex-direction: column; align-items: stretch; margin-top: 10px;">
@@ -1449,16 +1378,19 @@
         const visualsToggle = document.getElementById('fetih-visuals-toggle');
         const visualsChevron = document.getElementById('fetih-visuals-chevron');
         const visualsReset = document.getElementById('fetih-visuals-reset');
-        
+
         const posLeftBtn = document.getElementById('pos-left-btn');
         const posRightBtn = document.getElementById('pos-right-btn');
         const sizeInput = document.getElementById('visual-size-input');
         const sizeVal = document.getElementById('visual-size-val');
-        
+
         const fadeBtn = document.getElementById('fetih-visual-fade-btn');
         const fadeInput = document.getElementById('visual-fade-input');
         const fadeVal = document.getElementById('visual-fade-val');
         const fadePanel = document.getElementById('fetih-visual-fade-panel');
+        
+        const opacityInput = document.getElementById('visual-opacity-input');
+        const opacityVal = document.getElementById('visual-opacity-val');
 
         // State & Persistence
         const getSetting = (key, def) => localStorage.getItem(key) !== null ? localStorage.getItem(key) : def;
@@ -1468,6 +1400,7 @@
         let visualSize = getSetting('fetihVisualSize', '1');
         let fadeEnabled = getSetting('fetihVisualFadeEnabled', 'true') === 'true';
         let fadeIntensity = getSetting('fetihVisualFadeIntensity', '100');
+        let visualOpacity = getSetting('fetihVisualOpacity', '85');
 
         const updateAllVisualsUI = () => {
             // Main Visibility
@@ -1488,14 +1421,16 @@
                 root.style.setProperty('--visual-pos-left', 'var(--coin-base-offset)');
                 root.style.setProperty('--visual-pos-right', 'auto');
                 root.style.setProperty('--visual-rotate', '-12deg');
-                root.style.setProperty('--visual-mask-dir', 'to right');
+                // Tam tersi: Gölge (şeffaflık) sol alttan başlar
+                root.style.setProperty('--visual-mask-dir', 'to bottom left');
             } else {
                 posLeftBtn.classList.remove('active');
                 posRightBtn.classList.add('active');
                 root.style.setProperty('--visual-pos-left', 'auto');
                 root.style.setProperty('--visual-pos-right', 'var(--coin-base-offset)');
                 root.style.setProperty('--visual-rotate', '12deg');
-                root.style.setProperty('--visual-mask-dir', 'to left');
+                // Tam tersi: Gölge (şeffaflık) sağ alttan (veya kullanıcıya göre sol alttan) başlar
+                root.style.setProperty('--visual-mask-dir', 'to bottom right');
             }
 
             // Size
@@ -1505,14 +1440,16 @@
 
             // Fade
             if (fadeEnabled) {
-                // Şiddeti artırıyoruz: 100% şiddet, görselin %80'ini karartabilir
-                const intensityFactor = fadeIntensity / 100;
-                const maskStop = intensityFactor * 85; // %0 - %85 arası kayma
-                const startOpacity = Math.max(0, 1 - (intensityFactor * 2)); // Daha agresif şeffaflaşma
-                
+                // Şiddeti artırıyoruz: 100% şiddet, görselin maske ile daha erken silinmesini sağlar
+                const intensityFactor = fadeIntensity / 100; // 0.0 - 1.0
+                // Stop noktası: Şiddet çoksa (%100) stop %40'ta başlar, azsa (%0) stop %150'de olur (tamamen görünür)
+                const maskStop = 150 - (intensityFactor * 110); 
+                // Başlangıç opacity'si: Fade varsa %100'den başlasın
+                const startOpacity = 1; 
+
                 root.style.setProperty('--visual-mask-stop', maskStop + '%');
                 root.style.setProperty('--visual-mask-start', startOpacity);
-                
+
                 fadeBtn.textContent = 'Aktif';
                 fadeBtn.classList.add('active');
                 fadePanel.style.opacity = '1';
@@ -1527,6 +1464,11 @@
             }
             fadeVal.textContent = fadeIntensity + '%';
             fadeInput.value = fadeIntensity;
+
+            // Opacity
+            root.style.setProperty('--visual-base-opacity', visualOpacity / 100);
+            if (opacityVal) opacityVal.textContent = visualOpacity + '%';
+            if (opacityInput) opacityInput.value = visualOpacity;
         };
 
         // Listeners
@@ -1574,21 +1516,31 @@
             updateAllVisualsUI();
         });
 
+        if (opacityInput) {
+            opacityInput.addEventListener('input', (e) => {
+                visualOpacity = e.target.value;
+                localStorage.setItem('fetihVisualOpacity', visualOpacity);
+                updateAllVisualsUI();
+            });
+        }
+
         visualsReset.addEventListener('click', () => {
             visualsEnabled = true;
             visualPos = 'left';
             visualSize = '1';
             fadeEnabled = true;
             fadeIntensity = '100';
-            
+            visualOpacity = '85';
+
             localStorage.setItem('fetihVisualsEnabled', visualsEnabled);
             localStorage.setItem('fetihVisualPos', visualPos);
             localStorage.setItem('fetihVisualSize', visualSize);
             localStorage.setItem('fetihVisualFadeEnabled', fadeEnabled);
             localStorage.setItem('fetihVisualFadeIntensity', fadeIntensity);
-            
+            localStorage.setItem('fetihVisualOpacity', visualOpacity);
+
             updateAllVisualsUI();
-            
+
             // UI Feedback
             visualsReset.style.background = 'rgba(74, 222, 128, 0.2)';
             visualsReset.style.borderColor = '#4ade80';
@@ -1844,7 +1796,7 @@
             updateTexLivePreview(b.dataset.tex);
         }));
 
-        document.querySelectorAll('.glow-btn').forEach(b => b.addEventListener('click', () => window.applyEffect('glow', b.dataset.glow)));
+        // Glow butonları kaldırıldı
 
         // --- GLOW INTENSITY SLIDER ---
         const glowIntensityInput = document.getElementById('glow-intensity-input');
@@ -1940,7 +1892,7 @@
         const currentTex = localStorage.getItem('fetihTex') || '';
         window.applyEffect('tex', currentTex);
         updateTexLivePreview(currentTex);
-        window.applyEffect('glow', localStorage.getItem('fetihGlow') || '');
+        // Glow init kaldırıldı
 
         // Navbar buttons binding
         document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => window.applyEffect('nav', b.dataset.nav)));
@@ -2390,7 +2342,7 @@
             // Toggle Ultra-Aesthetic Mode
             if (!window._isPMode) {
                 // 1. Apply the "Ultra" combination
-                window.applyEffect('glow', 'glow-aurora');
+
                 window.applyEffect('tex', 'tex-p1');
                 window.applyEffect('glass', '');
 
@@ -2398,7 +2350,7 @@
                 if (window._fetihSetMessage) window._fetihSetMessage("✨ Ultra Estetik Modu: AÇIK", true);
             } else {
                 // 2. Turn EVERYTHING OFF (Clean State)
-                window.applyEffect('glow', '');
+
                 window.applyEffect('tex', '');
                 window.applyEffect('glass', 'glass-none');
 
@@ -2449,6 +2401,32 @@
             if (isUp) playUpSequence();
             else playDownSequence();
         }
+    });
+
+    // --- EDGE SCROLLBAR LOGIC (RAF throttled — her piksel DOM'a dokunmayı engeller) ---
+    let _sbRAF = null;
+    let _lastClientX = 0;
+    window.addEventListener('mousemove', (e) => {
+        _lastClientX = e.clientX;
+        if (_sbRAF) return; // Zaten RAF kuyruğunda — atla
+        _sbRAF = requestAnimationFrame(() => {
+            _sbRAF = null;
+            const root = document.getElementById('fetih-root');
+            if (!root) return;
+            // Scrollbar'ın sadece tam üzerine gelindiğinde (10px) açılması
+            if (_lastClientX >= window.innerWidth - 10) {
+                root.classList.add('show-scrollbar');
+            } else if (_lastClientX < window.innerWidth - 30) {
+                // Scrollbar'dan uzaklaşınca kapanır
+                root.classList.remove('show-scrollbar');
+            }
+        });
+    }, { passive: true });
+
+    // Fare pencereden çıkarsa scrollbarı kesin gizle
+    window.addEventListener('mouseleave', () => {
+        const root = document.getElementById('fetih-root');
+        if (root) root.classList.remove('show-scrollbar');
     });
 
     /* ───────────── DATA SYNC ───────────── */
@@ -2865,13 +2843,13 @@
             if (!card) return;
             const v = data[item.key] || { buy: '-', sell: '-', rate: '%0.00', dir: '' };
             const arrow = v.dir === 'up' ? '↑' : (v.dir === 'down' ? '↓' : '');
-            
+
             const buyEl = card.querySelector('.ov-buy');
             const sellEl = card.querySelector('.ov-sell');
-            
+
             const newBuy = (v.buy && v.buy !== '-') ? `${arrow} ${v.buy}` : '--';
             const newSell = (v.sell && v.sell !== '-') ? `${arrow} ${v.sell}` : '--';
-            
+
             if (buyEl.textContent !== newBuy) buyEl.textContent = newBuy;
             if (sellEl.textContent !== newSell) sellEl.textContent = newSell;
         });
@@ -2884,7 +2862,7 @@
         Object.values(data).forEach(v => {
             const cleanKey = (v.name || '').replace(/\s+/g, '');
             let row = tbody.querySelector(`tr[data-asset="${cleanKey}"]`);
-            
+
             const tBuy = (v.buy && v.buy !== '-' && v.buy !== 'NaN') ? v.buy : '--';
             const tSell = (v.sell && v.sell !== '-' && v.sell !== 'NaN') ? v.sell : '--';
             const changeVal = v.rate ? (String(v.rate).includes('%') ? String(v.rate) : `%${v.rate}`) : '%0.00';
@@ -2897,7 +2875,7 @@
                 const iconHTML = `<div style="display:flex; align-items:center; justify-content:center; width:48px; height:48px; border-radius:50%; background:rgba(255,255,255,0.08); margin-right:24px; flex-shrink:0;">
                                     <span class="material-symbols-outlined row-icon" style="font-size:28px !important; color:${iconColor} !important; font-weight:bold !important;">${arrowIcon}</span>
                                   </div>`;
-                
+
                 row = document.createElement('tr');
                 row.className = 'glass-classic';
                 row.setAttribute('data-asset', cleanKey);
@@ -2954,25 +2932,33 @@
             // 20 saniye boyunca alarm çalma (veri oturana kadar)
             setTimeout(() => { startupCooldown = false; }, 20000);
 
-            // MutationObserver: Sitedeki değişiklikleri izle, timer'ı kapat ve DEBOUNCE ekle
+            // MutationObserver: Debounced + en dar hedefi izle (body'ye asla geniş observe etme)
             let syncTimeout;
             const observer = new MutationObserver((mutations) => {
-                // Kendi arayüzümüzde olan değişiklikleri yoksay (Sonsuz döngüyü/kasmayı engeller)
-                let isOwnMutation = true;
-                for (let m of mutations) {
-                    if (m.target.id !== 'fetih-root' && (!m.target.closest || !m.target.closest('#fetih-root'))) {
-                        isOwnMutation = false;
-                        break;
+                // Kendi UI'ımızdan gelen mutasyonları hızlıca filtrele
+                for (const m of mutations) {
+                    const t = m.target;
+                    if (t && t.closest && !t.closest('#fetih-root')) {
+                        // Dış veri değişimi — debounce ile sync
+                        if (syncTimeout) clearTimeout(syncTimeout);
+                        syncTimeout = setTimeout(sync, 300);
+                        return;
                     }
                 }
-                if (isOwnMutation) return;
-
-                if (syncTimeout) clearTimeout(syncTimeout);
-                syncTimeout = setTimeout(sync, 250); // 250ms Debounce (Performans artışı)
             });
 
-            const target = document.querySelector('.dashboard-grid') || document.body;
-            observer.observe(target, { childList: true, subtree: true, characterData: true });
+            // En dar ve kesin hedefi bul — body fallback'inde characterData KULLANMA
+            const obsTarget = document.querySelector('.dashboard-grid') ||
+                document.querySelector('.market-data') ||
+                document.querySelector('.full-height-table')?.parentElement ||
+                document.querySelector('main');
+            if (obsTarget) {
+                // Kesin hedef: characterData dahil (fiyat text değişimlerini yakala)
+                observer.observe(obsTarget, { childList: true, subtree: true, characterData: true });
+            } else {
+                // Body fallback: characterData OLMADAN — aksi halde her text değişimi CPU'yu patlatır
+                observer.observe(document.body, { childList: true, subtree: true });
+            }
 
             sync(); // İlk yüklemede çalıştır
 
@@ -2980,7 +2966,7 @@
             setInterval(sync, 5000);
 
             // Connection Monitor (1 dk = 60000 ms)
-            setInterval(() => {
+            setInterval(() => { // 10sn'de bir kontrol yeterli (threshold 60sn)
                 const liveText = document.getElementById('live-text-span');
                 if (!liveText) return;
 
@@ -3000,7 +2986,7 @@
                         }
                     }
                 }
-            }, 2000);
+            }, 10000); // 2000 → 10000ms: gereksiz DOM query azaltıldı
         }
     }
 
